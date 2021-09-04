@@ -18,10 +18,15 @@ func sayhelloName(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("key:", k)
 		fmt.Println("val:", strings.Join(v, ""))
 	}
-	fmt.Fprintf(w, "Hello astaxie!") // 这个写入到 w 的是输出到客户端的
+	//s, _ := os.Stat("./copy")
+	//fmt.Fprintf(w, "%v", s.Sys()) // 这个写入到 w 的是输出到客户端的
 }
 
 func pr(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*") //允许访问所有域
+	w.Header().Add("Access-Control-Allow-Headers", "Content-Type") //header的类型
+	w.Header().Set("content-type", "application/json") //返回数据格式是json
+
 	r.ParseForm()  // 解析参数，默认是不会解析的
 	fmt.Println(r.Form)  // 这些信息是输出到服务器端的打印信息
 	fmt.Println("path", r.URL.Path)
@@ -32,13 +37,13 @@ func pr(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("val:", strings.Join(v, ""))
 	}
 	s, _ := os.Stat("./copy")
-	fmt.Fprintf(w, "%v", s.Sys()) // 这个写入到 w 的是输出到客户端的
+	fmt.Fprintf(w, "我操你妈的傻逼跨域%v", s.Sys()) // 这个写入到 w 的是输出到客户端的
 }
 
 func main() {
 	http.HandleFunc("/method", pr) // 设置访问的路由
 	http.HandleFunc("/", sayhelloName) // 设置访问的路由
-	err := http.ListenAndServe(":8080", nil) // 设置监听的端口
+	err := http.ListenAndServe(":8090", nil) // 设置监听的端口
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}

@@ -33,7 +33,7 @@ export default {
   },
   mounted () {
     axios
-      .get('http://localhost:8080/method')
+      .get('http://localhost:8090/method')
       .then(response => (this.http_info = response))
       .catch(function (error) {
         console.log(error);

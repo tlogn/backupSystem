@@ -10,16 +10,6 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {
-      "/localhost_api":{
-        target: 'http://www.runoob.com/',//目标接口域名
-        changeOrigin: true,  //是否跨域
-        pathRewrite: {
-          '^/localhost_api': '' //重写接口
-        }
-      }
-
-    },
 
     // Various Dev Server settings
     host: 'localhost', // can be overwritten by process.env.HOST
