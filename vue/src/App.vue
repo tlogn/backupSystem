@@ -33,9 +33,9 @@ export default {
   },
   mounted () {
     axios
-      .get('https://www.runoob.com/try/ajax/json_demo.json')
+      .get('http://localhost:8080/method')
       .then(response => (this.http_info = response))
-      .catch(function (error) { 
+      .catch(function (error) {
         console.log(error);
       });
   }

@@ -12,7 +12,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       "/localhost_api":{
-        target: 'http://localhost:8081/',//目标接口域名
+        target: 'http://www.runoob.com/',//目标接口域名
         changeOrigin: true,  //是否跨域
         pathRewrite: {
           '^/localhost_api': '' //重写接口
@@ -29,7 +29,7 @@ module.exports = {
     notifyOnErrors: true,
     poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
 
-    
+
     /**
      * Source Maps
      */
