@@ -21,7 +21,7 @@
       <button style="height: 25px" @click="http_get_method(http_addr, http_body)">
         GET
       </button>
-      <p id="http_return_msg">NULL</p>
+      <p id="http_return_msg">responseCode = {{http_info}}</p>
     </div>
   </div>
 </template>
@@ -43,6 +43,7 @@ export default {
       if (addr == null) {
         window.alert("Empty inputArea");
       } else {
+        var that = this
         axios
           .get(addr, {
             params:{
@@ -50,10 +51,11 @@ export default {
             }
           })
           .then(function (response) {
-            window.alert("responseCode=" + response.status);
-          })
+            that.http_info = response.status
+          }) 
           .catch(function (error) {
             window.alert(error);
+            that.http_info = null
           });
       }
     },
