@@ -2,14 +2,20 @@
   <div>
     <div id="app">
       <img src="./assets/logo.png" />
-      <br/>
-      {{messege}}
+      <br />
+      {{ messege }}
     </div>
     <div id="http_get">
-      <p>输入字段:</p>
-      <input v-model="http_get_messege" placeholder="输入..." />
-      <button @click="http_get_method(http_info)">GET</button>
-      <p>输入的信息为:{{ http_get_messege }}</p>
+      <p>输入字段:(http://localhost:8090/method)</p>
+      <input
+        v-model="http_addr_input"
+        placeholder="输入..."
+        style="height: 24px; width: 400px; font-size: 21px"
+      />
+      <button style="height: 25px" @click="http_get_method(http_addr_input)">
+        GET
+      </button>
+      <p id="http_return_msg">NULL</p>
     </div>
   </div>
 </template>
@@ -18,28 +24,31 @@
 <script src="https://cdn.staticfile.org/axios/0.18.0/axios.min.js"></script>
 
 <script>
-import axios from 'axios'
+import axios from "axios";
 export default {
   data() {
     return {
-      messege:"abc",
-      http_info:null
-    }
+      messege: "HTTP_GET_TEST",
+      http_info: null,
+    };
   },
   methods: {
-    http_get_method: function(info) {
-      window.alert("GOT:"+info)
-    }
+    http_get_method: function (addr) {
+      if (addr == null) {
+        window.alert("Empty inputArea");
+      } else {
+        axios
+          .get(addr)
+          .then(function (response) {
+            window.alert("responseCode=" + response.status);
+          })
+          .catch(function (error) {
+            window.alert(error);
+          });
+      }
+    },
   },
-  mounted () {
-    axios
-      .get('http://localhost:8090/method')
-      .then(response => (this.http_info = response))
-      .catch(function (error) {
-        console.log(error);
-      });
-  }
-}
+};
 </script>
 
 <style>
