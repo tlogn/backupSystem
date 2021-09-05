@@ -6,13 +6,19 @@
       {{ messege }}
     </div>
     <div id="http_get">
+      <br>
+      <textarea 
+        style="height:60px; width:300px; font=size:18px" 
+        placeholder="编辑要发送的内容..."
+        v-model="http_body"
+      />
       <p>输入字段:(http://localhost:8090/method)</p>
       <input
-        v-model="http_addr_input"
+        v-model="http_addr"
         placeholder="输入..."
         style="height: 24px; width: 400px; font-size: 21px"
       />
-      <button style="height: 25px" @click="http_get_method(http_addr_input)">
+      <button style="height: 25px" @click="http_get_method(http_addr, http_body)">
         GET
       </button>
       <p id="http_return_msg">NULL</p>
@@ -33,12 +39,16 @@ export default {
     };
   },
   methods: {
-    http_get_method: function (addr) {
+    http_get_method: function (addr, body) {
       if (addr == null) {
         window.alert("Empty inputArea");
       } else {
         axios
-          .get(addr)
+          .get(addr, {
+            params:{
+              body
+            }
+          })
           .then(function (response) {
             window.alert("responseCode=" + response.status);
           })
