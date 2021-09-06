@@ -21,7 +21,9 @@
       <button style="height: 25px" @click="http_get_method(http_addr, http_body)">
         GET
       </button>
-      <p id="http_return_msg">responseCode = {{http_info}}</p>
+      <p>responseCode = {{ http_status_code }}</p>
+      <hr>
+      <p>responseMsg = {{ http_msg }}</p>
     </div>
   </div>
 </template>
@@ -35,7 +37,8 @@ export default {
   data() {
     return {
       messege: "HTTP_GET_TEST",
-      http_info: null,
+      http_status_code: null,
+      http_msg: null
     };
   },
   methods: {
@@ -51,7 +54,8 @@ export default {
             }
           })
           .then(function (response) {
-            that.http_info = response.status
+            that.http_status_code = response.status
+            that.http_msg = response
           }) 
           .catch(function (error) {
             window.alert(error);
