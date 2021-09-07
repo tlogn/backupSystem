@@ -128,5 +128,6 @@ export default {
   height: 100%; /**宽高100%是为了图片铺满屏幕 */
   z-index: -1;
   position: absolute;
+  background-size: cover;
 }
 </style>
