@@ -1,43 +1,6 @@
 <template>
   <div id="one">
     <h1>TEST</h1>
-    <p>
-  {<br>
-    "remote_op":false,<br>
-
-    "get_dir_op":false,<br>
-    "get_dir_para":{<br>
-      "dir_path":""<br>
-    },<br>
-    "copy_op":false,<br>
-    "copy_para":{<br>
-      "origin_path":"",<br>
-      "backup_path":""<br>
-    },<br>
-
-    "recover_op":false,<br>
-    "recover_para":{<br>
-      "recover_path":""<br>
-    },<br>
-
-    "compress_op":false,<br>
-    "compress_para":{<br>
-      "is_compress":false,<br>
-      "compress_path":""<br>
-    },<br>
-
-    "encode_op":false,<br>
-    "encode_para":{<br>
-      "is_encode":false,<br>
-      "encode_path":""<br>
-    },<br>
-
-    "pack_para":{<br>
-      "is_pack":false,<br>
-      "pack_path":""<br>
-    }<br>
-  }
-    </p>
     <hr />
     <br />
     <div id="first">
@@ -85,7 +48,44 @@
       <br />
       <p style="font-size: 20px">status = {{ get_status }}</p>
       <p style="font-size: 20px">reponse = {{ get_response_msg }}</p>
-    </div>
+    </div><br>
+    <p>
+      {<br />
+      "remote_op":false,<br />
+
+      "get_dir_op":false,<br />
+      "get_dir_para":{<br />
+      "dir_path":""<br />
+      },<br />
+      "copy_op":false,<br />
+      "copy_para":{<br />
+      "origin_path":"",<br />
+      "backup_path":""<br />
+      },<br />
+
+      "recover_op":false,<br />
+      "recover_para":{<br />
+      "recover_path":""<br />
+      },<br />
+
+      "compress_op":false,<br />
+      "compress_para":{<br />
+      "is_compress":false,<br />
+      "compress_path":""<br />
+      },<br />
+
+      "encode_op":false,<br />
+      "encode_para":{<br />
+      "is_encode":false,<br />
+      "encode_path":""<br />
+      },<br />
+
+      "pack_para":{<br />
+      "is_pack":false,<br />
+      "pack_path":""<br />
+      }<br />
+      }
+    </p>
   </div>
 </template>
 
@@ -109,8 +109,7 @@ export default {
       } else {
         var that = this;
         axios
-          .post(addr, "body:{"+param+"}"
-          )
+          .post(addr, "body:{" + param + "}")
           .then(function (response) {
             that.post_response_msg = response.data;
             that.post_status = response.status;
@@ -156,11 +155,11 @@ export default {
   margin-top: 40px;
 }
 #first {
-  width: 48%;
+  width: 50%;
   float: left;
 }
 #second {
-  width: 48%;
+  width: 50%;
   float: right;
   /*height: 100px;
   border: 1px solid #3b6273;*/
