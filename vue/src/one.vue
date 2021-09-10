@@ -112,7 +112,7 @@ export default {
           .post(addr, "body:{"+param+"}"
           )
           .then(function (response) {
-            that.post_response_msg = response;
+            that.post_response_msg = response.data;
             that.post_status = response.status;
           })
           .catch(function (error) {
