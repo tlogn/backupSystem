@@ -48,7 +48,8 @@
       <br />
       <p style="font-size: 20px">status = {{ get_status }}</p>
       <p style="font-size: 20px">reponse = {{ get_response_msg }}</p>
-    </div><br>
+    </div>
+    <br />
     <p>
       {<br />
       "remote_op":false,<br />
@@ -91,7 +92,7 @@
 
 <script>
 import axios from "axios";
-axios.defaults.headers.post['content-type'] = 'application/json'
+axios.defaults.headers.post["content-type"] = "application/json";
 export default {
   name: "one",
   data() {
@@ -110,9 +111,9 @@ export default {
       } else {
         var that = this;
         axios
-          .post(addr, "body:" + param )
+          .post(addr, '{' + '"' + 'body' + '"' + ':' + param + '}')
           .then(function (response) {
-            that.post_response_msg = response.data;
+            that.post_response_msg = response;
             that.post_status = response.status;
           })
           .catch(function (error) {
@@ -162,7 +163,5 @@ export default {
 #second {
   width: 50%;
   float: right;
-  /*height: 100px;
-  border: 1px solid #3b6273;*/
 }
 </style>
