@@ -72,10 +72,11 @@ export default {
       } else {
         var that = this;
         axios
-          .post(addr, { param })
+          .post(addr, param
+          )
           .then(function (response) {
             that.post_response_msg = response;
-            that.post_status = response.status
+            that.post_status = response.status;
           })
           .catch(function (error) {
             that.post_response_msg = null;
@@ -96,7 +97,7 @@ export default {
           })
           .then(function (response) {
             that.get_response_msg = response;
-            that.get_status = response.status
+            that.get_status = response.status;
           })
           .catch(function (error) {
             that.get_response_msg = null;
