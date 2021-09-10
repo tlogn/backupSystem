@@ -5,13 +5,26 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 )
 
-type handler func(w http.ResponseWriter, r *http.Request)
+type HTTPHandler func(w http.ResponseWriter, r *Request)
 
 var (
-	route map[string]handler
+	route map[string]HTTPHandler = map[string]HTTPHandler {
+		"local_copy" : func(w http.ResponseWriter, r *Request){},
+		"local_dir" : func(w http.ResponseWriter, r *Request){},
+		"local_encode" : func(w http.ResponseWriter, r *Request){},
+		"local_compress" : func(w http.ResponseWriter, r *Request){},
+		"local_recover" : func(w http.ResponseWriter, r *Request){},
+		"local_pack" : func(w http.ResponseWriter, r *Request){},
+		"remote_copy" : func(w http.ResponseWriter, r *Request){},
+		"remote_dir" : func(w http.ResponseWriter, r *Request){},
+		"remote_encode" : func(w http.ResponseWriter, r *Request){},
+		"remote_compress" : func(w http.ResponseWriter, r *Request){},
+		"remote_recover" : func(w http.ResponseWriter, r *Request){},
+		"remote_pack" : func(w http.ResponseWriter, r *Request){},
+
+	}
 )
 
 func method(w http.ResponseWriter, r *http.Request) {
@@ -22,18 +35,25 @@ func method(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseForm()  // 解析参数，默认是不会解析的
 
-	log.Println("Form", r.Form)  // 这些信息是输出到服务器端的打印信息
-	log.Println("Body", r.Form)  // 这些信息是输出到服务器端的打印信息
-	log.Println("requ", r)
+	log.Println("Form", r.Form["body"])  // 这些信息是输出到服务器端的打印信息
 
-	for k, v := range r.Form {
-		log.Println("key:", k)
-		log.Println("val:", strings.Join(v, ""))
+	request := Request{}
+	response := Response{Succeed: true}
+
+	err := json.Unmarshal([]byte(r.Form.Get("body")), &request)
+	if err != nil {
+		log.Println(err)
+
+		response.Succeed = false
+		response.Err = err.Error()
+		resp, _ := json.Marshal(response)
+
+		fmt.Fprintf(w, "%v", string(resp))
+		return
 	}
 
-	var a Request
-	_ = json.Unmarshal([]byte(r.Form.Get("body")), a)
-	fmt.Fprintf(w, "%v", r) // 这个写入到 w 的是输出到客户端的
+	resp, _ := json.Marshal(response)
+	fmt.Fprintf(w, "%v", string(resp)) // 这个写入到 w 的是输出到客户端的
 }
 
 func main() {
