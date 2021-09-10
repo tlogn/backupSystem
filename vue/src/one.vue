@@ -132,7 +132,7 @@ export default {
             },
           })
           .then(function (response) {
-            that.get_response_msg = response;
+            that.get_response_msg = response.data;
             that.get_status = response.status;
           })
           .catch(function (error) {
