@@ -109,7 +109,7 @@ export default {
       } else {
         var that = this;
         axios
-          .post(addr, "body:{" + param + "}")
+          .post(addr, "body:" + param )
           .then(function (response) {
             that.post_response_msg = response.data;
             that.post_status = response.status;
