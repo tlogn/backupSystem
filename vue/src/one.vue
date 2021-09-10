@@ -92,7 +92,8 @@
 
 <script>
 import axios from "axios";
-axios.defaults.headers.post["content-type"] = "application/json";
+//import qs from "qs"
+//axios.defaults.headers.post["content-type"] = "application/json";
 export default {
   name: "one",
   data() {
@@ -110,8 +111,9 @@ export default {
         window.alert("Empty URL");
       } else {
         var that = this;
+        var data = '{' + '"' + 'body' + '"' + ':' + param + '}'
         axios
-          .post(addr, '{' + '"' + 'body' + '"' + ':' + param + '}')
+          .post(addr, data)
           .then(function (response) {
             that.post_response_msg = response;
             that.post_status = response.status;
