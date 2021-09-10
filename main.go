@@ -1,28 +1,30 @@
 package main
 
 import (
-	"encoding/json"
+	"backupSystem/dir"
+	"backupSystem/utils"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 )
 
-type HTTPHandler func(w http.ResponseWriter, r *Request)
+type HTTPHandler func(w http.ResponseWriter, r *utils.Request)
 
 var (
-	route map[string]HTTPHandler = map[string]HTTPHandler {
-		"local_copy" : func(w http.ResponseWriter, r *Request){},
-		"local_dir" : func(w http.ResponseWriter, r *Request){},
-		"local_encode" : func(w http.ResponseWriter, r *Request){},
-		"local_compress" : func(w http.ResponseWriter, r *Request){},
-		"local_recover" : func(w http.ResponseWriter, r *Request){},
-		"local_pack" : func(w http.ResponseWriter, r *Request){},
-		"remote_copy" : func(w http.ResponseWriter, r *Request){},
-		"remote_dir" : func(w http.ResponseWriter, r *Request){},
-		"remote_encode" : func(w http.ResponseWriter, r *Request){},
-		"remote_compress" : func(w http.ResponseWriter, r *Request){},
-		"remote_recover" : func(w http.ResponseWriter, r *Request){},
-		"remote_pack" : func(w http.ResponseWriter, r *Request){},
+	route = map[string]HTTPHandler {
+		"local_copy" : func(w http.ResponseWriter, r *utils.Request){},
+		"local_dir" : dir.LocalDir,
+		"local_encode" : func(w http.ResponseWriter, r *utils.Request){},
+		"local_compress" : func(w http.ResponseWriter, r *utils.Request){},
+		"local_recover" : func(w http.ResponseWriter, r *utils.Request){},
+		"local_pack" : func(w http.ResponseWriter, r *utils.Request){},
+		"remote_copy" : func(w http.ResponseWriter, r *utils.Request){},
+		"remote_dir" : func(w http.ResponseWriter, r *utils.Request){},
+		"remote_encode" : func(w http.ResponseWriter, r *utils.Request){},
+		"remote_compress" : func(w http.ResponseWriter, r *utils.Request){},
+		"remote_recover" : func(w http.ResponseWriter, r *utils.Request){},
+		"remote_pack" : func(w http.ResponseWriter, r *utils.Request){},
 
 	}
 )
@@ -35,25 +37,25 @@ func method(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseForm()  // 解析参数，默认是不会解析的
 
-	log.Println("Form", r.Form["body"])  // 这些信息是输出到服务器端的打印信息
+	request := utils.Request{}
 
-	request := Request{}
-	response := Response{Succeed: true}
+	err := request.SetRequest(r)
 
-	err := json.Unmarshal([]byte(r.Form.Get("body")), &request)
 	if err != nil {
 		log.Println(err)
-
-		response.Succeed = false
-		response.Err = err.Error()
-		resp, _ := json.Marshal(response)
-
-		fmt.Fprintf(w, "%v", string(resp))
+		fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
 		return
 	}
 
-	resp, _ := json.Marshal(response)
-	fmt.Fprintf(w, "%v", string(resp)) // 这个写入到 w 的是输出到客户端的
+	handler, ok:= route[request.Op]
+	if !ok {
+		err := errors.New("illegal route")
+		log.Println(err)
+		fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
+		return
+	}
+
+	handler(w, &request)
 }
 
 func main() {
