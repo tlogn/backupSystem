@@ -1,52 +1,12 @@
 package main
 
 import (
-	"backupSystem/compress"
-	"backupSystem/copy"
-	"backupSystem/dir"
-	"backupSystem/encode"
-	"backupSystem/pack"
-	"backupSystem/recover"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"strings"
 )
-
-type Request struct {
-	RemoteOp 		bool			`json:"remote_op"`
-
-	GetDirOp		bool			`json:"get_dir_op"`
-	GetDirPara		dir.Para		`json:"get_dir_para"`
-
-	CopyOp 			bool			`json:"copy_op"`
-	CopyPara		copy.Para		`json:"copy_para"`
-
-	RecoverOp		bool			`json:"recover_op"`
-	RecoverPara 	recover.Para	`json:"recover_para"`
-
-	CompressOp		bool			`json:"compress_op"`
-	CompressPara 	compress.Para	`json:"compress_para"`
-
-	EncodeOp		bool			`json:"encode_op"`
-	EncodePara		encode.Para		`json:"encode_para"`
-
-	PackOp			bool			`json:"pack_op"`
-	PackPara		pack.Para		`json:"pack_para"`
-
-}
-
-type DirFile struct {
-	FileName 	string	`json:"file_name"`
-	IsDir		bool	`json:"is_dir"`
-}
-
-type Response struct {
-	Succeed		bool		`json:"succeed"`
-	Err			string		`json:"err"`
-	DirFiles	[]DirFile	`json:"dir_files"`
-}
 
 type handler func(w http.ResponseWriter, r *http.Request)
 
@@ -61,13 +21,16 @@ func method(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-type", "application/json") //返回数据格式是json
 
 	r.ParseForm()  // 解析参数，默认是不会解析的
+
 	log.Println("Form", r.Form)  // 这些信息是输出到服务器端的打印信息
 	log.Println("Body", r.Form)  // 这些信息是输出到服务器端的打印信息
 	log.Println("requ", r)
+
 	for k, v := range r.Form {
 		log.Println("key:", k)
 		log.Println("val:", strings.Join(v, ""))
 	}
+
 	var a Request
 	_ = json.Unmarshal([]byte(r.Form.Get("body")), a)
 	fmt.Fprintf(w, "%v", r) // 这个写入到 w 的是输出到客户端的
