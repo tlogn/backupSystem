@@ -7,22 +7,22 @@
         backgroundSize: cover,
       }"
     ></div>
-    <a href="./../one.html">
-      <div id="button1">
-        <center>
+    <div id="button1">
+      <center>
+        <a href="./../one.html">
           <button
             id="btn1"
-            style="font-size: 25px; height: 70px; width: 130px"
+            style="font-size: 25px; height: 70px; width: 130px; cursor: hand"
             title="备份"
           >
             备份
           </button>
-        </center>
-      </div>
-    </a>
-    <a href="./../two.html">
-      <div id="button2">
-        <center>
+        </a>
+      </center>
+    </div>
+    <div id="button2">
+      <center>
+        <a href="./../two.html">
           <button
             id="btn2"
             style="font-size: 25px; height: 70px; width: 130px"
@@ -30,9 +30,9 @@
           >
             还原
           </button>
-        </center>
-      </div>
-    </a>
+        </a>
+      </center>
+    </div>
   </div>
 </template>
 
@@ -75,6 +75,7 @@ export default {
 #btn1:hover {
   background-color: #e4e009;
   color: white;
+  cursor: pointer;
 }
 
 #button2 {
@@ -94,5 +95,6 @@ export default {
 #btn2:hover {
   background-color: #e4e009;
   color: white;
+  cursor: pointer;
 }
 </style>
