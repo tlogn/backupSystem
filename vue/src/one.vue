@@ -92,7 +92,7 @@
 
 <script>
 import axios from "axios";
-//import qs from "qs"
+import qs from "qs"
 //axios.defaults.headers.post["content-type"] = "application/json";
 export default {
   name: "one",
