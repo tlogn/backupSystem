@@ -99,6 +99,7 @@ export default {
       get_response_msg: "",
       post_status: "",
       get_status: "",
+      json_msg: ""
     };
   },
   methods: {
