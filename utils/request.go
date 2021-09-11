@@ -7,13 +7,13 @@ import (
 )
 
 type Request struct {
-	Op 		string			`json:"remote_op"`
+	Op 				string			`json:"op"`
 
-	GetDirPara		DirPara		`json:"get_dir_para"`
+	GetDirPara		DirPara			`json:"get_dir_para"`
 
 	CopyPara		CopyPara		`json:"copy_para"`
 
-	RecoverPara 	RecoverPara	`json:"recover_para"`
+	RecoverPara 	RecoverPara		`json:"recover_para"`
 
 	CompressPara 	CompressPara	`json:"compress_para"`
 
@@ -23,8 +23,8 @@ type Request struct {
 
 }
 
-func (request Request) SetRequest(r *http.Request) error {
-	if r.Method == "Get" {
+func (request *Request) SetRequest(r *http.Request) error {
+	if r.Method == "GET" {
 		err := json.Unmarshal([]byte(r.Form.Get("body")), &request)
 		if err != nil {
 			return err

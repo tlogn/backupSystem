@@ -40,7 +40,7 @@ func method(w http.ResponseWriter, r *http.Request) {
 	request := utils.Request{}
 
 	err := request.SetRequest(r)
-
+	fmt.Println(request, request.Op)
 	if err != nil {
 		log.Println(err)
 		fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
@@ -67,7 +67,7 @@ func main() {
 	}
 
 
-	//var a Response
+	//var a utils.Request
 	//a.DirFiles = []DirFile{{"", false}, {"", false}}
 	//b, _:= json.Marshal(a)
 	//fmt.Println(string(b))
@@ -75,31 +75,25 @@ func main() {
 
 /*
 {
-	"remote_op":false,
-
-	"get_dir_op":false,
+	"op":"",
 	"get_dir_para":{
 		"dir_path":""
 	},
 
-	"copy_op":false,
 	"copy_para":{
 		"origin_path":"",
 		"backup_path":""
 	},
 
-	"recover_op":false,
 	"recover_para":{
 		"recover_path":""
 	},
 
-	"compress_op":false,
 	"compress_para":{
 		"is_compress":false,
 		"compress_path":""
 	},
 
-	"encode_op":false,
 	"encode_para":{
 		"is_encode":false,
 		"encode_path":""
@@ -110,6 +104,7 @@ func main() {
 		"pack_path":""
 	}
 }
+
 
 {
 	"succeed":false,
