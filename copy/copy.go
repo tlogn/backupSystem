@@ -8,10 +8,7 @@ import (
 	"path"
 )
 
-type Para struct {
-	OriginPath 	string	`json:"origin_path"`
-	BackupPath	string	`json:"backup_path"`
-}
+
 
 func CpFile(dstPath, srcPath string) error {
 	f, err := ioutil.ReadFile(srcPath)

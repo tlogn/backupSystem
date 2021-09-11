@@ -1,17 +1,32 @@
 package main
 
 import (
-	"encoding/json"
+	"backupSystem/dir"
+	"backupSystem/utils"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 )
 
-type handler func(w http.ResponseWriter, r *http.Request)
+type HTTPHandler func(w http.ResponseWriter, r *utils.Request)
 
 var (
-	route map[string]handler
+	route = map[string]HTTPHandler {
+		"local_copy" : func(w http.ResponseWriter, r *utils.Request){},
+		"local_dir" : dir.LocalDir,
+		"local_encode" : func(w http.ResponseWriter, r *utils.Request){},
+		"local_compress" : func(w http.ResponseWriter, r *utils.Request){},
+		"local_recover" : func(w http.ResponseWriter, r *utils.Request){},
+		"local_pack" : func(w http.ResponseWriter, r *utils.Request){},
+		"remote_copy" : func(w http.ResponseWriter, r *utils.Request){},
+		"remote_dir" : func(w http.ResponseWriter, r *utils.Request){},
+		"remote_encode" : func(w http.ResponseWriter, r *utils.Request){},
+		"remote_compress" : func(w http.ResponseWriter, r *utils.Request){},
+		"remote_recover" : func(w http.ResponseWriter, r *utils.Request){},
+		"remote_pack" : func(w http.ResponseWriter, r *utils.Request){},
+
+	}
 )
 
 func method(w http.ResponseWriter, r *http.Request) {
@@ -22,18 +37,25 @@ func method(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseForm()  // 解析参数，默认是不会解析的
 
-	log.Println("Form", r.Form)  // 这些信息是输出到服务器端的打印信息
-	log.Println("Body", r.Form)  // 这些信息是输出到服务器端的打印信息
-	log.Println("requ", r)
+	request := utils.Request{}
 
-	for k, v := range r.Form {
-		log.Println("key:", k)
-		log.Println("val:", strings.Join(v, ""))
+	err := request.SetRequest(r)
+	fmt.Println(request, request.Op)
+	if err != nil {
+		log.Println(err)
+		fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
+		return
 	}
 
-	var a Request
-	_ = json.Unmarshal([]byte(r.Form.Get("body")), a)
-	fmt.Fprintf(w, "%v", r) // 这个写入到 w 的是输出到客户端的
+	handler, ok:= route[request.Op]
+	if !ok {
+		err := errors.New("illegal route")
+		log.Println(err)
+		fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
+		return
+	}
+
+	handler(w, &request)
 }
 
 func main() {
@@ -45,7 +67,7 @@ func main() {
 	}
 
 
-	//var a Response
+	//var a utils.Request
 	//a.DirFiles = []DirFile{{"", false}, {"", false}}
 	//b, _:= json.Marshal(a)
 	//fmt.Println(string(b))
@@ -53,31 +75,25 @@ func main() {
 
 /*
 {
-	"remote_op":false,
-
-	"get_dir_op":false,
+	"op":"",
 	"get_dir_para":{
 		"dir_path":""
 	},
 
-	"copy_op":false,
 	"copy_para":{
 		"origin_path":"",
 		"backup_path":""
 	},
 
-	"recover_op":false,
 	"recover_para":{
 		"recover_path":""
 	},
 
-	"compress_op":false,
 	"compress_para":{
 		"is_compress":false,
 		"compress_path":""
 	},
 
-	"encode_op":false,
 	"encode_para":{
 		"is_encode":false,
 		"encode_path":""
@@ -88,6 +104,7 @@ func main() {
 		"pack_path":""
 	}
 }
+
 
 {
 	"succeed":false,

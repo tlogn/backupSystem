@@ -20,7 +20,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
   // cheap-module-eval-source-map is faster for development
   devtool: config.dev.devtool,
 
-  // these devServer options should be customized in /config/index.js
+  // these devServer options should be customized in /utils/index.js
   devServer: {
     clientLogLevel: 'warning',
     historyApiFallback: {
@@ -57,7 +57,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
       template: 'index.html',
       inject: true,
       chunks: ['app']
-    }), 
+    }),
     new HtmlWebpackPlugin({
       filename: 'one.html',
       template: 'one.html',
@@ -89,7 +89,7 @@ module.exports = new Promise((resolve, reject) => {
     } else {
       // publish the new Port, necessary for e2e tests
       process.env.PORT = port
-      // add port to devServer config
+      // add port to devServer utils
       devWebpackConfig.devServer.port = port
 
       // Add FriendlyErrorsPlugin
