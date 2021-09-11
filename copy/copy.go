@@ -11,6 +11,7 @@ import (
 
 
 func CpFile(dstPath, srcPath string) error {
+
 	f, err := ioutil.ReadFile(srcPath)
 	if err != nil {
 		log.Fatalf("read file %v error, %v",srcPath, err)
