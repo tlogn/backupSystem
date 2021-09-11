@@ -20,13 +20,13 @@ func IsSymLink(filename string) (bool, error) {
 }
 
 func IsHardLink(filename string) (bool, error) {
-	fi, err := os.Lstat(filename)
+	stats, err := os.Lstat(filename)
 	if err != nil {
 		log.Fatal(err)
 		return false, err
 	}
 
-	s, ok := fi.Sys().(*syscall.Stat_t)
+	s, ok := stats.Sys().(*syscall.Stat_t)
 	if !ok {
 		err = errors.New("cannot convert stat value to syscall.Stat_t")
 		log.Fatal(err)

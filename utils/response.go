@@ -8,6 +8,6 @@ type DirFile struct {
 
 type Response struct {
 	Succeed		bool		`json:"succeed"`
-	Err			string `json:"err"`
-	DirFiles	[]DirFile `json:"dir_files"`
+	Err			string 		`json:"err"`
+	DirFiles	[]DirFile 	`json:"dir_files"`
 }

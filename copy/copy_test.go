@@ -1,21 +1,16 @@
 package copy
 
 import (
-	"fmt"
-	"os"
 	"testing"
 )
 
 func TestCpFile(t *testing.T) {
-	a, _ := os.Lstat("copy.go")
-	b, _ := os.Lstat("cpcopy")
-	c, _ := os.Lstat("hardcopy")
-	fmt.Println(a.Mode().Type() & os.ModeSymlink == os.ModeSymlink)
-	fmt.Println(b.Mode().Type() & os.ModeSymlink == os.ModeSymlink)
-	fmt.Println(c.Mode().Type())
-	//CpFile("../testdir/dst/1.txt", "../testdir/src/1.txt")
+	//CpFile("../test/dst/1.txt", "../test/src/1.txt")
+	//CpNormalFile("./sym", "../test/symlink")
+	CpSymLink("./sym", "../test/symlink")
+	CpHardLink("./hard", "../test/hardlink")
 }
 
 func TestCpDir(t *testing.T) {
-	//CpDir("./", "../testdir")
+	//CpDir("./", "../test")
 }

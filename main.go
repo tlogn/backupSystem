@@ -25,7 +25,6 @@ var (
 		"remote_compress" : func(w http.ResponseWriter, r *utils.Request){},
 		"remote_recover" : func(w http.ResponseWriter, r *utils.Request){},
 		"remote_pack" : func(w http.ResponseWriter, r *utils.Request){},
-
 	}
 )
 

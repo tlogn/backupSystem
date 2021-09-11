@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"path"
+	"path/filepath"
 )
 
 func LocalDir(w http.ResponseWriter, r *utils.Request){
@@ -24,7 +25,8 @@ func localDir(srcPath string) string{
 
 	dirFiles := make([]utils.DirFile, 0)
 	for _, file := range fileList {
-		dirFile := utils.DirFile{FileName: file.Name(), IsDir: file.IsDir(), FilePath: path.Join(srcPath, file.Name())}
+		absPath, _ := filepath.Abs(path.Join(srcPath, file.Name()))
+		dirFile := utils.DirFile{FileName: file.Name(), IsDir: file.IsDir(), FilePath: absPath}
 		dirFiles = append(dirFiles, dirFile)
 	}
 	response := utils.Response{Succeed: true, DirFiles: dirFiles}
