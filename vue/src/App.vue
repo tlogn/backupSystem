@@ -1,3 +1,6 @@
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src='https://unpkg.com/vue-router/dist/vue-router.js'></script>
+
 <template>
   <div id="background">
     <div
@@ -40,7 +43,7 @@
 export default {
   data() {
     return {
-      messege: "HTTP_GET_TEST",
+      messege: "",
     };
   },
   methods: {},

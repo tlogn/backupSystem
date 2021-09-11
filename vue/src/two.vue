@@ -2,24 +2,35 @@
   <div id="backup">
     <div id="first">
       <h2>选择要备份的文件</h2>
-      <form method="post" enctype="multipart/form-data">
-        <div>
-          <input type="file" id="image_uploads" name="image_uploads" />
-        </div>
-        <div class="preview">
-          <p>No files currently selected for upload</p>
-        </div>
-        <div>
-          <button
-            id="btn1"
-            @click="submit_path"
-            style="font-size: 25px; height: 70px; width: 130px; cursor: hand"
-            title="备份"
-          >
-            上传
-          </button>
-        </div>
-      </form>
+      <div>
+        <input
+          type="file"
+          id="file1"
+          style="display:none"
+          onchange="document.getElementById('textfield').value=this.value"
+          ref="file"
+        />
+        <button id="btn2" @click="expl" style="cursor:pointer">浏览文件</button>
+        <br /><br />
+        <input
+          type="text"
+          name="textfield"
+          id="textfield"
+          class="txt"
+          style="width: 300px; height: 25px; font-size: 18px"
+        />
+      </div>
+      <br />
+      <div>
+        <button
+          id="btn1"
+          style="font-size: 25px; height: 70px; width: 130px; cursor: hand"
+          title="备份"
+          @click="submit()"
+        >
+          上传
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -31,6 +42,14 @@ export default {
     return {
       msg: "",
     };
+  },
+  methods: {
+    submit: function () {
+      window.alert(this.$refs.file.files[0].name)
+    },
+    expl:function() {
+      file1.click()
+    }
   },
 };
 </script>
@@ -59,5 +78,12 @@ export default {
   background-color: #e4e009;
   color: white;
   cursor: pointer;
+}
+#btn2 {
+  padding: 5px 10px;
+  background: #00b0f0;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
 }
 </style>
