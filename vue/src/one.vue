@@ -49,33 +49,30 @@
       <p style="font-size: 20px">status = {{ get_status }}</p>
       <p style="font-size: 20px">reponse = {{ get_response_msg }}</p>
     </div>
+    <hr>
     <br />
     <p>
       {<br />
-      "remote_op":false,<br />
+      "op":"local_dir",<br />
 
-      "get_dir_op":false,<br />
       "get_dir_para":{<br />
-      "dir_path":""<br />
+      "dir_path":"D:\"<br />
       },<br />
-      "copy_op":false,<br />
+
       "copy_para":{<br />
       "origin_path":"",<br />
       "backup_path":""<br />
       },<br />
 
-      "recover_op":false,<br />
       "recover_para":{<br />
       "recover_path":""<br />
       },<br />
 
-      "compress_op":false,<br />
       "compress_para":{<br />
       "is_compress":false,<br />
       "compress_path":""<br />
       },<br />
 
-      "encode_op":false,<br />
       "encode_para":{<br />
       "is_encode":false,<br />
       "encode_path":""<br />
@@ -85,7 +82,7 @@
       "is_pack":false,<br />
       "pack_path":""<br />
       }<br />
-      }
+      }<br />
     </p>
   </div>
 </template>
@@ -98,25 +95,26 @@ export default {
   data() {
     return {
       msg: "Backup",
-      post_response_msg: null,
-      get_reponse_msg: null,
-      post_status: null,
-      get_status: null,
+      post_response_msg: "",
+      get_response_msg: "",
+      post_status: "",
+      get_status: "",
     };
   },
   methods: {
     post: function (addr, param) {
+      
       if (addr == null) {
         window.alert("Empty URL");
       } else {
         var that = this;
         //var data = '{' + '"' + 'body' + '"' + ':' + param + '}'
 
-        var data = param
+        var data = param;
         axios
           .post(addr, data)
           .then(function (response) {
-            that.post_response_msg = response;
+            that.post_response_msg = response.data;
             that.post_status = response.status;
           })
           .catch(function (error) {
@@ -126,6 +124,7 @@ export default {
       }
     },
     get: function (addr, body) {
+
       if (addr == null) {
         window.alert("Empty URL");
       } else {
@@ -137,7 +136,7 @@ export default {
             },
           })
           .then(function (response) {
-            that.get_response_msg = response.data;
+            that.get_response_msg = response.data
             that.get_status = response.status;
           })
           .catch(function (error) {
