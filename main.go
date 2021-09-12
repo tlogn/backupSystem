@@ -67,7 +67,6 @@ func main() {
 		log.Fatal("ListenAndServe: ", err)
 	}
 
-
 	//var a utils.Request
 	//a.DirFiles = []DirFile{{"", false}, {"", false}}
 	//b, _:= json.Marshal(a)

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 )
-
 func TestClient(t *testing.T) {
 	fmt.Println("--------------------Client test---------------------------")
 	err := RedisClient.Set(Ctx, "key", "value", 0).Err()
