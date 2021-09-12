@@ -112,7 +112,7 @@ export default {
     emitToParent: function(para) {
       this.$emit('ori', para);
     },
-    ini_get: function (para = "D:/") {
+    ini_get: function (para = "/mnt/d") {
       var that = this;
       that.Body.get_dir_para.dir_path = para + "/";
       //window.alert(that.Body.get_dir_para.dir_path);

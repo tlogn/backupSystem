@@ -15,7 +15,7 @@
           <br />
         </div>
       </center>
-      <backup @ori='parent_ori'></backup>
+      <backup @ori="parent_ori"></backup>
     </div>
     <div id="second">
       <h2>
@@ -27,13 +27,13 @@
           确定备份
         </button>
       </h2>
+      <hr>
       <center>
-        <div id="column3">
-          <p id="showpth">源路径：{{ source }}</p>
-          <p id="showpth">目标路径：{{ destin }}</p>
-        </div>
+        <p id="lbl">源路径：{{ source }}</p>
+        <p id="lbl">目标路径：{{ destin }}</p>
       </center>
-      <target @tar='parent_tar'></target>
+      <hr>
+      <target @tar="parent_tar"></target>
     </div>
   </div>
 </template>
@@ -41,7 +41,7 @@
 <script>
 import Backup from "./components/origin_path.vue";
 import Target from "./components/target_path.vue";
-import axios from "axios"
+import axios from "axios";
 export default {
   name: "two",
   components: {
@@ -88,19 +88,19 @@ export default {
     };
   },
   methods: {
-    parent_ori:function(data) {
+    parent_ori: function (data) {
       var that = this;
       that.source = data;
     },
-    parent_tar:function(data) {
+    parent_tar: function (data) {
       var that = this;
       that.destin = data;
     },
     Post: function () {
       var addr = this.header,
         data = this.newBody;
-      console.log(addr)
-      console.log(data)
+      console.log(addr);
+      console.log(data);
       if (addr == null) {
         window.alert("Empty URL");
       } else {
@@ -208,5 +208,10 @@ export default {
   margin-left: 20px;
   text-align: left;
   font-size: 18px;
+}
+#lbl {
+  text-align: left;
+  padding: 5px;
+  margin: 0%;
 }
 </style>
