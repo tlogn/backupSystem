@@ -19,4 +19,5 @@ type RecoverInfo struct {
 	SrcPath		string			`json:"src_path"`
 	CopiedPath	string			`json:"copied_path"`
 	LinkedPath	string			`json:"linked_path"`
+	DirList		[]string		`json:"dir_list"`
 }

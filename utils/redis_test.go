@@ -6,7 +6,8 @@ import (
 )
 
 func TestClient(t *testing.T) {
-	fmt.Println("--------------------redis test---------------------------")
+
+
 	err := RedisClient.Set(Ctx, "key", "value", 0).Err()
 	if err != nil {
 		panic(err)
