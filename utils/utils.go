@@ -8,6 +8,12 @@ import (
 	"syscall"
 )
 
+func SucceedResponse()	string {
+	response := Response{Succeed: true}
+	resp, _ := json.Marshal(response)
+	return string(resp)
+}
+
 func ErrorResponse(err error) string {
 	response := Response{Succeed: false, Err: err.Error()}
 	resp, _ := json.Marshal(response)

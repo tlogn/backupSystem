@@ -3,13 +3,28 @@ package copy
 import (
 	"backupSystem/utils"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"path"
 	"path/filepath"
 	"syscall"
 )
+
+func LocalCpFile(w http.ResponseWriter, r *utils.Request) {
+	fmt.Fprintf(w, "%v", localCpFile(w, r))
+}
+
+func localCpFile(w http.ResponseWriter, r *utils.Request) string {
+	err := CpFile(r.CopyPara.BackupPath, r.CopyPara.OriginPath)
+	if err != nil {
+		log.Println(err)
+		return utils.ErrorResponse(err)
+	}
+	return utils.SucceedResponse()
+}
 
 func CpFile(dstPath, srcPath string) error {
 	dstPath , _ = filepath.Abs(dstPath)
