@@ -58,3 +58,14 @@ func IsPipeLine(filename string) bool {
 	return (stats.Mode().Type() & os.ModeNamedPipe) == os.ModeNamedPipe
 	return false
 }
+
+func IsExist(filename string) bool {
+	_, err := os.Stat(filename)
+	if err != nil {
+		if os.IsExist(err) {
+			return true
+		}
+		return false
+	}
+	return true
+}

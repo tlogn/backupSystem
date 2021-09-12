@@ -3,6 +3,7 @@ package main
 import (
 	"backupSystem/copy"
 	"backupSystem/dir"
+	"backupSystem/recover"
 	"backupSystem/utils"
 	"errors"
 	"fmt"
@@ -18,7 +19,7 @@ var (
 		"local_dir" : dir.LocalDir,
 		"local_encode" : func(w http.ResponseWriter, r *utils.Request){},
 		"local_compress" : func(w http.ResponseWriter, r *utils.Request){},
-		"local_recover" : func(w http.ResponseWriter, r *utils.Request){},
+		"local_recover" : recover.LocalRecover,
 		"local_pack" : func(w http.ResponseWriter, r *utils.Request){},
 		"remote_copy" : func(w http.ResponseWriter, r *utils.Request){},
 		"remote_dir" : func(w http.ResponseWriter, r *utils.Request){},

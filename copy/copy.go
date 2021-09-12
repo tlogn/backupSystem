@@ -27,6 +27,9 @@ func localCpFile(w http.ResponseWriter, r *utils.Request) string {
 }
 
 func CpFile(dstPath, srcPath string) error {
+	if !utils.IsExist(srcPath) {
+		return errors.New("file not exist")
+	}
 	dstPath , _ = filepath.Abs(dstPath)
 	srcPath, _ = filepath.Abs(srcPath)
 	if utils.IsDir(srcPath){

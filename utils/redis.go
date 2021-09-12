@@ -27,8 +27,8 @@ func SetRecoverInfo(prefix string, fileType string, fileInfo os.FileInfo, srcPat
 	recoverInfo := RecoverInfo{
 		FileType: fileType,
 		Mode: fileInfo.Mode(),
-		UId: fileInfo.Sys().(*syscall.Stat_t).Uid,
-		GId: fileInfo.Sys().(*syscall.Stat_t).Gid,
+		UId: int(fileInfo.Sys().(*syscall.Stat_t).Uid),
+		GId: int(fileInfo.Sys().(*syscall.Stat_t).Gid),
 		ATime: time.Unix(fileInfo.Sys().(*syscall.Stat_t).Atimespec.Sec, fileInfo.Sys().(*syscall.Stat_t).Atimespec.Nsec),
 		MTime: time.Unix(fileInfo.Sys().(*syscall.Stat_t).Mtimespec.Sec, fileInfo.Sys().(*syscall.Stat_t).Mtimespec.Nsec),
 		SrcPath: srcPath,
@@ -47,4 +47,19 @@ func SetRecoverInfo(prefix string, fileType string, fileInfo os.FileInfo, srcPat
 		return err
 	}
 	return nil
+}
+
+func GetRecoverInfo(key string) (*RecoverInfo, error) {
+	value, err := RedisClient.Get(Ctx, key).Result()
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	recoverInfo := RecoverInfo{}
+	err = json.Unmarshal([]byte(value), &recoverInfo)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	return &recoverInfo, nil
 }
