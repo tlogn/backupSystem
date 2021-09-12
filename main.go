@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backupSystem/copy"
 	"backupSystem/dir"
 	"backupSystem/utils"
 	"errors"
@@ -13,7 +14,7 @@ type HTTPHandler func(w http.ResponseWriter, r *utils.Request)
 
 var (
 	route = map[string]HTTPHandler {
-		"local_copy" : func(w http.ResponseWriter, r *utils.Request){},
+		"local_copy" : copy.LocalCpFile,
 		"local_dir" : dir.LocalDir,
 		"local_encode" : func(w http.ResponseWriter, r *utils.Request){},
 		"local_compress" : func(w http.ResponseWriter, r *utils.Request){},

@@ -3,28 +3,13 @@ package copy
 import (
 	"backupSystem/utils"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 	"path"
 	"path/filepath"
 	"syscall"
 )
-
-func LocalCpFile(w http.ResponseWriter, r *utils.Request) {
-	fmt.Fprintf(w, "%v", localCpFile(w, r))
-}
-
-func localCpFile(w http.ResponseWriter, r *utils.Request) string {
-	err := CpFile(r.CopyPara.BackupPath, r.CopyPara.OriginPath)
-	if err != nil {
-		log.Println(err)
-		return utils.ErrorResponse(err)
-	}
-	return utils.SucceedResponse()
-}
 
 func CpFile(dstPath, srcPath string) error {
 	dstPath , _ = filepath.Abs(dstPath)
@@ -36,7 +21,7 @@ func CpFile(dstPath, srcPath string) error {
 	} else if utils.IsPipeLine(srcPath) {
 		CpPipeline(dstPath, srcPath)
 	} else if utils.IsSymLink(srcPath) {
-		CpSymLink(dstPath, srcPath)
+		//CpSymLink(dstPath, srcPath)
 	} else {
 		CpNormalFile(dstPath, srcPath)
 	}
@@ -84,8 +69,8 @@ func CpSymLink(dstPath, srcPath string) error {
 	}
 
 	linkedSrcPath, _ := os.Readlink(srcPath)
-	LinkedSrcPath, _ := filepath.Abs(linkedSrcPath)
-	utils.SetRecoverInfo("local_", "SymLink", f, srcPath, dstPath, LinkedSrcPath, nil)
+	absLinkedSrcPath, _ := filepath.Abs(linkedSrcPath)
+	utils.SetRecoverInfo("local_", "SymLink", f, srcPath, dstPath, absLinkedSrcPath, nil)
 	return nil
 }
 
@@ -98,6 +83,10 @@ func CpPipeline(dstPath, srcPath string) error {
 	utils.SetRecoverInfo("local_", "Pipeline", f, srcPath, dstPath, "", nil)
 	return nil
 }
+
+//func CpDir(dstPath, srcPath string) error {
+//	return cpDir(path.Join(dstPath, path.Base(srcPath)), srcPath)
+//}
 
 func CpDir(dstPath, srcPath string) error {
 
@@ -118,12 +107,7 @@ func CpDir(dstPath, srcPath string) error {
 		dirList = append(dirList, "local_" + path.Join(dstPath, fileInfo.Name()))
 	}
 	f, _ := os.Stat(srcPath)
-	linkedPath := ""
-	if utils.IsSymLink(srcPath) {
-		linkedPath, _ = os.Readlink(srcPath)
-		linkedPath, _ = filepath.Abs(linkedPath)
-	}
-	utils.SetRecoverInfo("local_", "Dir", f, srcPath, dstPath, linkedPath, dirList)
+	utils.SetRecoverInfo("local_", "Dir", f, srcPath, dstPath, "", dirList)
 
 	for _, fileInfo := range fileInfoList {
 		CpFile(path.Join(dstPath, fileInfo.Name()), path.Join(srcPath, fileInfo.Name()))
