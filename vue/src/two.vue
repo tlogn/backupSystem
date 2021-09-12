@@ -1,104 +1,60 @@
 <template>
-  <div id="backup">
+  <div>
     <div id="first">
       <h2>选择备份选项</h2>
       <center>
         <div id="column3">
-          <input
-            type="checkbox"
-            id="ckx"
-            value="备份到服务器"
-            v-model="checkedNames"
-          />
+          <input type="checkbox" id="ckx" value="备份到服务器" v-model="opt" />
           <label>备份到服务器</label>
-          <input type="checkbox" id="ckx" value="压缩" v-model="checkedNames" />
+          <input type="checkbox" id="ckx" value="压缩" v-model="opt" />
           <label>压缩</label>
-          <input type="checkbox" id="ckx" value="打包" v-model="checkedNames" />
+          <input type="checkbox" id="ckx" value="打包" v-model="opt" />
           <label>打包</label>
-          <input type="checkbox" id="ckx" value="加密" v-model="checkedNames" />
+          <input type="checkbox" id="ckx" value="加密" v-model="opt" />
           <label>加密</label>
           <br />
         </div>
       </center>
-      <h2>选择要备份的文件</h2>
-      <input
-        placeholder="请输入目录，如'C:'或'Users'。注意不带斜杠"
-        v-model="root"
-        style="height: 23px; width: 400px; font-size: 18px"
-      />
-      <br><br>
-      <div>
-        <button id="btn2" @click="ini_get(root)">浏览文件</button>
-        <br />
-        <h4>当前路径：{{ Body.get_dir_para.dir_path }}</h4>
+      <backup @ori='parent_ori'></backup>
+    </div>
+    <div id="second">
+      <h2>
         <button
           id="btn2"
-          @click="Return()"
-          style="height: 50px; width: 120px; font-size: 18px"
+          @click="submit()"
+          style="height: 35px; width: 120px; font-size: 18px"
         >
-          返回上一级
+          确定备份
         </button>
-      </div>
-      <br />
-      <div id="list">
-        <center>
-          <div id="for" v-for="fil in lis">
-            <div v-if="fil.is_dir == true">
-              <ul id="column1" style="width: 350px; padding: 8px">
-                <div id="fil1">
-                  <button
-                    @click="send(fil.file_name, fil.is_dir, checkedNames)"
-                    id="btn2"
-                  >
-                    备份
-                  </button>
-                  <button @click="sele(fil.file_name, fil.is_dir)" id="btn3">
-                    选择
-                  </button>
-                  <label style="font-size: 18px">
-                    {{ fil.file_name }}
-                  </label>
-                </div>
-              </ul>
-            </div>
-          </div>
-          <div id="for" v-for="fil in lis">
-            <div v-if="fil.is_dir != true">
-              <ul id="column2" style="width: 350px; padding: 8px">
-                <div id="fil2">
-                  <button
-                    @click="send(fil.file_name, fil.is_dir, checkedNames)"
-                    id="btn2"
-                  >
-                    备份
-                  </button>
-                  <label style="font-size: 18px">
-                    {{ fil.file_name }}
-                  </label>
-                </div>
-              </ul>
-            </div>
-          </div>
-        </center>
-      </div>
+      </h2>
+      <center>
+        <div id="column3">
+          <p id="showpth">源路径：{{ source }}</p>
+          <p id="showpth">目标路径：{{ destin }}</p>
+        </div>
+      </center>
+      <target @tar='parent_tar'></target>
     </div>
   </div>
 </template>
 
 <script>
-import axios from "axios";
-import qs from "qs";
-axios.defaults.headers.post["content-type"] = "application/json";
+import Backup from "./components/origin_path.vue";
+import Target from "./components/target_path.vue";
+import axios from "axios"
 export default {
-  name: "backup",
+  name: "two",
+  components: {
+    Backup,
+    Target,
+  },
   data() {
     return {
-      msg: "",
+      source: "",
+      destin: "",
       header: "http://localhost:8090/method",
-      lis: "",
-      last_len: 0,
-      checkedNames: [],
-      newBody: null,
+      newBody: "",
+      opt: [],
       Body: {
         op: "local_dir",
         get_dir_para: {
@@ -132,52 +88,19 @@ export default {
     };
   },
   methods: {
-    ini_get: function (para) {
+    parent_ori:function(data) {
       var that = this;
-      that.Body.get_dir_para.dir_path = para + "/";
-      //window.alert(that.Body.get_dir_para.dir_path);
-      axios
-        .get(that.header, {
-          params: {
-            body: that.Body,
-          },
-        })
-        .then(function (response) {
-          var data = response.data;
-          if (data.succeed == true) {
-            that.lis = data.dir_files;
-          } else {
-            window.alert(data.err);
-          }
-        })
-        .catch(function (error) {
-          that.get_response_msg = null;
-          window.alert(error);
-        });
+      that.source = data;
     },
-    sele: function (para, type) {
-      if (type == true) {
-        var pth = this.Body.get_dir_para.dir_path + para;
-        this.ini_get(pth);
-      } else {
-      }
-    },
-    Return: function () {
+    parent_tar:function(data) {
       var that = this;
-      var pth = that.Body.get_dir_para.dir_path;
-      if (pth.length == 4) {
-        that.Body.get_dir_para.dir_path = "";
-        return;
-      } else if (pth.length == 0) {
-        return;
-      }
-      pth = pth.substring(0, pth.lastIndexOf("/"));
-      pth = pth.substring(0, pth.lastIndexOf("/"));
-      that.Body.get_dir_para.dir_path = pth;
-      this.ini_get(that.Body.get_dir_para.dir_path);
+      that.destin = data;
     },
-    post: function() {
-      var addr = this.header, data = this.newBody;
+    Post: function () {
+      var addr = this.header,
+        data = this.newBody;
+      console.log(addr)
+      console.log(data)
       if (addr == null) {
         window.alert("Empty URL");
       } else {
@@ -185,8 +108,8 @@ export default {
           .post(addr, data)
           .then(function (response) {
             var rsp = response.data;
-            if (rsp.succeed == "true") {
-              window.alert(上传成功);
+            if (rsp.succeed == "false") {
+              window.alert("上传失败:" + rsp.err);
             }
           })
           .catch(function (error) {
@@ -195,67 +118,72 @@ export default {
           });
       }
     },
-    send: function (para, type, opt) {
-      var pth = this.Body.get_dir_para.dir_path + para;
+    submit: function () {
+      var s_pth = this.source;
+      var d_pth = this.destin;
+      var opt = this.opt;
+      var filename = s_pth.substring(s_pth.lastIndexOf("/"));
+      d_pth += filename;
       var r = window.confirm(
-        "您要备份的文件(夹)是：" + pth + "\n" + "备份选项：" + opt
+        "您要将文件(夹)：" +
+          s_pth +
+          "\n" +
+          "备份到：" +
+          d_pth +
+          "\n" +
+          "备份选项：" +
+          opt
       );
       if (r == true) {
         var that = this;
         var type = 0; //local
-        var pack = 0, enco = 0, compress = 0;
+        var pack = 0,
+          enco = 0,
+          compress = 0;
         that.newBody = that.Body;
-        for (var i = 0; i < that.checkedNames.length; i++) {
-          if (that.checkedNames[i] == "备份到服务器") {
+        for (var i = 0; i < that.opt.length; i++) {
+          if (that.opt[i] == "备份到服务器") {
             type = 1; //remote
-          } else if (that.checkedNames[i] == "压缩") {
+          } else if (that.opt[i] == "压缩") {
             compress = 1;
-          } else if (that.checkedNames[i] == "打包") {
+          } else if (that.opt[i] == "打包") {
             pack = 1;
-          } else if (that.checkedNames[i] == "加密") {
+          } else if (that.opt[i] == "加密") {
             enco = 1;
           }
         }
         if (type == 0) {
-          that.newBody.op = "local_copy"; 
+          that.newBody.op = "local_copy";
         } else {
           that.newBody.op = "remote_copy";
         }
-        that.newBody.copy_para.origin_path = that.newBody.get_dir_para.dir_path;
-        that.newBody.copy_para.backup_path = "xxx";
-        this.post();
-        if (that.checkedNames.length == 0 || (that.checkedNames.length == 1 && type == 1)) {
-          return; 
-        }
+        that.newBody.copy_para.origin_path = s_pth;
+        that.newBody.copy_para.backup_path = d_pth;
+        this.Post();
+        if (that.opt.length == 0 || (that.opt.length == 1 && type == 1)) return;
         if (pack == 1) {
           that.newBody = that.Body;
-          if (type == 0) 
-            that.newBody.op = "local_pack";
-          else 
-            that.newBody.op = "remote_pack";
+          if (type == 0) that.newBody.op = "local_pack";
+          else that.newBody.op = "remote_pack";
           that.newBody.pack_para.is_pack = true;
-          that.newBody.pack_para.pack_path = "xxx";
-          this.post();
+          that.newBody.pack_para.pack_path = d_pth;
+          this.Post();
         }
         if (compress == 1) {
           that.newBody = that.Body;
-          if (type == 0) 
-            that.newBody.op = "local_compress";
-          else 
-            that.newBody.op = "remote_compress";
+          if (type == 0) that.newBody.op = "local_compress";
+          else that.newBody.op = "remote_compress";
           that.newBody.compress_para.is_compress = true;
-          that.newBody.compress_para.compress_path = "xxx";
-          this.post();
+          that.newBody.compress_para.compress_path = d_pth;
+          this.Post();
         }
         if (enco == 1) {
           that.newBody = that.Body;
-          if (type == 0) 
-            that.newBody.op = "local_encode";
-          else 
-            that.newBody.op = "remote_encode";
+          if (type == 0) that.newBody.op = "local_encode";
+          else that.newBody.op = "remote_encode";
           that.newBody.encode_para.is_encode = true;
-          that.newBody.encode_para.encode_para = "xxx";
-          this.post();
+          that.newBody.encode_para.encode_para = d_pth;
+          this.Post();
         }
       }
     },
@@ -264,6 +192,7 @@ export default {
 </script>
 
 <style>
+@import "./backup.CSS";
 #first {
   width: 50%;
   float: left;
@@ -272,69 +201,12 @@ export default {
 #second {
   width: 50%;
   float: right;
-}
-#btn1 {
-  -webkit-transition-duration: 0.4s;
-  transition-duration: 0.4s;
-  padding: 16px 32px;
   text-align: center;
-  background-color: white;
-  color: black;
-  border: 4px solid #e4e009;
-  border-radius: 5px;
 }
-#btn1:hover {
-  background-color: #e4e009;
-  color: white;
-  cursor: pointer;
-}
-#btn2 {
-  cursor: pointer;
-  padding: 5px 10px;
-  background: #00b0f0;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-}
-#btn3 {
-  cursor: pointer;
-  padding: 5px 10px;
-  background: #f560099d;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-}
-#fil2 {
-  color: #00b0f0;
+#showpth {
+  margin: 3px;
+  margin-left: 20px;
   text-align: left;
-}
-#column2 {
-  border: #00b0f0;
-  border-style: solid;
-  border-radius: 5px;
-}
-#fil1 {
-  color: #f560099d;
-  text-align: left;
-}
-#column1 {
-  border: #f560099d;
-  border-style: solid;
-  border-radius: 5px;
-}
-#column3 {
-  border: #1a0b029d;
-  border-style: solid;
-  border-radius: 5px;
-  width: 80%;
-  height: 60px;
-  font-size: 20px;
-}
-#ckx {
-  height: 15px;
-  width: 15px;
-  margin-left: 25px;
-  margin-top: 10px;
-  padding: 70px 0;
+  font-size: 18px;
 }
 </style>

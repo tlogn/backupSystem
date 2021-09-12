@@ -2,10 +2,10 @@ package utils
 
 import (
 	"encoding/json"
-	"errors"
-	"log"
+	//"errors"
+	//"log"
 	"os"
-	"syscall"
+	//"syscall"
 )
 
 func ErrorResponse(err error) string {
@@ -20,12 +20,12 @@ func IsSymLink(filename string) (bool, error) {
 }
 
 func IsHardLink(filename string) (bool, error) {
-	stats, err := os.Lstat(filename)
+	/*stats, err := os.Lstat(filename)
 	if err != nil {
 		log.Fatal(err)
 		return false, err
 	}
-
+	
 	s, ok := stats.Sys().(*syscall.Stat_t)
 	if !ok {
 		err = errors.New("cannot convert stat value to syscall.Stat_t")
@@ -38,8 +38,9 @@ func IsHardLink(filename string) (bool, error) {
 	if nlink > 1 {
 		return true, nil
 	}
-
-	return false, nil
+	
+	return false, nil*/
+	return true, nil
 }
 
 func IsPipeLine(filename string) (bool, error) {
