@@ -21,7 +21,7 @@ func CpFile(dstPath, srcPath string) error {
 	} else if utils.IsPipeLine(srcPath) {
 		CpPipeline(dstPath, srcPath)
 	} else if utils.IsSymLink(srcPath) {
-		//CpSymLink(dstPath, srcPath)
+		CpSymLink(dstPath, srcPath)
 	} else {
 		CpNormalFile(dstPath, srcPath)
 	}
@@ -69,8 +69,8 @@ func CpSymLink(dstPath, srcPath string) error {
 	}
 
 	linkedSrcPath, _ := os.Readlink(srcPath)
-	absLinkedSrcPath, _ := filepath.Abs(linkedSrcPath)
-	utils.SetRecoverInfo("local_", "SymLink", f, srcPath, dstPath, absLinkedSrcPath, nil)
+	LinkedSrcPath, _ := filepath.Abs(linkedSrcPath)
+	utils.SetRecoverInfo("local_", "SymLink", f, srcPath, dstPath, LinkedSrcPath, nil)
 	return nil
 }
 
@@ -83,10 +83,6 @@ func CpPipeline(dstPath, srcPath string) error {
 	utils.SetRecoverInfo("local_", "Pipeline", f, srcPath, dstPath, "", nil)
 	return nil
 }
-
-//func CpDir(dstPath, srcPath string) error {
-//	return cpDir(path.Join(dstPath, path.Base(srcPath)), srcPath)
-//}
 
 func CpDir(dstPath, srcPath string) error {
 
@@ -107,7 +103,12 @@ func CpDir(dstPath, srcPath string) error {
 		dirList = append(dirList, "local_" + path.Join(dstPath, fileInfo.Name()))
 	}
 	f, _ := os.Stat(srcPath)
-	utils.SetRecoverInfo("local_", "Dir", f, srcPath, dstPath, "", dirList)
+	linkedPath := ""
+	if utils.IsSymLink(srcPath) {
+		linkedPath, _ = os.Readlink(srcPath)
+		linkedPath, _ = filepath.Abs(linkedPath)
+	}
+	utils.SetRecoverInfo("local_", "Dir", f, srcPath, dstPath, linkedPath, dirList)
 
 	for _, fileInfo := range fileInfoList {
 		CpFile(path.Join(dstPath, fileInfo.Name()), path.Join(srcPath, fileInfo.Name()))

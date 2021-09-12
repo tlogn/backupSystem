@@ -20,5 +20,4 @@ func TestCpFile(t *testing.T) {
 func TestCpDir(t *testing.T) {
 	CpFile("../copy/test", "../test")
 	fmt.Println(utils.RedisClient.Get(utils.Ctx, "local_/Users/bytedance/go/src/backupSystem/copy/test").Result())
-	fmt.Println(utils.RedisClient.Get(utils.Ctx, "local_/Users/bytedance/go/src/backupSystem/copy/test/hardlink").Result())
 }
