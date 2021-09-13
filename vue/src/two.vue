@@ -1,5 +1,20 @@
 <template>
   <div>
+    <h3>
+        <p id="lbl">源路径：{{ source }}</p>
+        <p id="lbl">目标路径：{{ destin }}</p>
+        <p id="lbl">备份状态：{{ back_status }}</p>
+      <center>
+      <button
+        id="btn2"
+        @click="submit()"
+        style="height: 35px; width: 120px; font-size: 18px"
+      >
+        确定备份
+      </button>
+      </center>
+    </h3>
+    <hr />
     <div id="first">
       <h2>选择备份选项</h2>
       <center>
@@ -18,22 +33,6 @@
       <backup @ori="parent_ori"></backup>
     </div>
     <div id="second">
-      <h2>
-        <button
-          id="btn2"
-          @click="submit()"
-          style="height: 35px; width: 120px; font-size: 18px"
-        >
-          确定备份
-        </button>
-      </h2>
-      <hr>
-      <center>
-        <p id="lbl">源路径：{{ source }}</p>
-        <p id="lbl">目标路径：{{ destin }}</p>
-        <p id="lbl">备份状态：{{ back_status }}</p>
-      </center>
-      <hr>
       <target @tar="parent_tar"></target>
     </div>
   </div>
@@ -116,8 +115,7 @@ export default {
             if (rsp.succeed == "false") {
               window.alert("上传失败:" + rsp.err);
               that.back_status += type + "失败" + "; ";
-            }
-            else {
+            } else {
               that.back_status += type + "成功" + "; ";
             }
           })
@@ -141,7 +139,9 @@ export default {
           d_pth +
           "\n" +
           "备份选项：" +
-          opt + "\n" + "注意：若目标地址存在重名文件可能会被覆盖！"
+          opt +
+          "\n" +
+          "注意：若目标地址存在重名文件可能会被覆盖！"
       );
       if (r == true) {
         var that = this;

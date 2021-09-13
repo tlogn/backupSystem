@@ -1,5 +1,20 @@
 <template>
   <div>
+    <h3>
+      <center>
+        <p id="lbl">还原源路径：{{ rec_source }}</p>
+        <p id="lbl">还原目标路径：{{ rec_destin }}</p>
+        <p id="lbl">还原状态：{{ back_status }}</p>
+        <button
+          id="btn2"
+          @click="submit()"
+          style="height: 35px; width: 120px; font-size: 18px"
+        >
+          确定还原
+        </button>
+      </center>
+    </h3>
+    <hr />
     <div id="first">
       <h2>选择要还原到的路径</h2>
       <center>
@@ -16,22 +31,6 @@
       <rec_left @ori="parent_ori"></rec_left>
     </div>
     <div id="second">
-      <h2>
-        <button
-          id="btn2"
-          @click="submit()"
-          style="height: 35px; width: 120px; font-size: 18px"
-        >
-          确定还原
-        </button>
-      </h2>
-      <hr />
-      <center>
-        <p id="lbl">还原源路径：{{ rec_source }}</p>
-        <p id="lbl">还原目标路径：{{ rec_destin }}</p>
-        <p id="lbl">还原状态：{{ back_status }}</p>
-      </center>
-      <hr />
       <rec_right @tar="parent_tar"></rec_right>
     </div>
   </div>
@@ -88,7 +87,7 @@ export default {
       },
     };
   },
-  
+
   methods: {
     parent_ori: function (data) {
       var that = this;
@@ -161,7 +160,7 @@ export default {
             enco = 1;
           }
         }
-        
+
         if (enco == 1) {
           that.newBody = that.Body;
           if (type == 0) that.newBody.op = "local_encode";
