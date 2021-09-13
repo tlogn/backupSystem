@@ -1,6 +1,6 @@
 <template>
   <div id="sel_back">
-    <h2>选择备份目标目录</h2>
+    <h2>选择还原源目录</h2>
     请删掉默认文字：
     <input
       placeholder="请输入默认备份目录，该目录下至少有一个子目录："
@@ -9,7 +9,7 @@
     />
     <br /><br />
     <div>
-      <button id="btn2" @click="ini_get()">浏览文件</button>
+      <button id="btn2" @click="ini_get(root)">浏览文件</button>
       <br />
       <h4>当前路径：{{ Body.get_dir_para.dir_path }}</h4>
       <button
@@ -27,7 +27,7 @@
           <div v-if="fil.is_dir == true">
             <ul id="column1" style="width: 350px; padding: 8px">
               <div id="fil1">
-                <button @click="sel_tar(fil.file_name)" id="btn2">选择</button>
+                <button @click="sel_tar(fil.file_name)" id="btn2">还原</button>
                 <button @click="sele(fil.file_name, fil.is_dir)" id="btn3">
                   进入
                 </button>
@@ -42,6 +42,7 @@
           <div v-if="fil.is_dir != true">
             <ul id="column2" style="width: 350px; padding: 8px">
               <div id="fil2">
+                <button @click="sel_tar(fil.file_name)" id="btn2">还原</button>
                 <label style="font-size: 18px">
                   {{ fil.file_name }}
                 </label>
@@ -59,7 +60,7 @@ import axios from "axios";
 import qs from "qs";
 axios.defaults.headers.post["content-type"] = "application/json";
 export default {
-  name: "Target",
+  name: "Rec_right",
   data() {
     return {
       msg: "",

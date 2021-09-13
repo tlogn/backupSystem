@@ -13,6 +13,9 @@
     <div id="button1">
       <center>
         <a href="./../one.html">
+          <button>测试页面</button>
+        </a><br><br>
+        <a href="./../two.html">
           <button
             id="btn1"
             style="font-size: 25px; height: 70px; width: 130px; cursor: hand"
@@ -25,7 +28,7 @@
     </div>
     <div id="button2">
       <center>
-        <a href="./../two.html">
+        <a href="./../thr.html">
           <button
             id="btn2"
             style="font-size: 25px; height: 70px; width: 130px"
@@ -44,6 +47,7 @@ export default {
   data() {
     return {
       messege: "",
+      default_pth: "",
     };
   },
   methods: {},

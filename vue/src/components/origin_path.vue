@@ -1,5 +1,5 @@
 <template>
-  <div id="sel_back">
+  <div >
     <h2>选择要备份的文件</h2>
     <input
       placeholder="请输入目录，如'C:'或'Users'。注意不带斜杠"
