@@ -1,11 +1,11 @@
 <template>
   <div id="sel_back">
-    <h2>选择还原源目录</h2>
+    <h2>选择要还原的文件(夹)</h2>
     请删掉默认文字：
     <input
       placeholder="请输入默认备份目录，该目录下至少有一个子目录："
       v-model="default_pth"
-      style="height: 23px; width: 400px; font-size: 18px"
+      style="height: 23px; width: 600px; font-size: 18px"
     />
     <br /><br />
     <div>
@@ -109,7 +109,7 @@ export default {
       var type = navigator.userAgent.toLowerCase();
       if (type.indexOf("win") > -1) {
         type = "win";
-        that.default_pth = "/mnt/d/123/0本科/大四上/软件开发实验/backup";
+        that.default_pth = "/mnt/d/123/0Bachelor/大四上/软件开发实验/backup";
       } else if (type.indexOf("mac") > -1) {
         type = "mac";
         that.default_pth = "/users/backup";

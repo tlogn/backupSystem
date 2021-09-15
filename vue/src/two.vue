@@ -19,8 +19,8 @@
       <h2>选择备份选项</h2>
       <center>
         <div id="column3">
-          <input type="checkbox" id="ckx" value="备份到服务器" v-model="opt" />
-          <label>备份到服务器</label>
+          <input type="checkbox" id="ckx" value="自定义备份" v-model="opt" />
+          <label>自定义备份</label>
           <input type="checkbox" id="ckx" value="压缩" v-model="opt" />
           <label>压缩</label>
           <input type="checkbox" id="ckx" value="打包" v-model="opt" />
@@ -103,8 +103,6 @@ export default {
       var addr = this.header,
         data = this.newBody;
       var that = this;
-      //console.log(addr);
-      //console.log(data);
       if (addr == null) {
         window.alert("Empty URL");
       } else {
@@ -149,11 +147,12 @@ export default {
         var type = 0; //local
         var pack = 0,
           enco = 0,
-          compress = 0;
+          compress = 0,
+          custom = 0;
         that.newBody = that.Body;
         for (var i = 0; i < that.opt.length; i++) {
-          if (that.opt[i] == "备份到服务器") {
-            type = 1; //remote
+          if (that.opt[i] == "自定义备份") {
+            custom = 1; 
           } else if (that.opt[i] == "压缩") {
             compress = 1;
           } else if (that.opt[i] == "打包") {
@@ -161,16 +160,12 @@ export default {
           } else if (that.opt[i] == "加密") {
             enco = 1;
           }
-        }
-        if (type == 0) {
-          that.newBody.op = "local_copy";
-        } else {
-          that.newBody.op = "remote_copy";
-        }
+        }  
+        that.newBody.op = "local_copy";
         that.newBody.copy_para.origin_path = s_pth;
         that.newBody.copy_para.backup_path = d_pth;
         this.Post("备份");
-        //if (that.opt.length == 0 || (that.opt.length == 1 && type == 1)) return;
+        if (custom == 1) {} //TODO
         if (pack == 1) {
           that.newBody = that.Body;
           if (type == 0) that.newBody.op = "local_pack";
@@ -195,7 +190,6 @@ export default {
           that.newBody.encode_para.encode_para = d_pth;
           this.Post("加密");
         }
-        console.log(that.back_status);
       }
     },
   },

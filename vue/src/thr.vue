@@ -15,24 +15,19 @@
       </center>
     </h3>
     <hr />
-    <div id="first">
-      <h2>选择要还原到的路径</h2>
-      <center>
-        <div id="column3">
-          <input type="checkbox" id="ckx" value="压缩" v-model="opt" />
-          <label>解压</label>
-          <input type="checkbox" id="ckx" value="打包" v-model="opt" />
-          <label>解包</label>
-          <input type="checkbox" id="ckx" value="加密" v-model="opt" />
-          <label>解密</label>
-          <br />
-        </div>
-      </center>
-      <rec_left @ori="parent_ori"></rec_left>
-    </div>
-    <div id="second">
+    <center>
+      <h2>选择还原选项</h2>
+      <div id="column3">
+        <input type="checkbox" id="ckx" value="压缩" v-model="opt" />
+        <label>解压</label>
+        <input type="checkbox" id="ckx" value="打包" v-model="opt" />
+        <label>解包</label>
+        <input type="checkbox" id="ckx" value="加密" v-model="opt" />
+        <label>解密</label>
+        <br />
+      </div>
       <rec_right @tar="parent_tar"></rec_right>
-    </div>
+    </center>
   </div>
 </template>
 
@@ -103,8 +98,6 @@ export default {
       var addr = this.header,
         data = this.newBody;
       var that = this;
-      //console.log(addr);
-      //console.log(data);
       if (addr == null) {
         window.alert("Empty URL");
       } else {
@@ -125,12 +118,17 @@ export default {
           });
       }
     },
+    get_rec_destin: function() {
+      return "";
+    },
     submit: function () {
+      var that = this;
+      that.rec_destin = this.get_rec_destin();
       var s_pth = this.rec_source;
       var d_pth = this.rec_destin;
       var opt = this.opt;
-      var filename = s_pth.substring(s_pth.lastIndexOf("/"));
-      d_pth += filename;
+      /*var filename = s_pth.substring(s_pth.lastIndexOf("/"));
+      d_pth += filename;*/
       var r = window.confirm(
         "您要将文件(夹)：" +
           s_pth +
@@ -190,7 +188,6 @@ export default {
         that.newBody.recover_para.recover_path = s_pth;
         //that.newBody.copy_para. = d_pth;
         this.Post("还原");
-        console.log(that.back_status);
       }
     },
   },

@@ -108,7 +108,7 @@ export default {
       var type = navigator.userAgent.toLowerCase();
       if (type.indexOf("win") > -1) {
         type = "win";
-        that.default_pth = "/mnt/d/123/0本科/大四上/软件开发实验/backup";
+        that.default_pth = "/mnt/d/123/0Bachelor/大四上/软件开发实验/backup";
       } else if (type.indexOf("mac") > -1) {
         type = "mac";
         that.default_pth = "/users/backup";
