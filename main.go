@@ -17,6 +17,7 @@ type HTTPHandler func(w http.ResponseWriter, r *utils.Request)
 var (
 	route = map[string]HTTPHandler {
 		"login": login.Login,
+		"register": login.Register,
 		"local_copy" : copy.LocalCpFile,
 		"local_dir" : dir.LocalDir,
 		"local_encode" : func(w http.ResponseWriter, r *utils.Request){},
