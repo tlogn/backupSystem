@@ -8,6 +8,9 @@ import (
 
 type Request struct {
 	Op 				string			`json:"op"`
+	UserName		string			`json:"user_name"`
+
+	LoginPara		LoginPara		`json:"login_para"`
 
 	GetDirPara		DirPara			`json:"get_dir_para"`
 

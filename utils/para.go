@@ -27,3 +27,8 @@ type PackPara struct {
 type RecoverPara struct {
 	RecoverPath string	`json:"recover_path"`
 }
+
+type LoginPara struct {
+	UserName string
+	Password string
+}

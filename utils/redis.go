@@ -51,7 +51,7 @@ func SetRecoverInfo(prefix string, fileType string, fileInfo os.FileInfo, srcPat
 
 func GetRecoverInfo(key string) (*RecoverInfo, error) {
 	value, err := RedisClient.Get(Ctx, key).Result()
-	if err != nil {
+	if err != nil || value == "" {
 		log.Println(err)
 		return nil, err
 	}
