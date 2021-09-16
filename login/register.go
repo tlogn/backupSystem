@@ -13,13 +13,10 @@ func Register(w http.ResponseWriter, r *utils.Request){
 }
 
 func register(username string, password string) string {
-	value, err := utils.RedisClient.Get(utils.Ctx, username).Result()
+	_, err := utils.RedisClient.Get(utils.Ctx, username).Result()
 	if err != nil {
-		log.Println(err)
-		return utils.ErrorResponse(err)
-	}
-	if value == "" {
 		err = utils.RedisClient.Set(utils.Ctx, username, password, 0).Err()
+		fmt.Println("errrrr:", err)
 		if err != nil {
 			log.Println(err)
 			return utils.ErrorResponse(err)
