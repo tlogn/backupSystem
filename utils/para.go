@@ -29,6 +29,6 @@ type RecoverPara struct {
 }
 
 type LoginPara struct {
-	UserName string
-	Password string
+	Username string	`json:"username"`
+	Password string	`json:"password"`
 }

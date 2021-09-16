@@ -79,6 +79,13 @@ func main() {
 {
 	"op":"",
 
+	"user_name":"",
+
+	"login_para":{
+		"username":"",
+		"password":""
+	},
+
 	"get_dir_para":{
 		"dir_path":""
 	},
