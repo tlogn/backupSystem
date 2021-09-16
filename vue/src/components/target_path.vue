@@ -1,14 +1,15 @@
 <template>
   <div id="sel_back">
     <h2>选择备份目标目录</h2>
+    请删掉默认文字：
     <input
-      placeholder="请输入目录，如'C:'或'Users'。注意不带斜杠"
-      v-model="root"
+      placeholder="请输入默认备份目录，该目录下至少有一个子目录："
+      v-model="default_pth"
       style="height: 23px; width: 400px; font-size: 18px"
     />
     <br /><br />
     <div>
-      <button id="btn2" @click="ini_get(root)">浏览文件</button>
+      <button id="btn2" @click="ini_get()">浏览文件</button>
       <br />
       <h4>当前路径：{{ Body.get_dir_para.dir_path }}</h4>
       <button
@@ -65,6 +66,7 @@ export default {
       header: "http://localhost:8090/method",
       lis: "",
       newBody: null,
+      default_pth: "",
       Body: {
         op: "local_dir",
         get_dir_para: {
@@ -97,11 +99,28 @@ export default {
       },
     };
   },
+  mounted: function () {
+    this.get_os_type();
+  },
   methods: {
+    get_os_type: function () {
+      var that = this;
+      var type = navigator.userAgent.toLowerCase();
+      if (type.indexOf("win") > -1) {
+        type = "win";
+        that.default_pth = "/mnt/d/123/0Bachelor/大四上/软件开发实验/backup";
+      } else if (type.indexOf("mac") > -1) {
+        type = "mac";
+        that.default_pth = "/users/backup";
+      } else if (type.indexOf("linux") > -1) {
+        type = "linux";
+        that.default_pth = "/mnt/d/123";
+      } else type = "unknown";
+    },
     emitToParent: function (para) {
       this.$emit("tar", para);
     },
-    ini_get: function (para = "/mnt/d") {
+    ini_get: function (para = this.default_pth) {
       var that = this;
       that.Body.get_dir_para.dir_path = para + "/";
       //window.alert(that.Body.get_dir_para.dir_path);
@@ -133,6 +152,8 @@ export default {
     Return: function () {
       var that = this;
       var pth = that.Body.get_dir_para.dir_path;
+      if (pth == that.default_pth + '/') 
+        return ;
       if (pth.length == 4) {
         that.Body.get_dir_para.dir_path = "";
         return;

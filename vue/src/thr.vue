@@ -1,61 +1,55 @@
 <template>
   <div>
     <h3>
-        <p id="lbl">源路径：{{ source }}</p>
-        <p id="lbl">目标路径：{{ destin }}</p>
-        <p id="lbl">备份状态：{{ back_status }}</p>
       <center>
-      <button
-        id="btn2"
-        @click="submit()"
-        style="height: 35px; width: 120px; font-size: 18px"
-      >
-        确定备份
-      </button>
+        <p id="lbl">还原源路径：{{ rec_source }}</p>
+        <p id="lbl">还原目标路径：{{ rec_destin }}</p>
+        <p id="lbl">还原状态：{{ back_status }}</p>
+        <button
+          id="btn2"
+          @click="submit()"
+          style="height: 35px; width: 120px; font-size: 18px"
+        >
+          确定还原
+        </button>
       </center>
     </h3>
     <hr />
-    <div id="first">
-      <h2>选择备份选项</h2>
-      <center>
-        <div id="column3">
-          <input type="checkbox" id="ckx" value="自定义备份" v-model="opt" />
-          <label>自定义备份</label>
-          <input type="checkbox" id="ckx" value="压缩" v-model="opt" />
-          <label>压缩</label>
-          <input type="checkbox" id="ckx" value="打包" v-model="opt" />
-          <label>打包</label>
-          <input type="checkbox" id="ckx" value="加密" v-model="opt" />
-          <label>加密</label>
-          <br />
-        </div>
-      </center>
-      <backup @ori="parent_ori"></backup>
-    </div>
-    <div id="second">
-      <target @tar="parent_tar"></target>
-    </div>
+    <center>
+      <h2>选择还原选项</h2>
+      <div id="column3">
+        <input type="checkbox" id="ckx" value="压缩" v-model="opt" />
+        <label>解压</label>
+        <input type="checkbox" id="ckx" value="打包" v-model="opt" />
+        <label>解包</label>
+        <input type="checkbox" id="ckx" value="加密" v-model="opt" />
+        <label>解密</label>
+        <br />
+      </div>
+      <rec_right @tar="parent_tar"></rec_right>
+    </center>
   </div>
 </template>
 
 <script>
-import Backup from "./components/origin_path.vue";
-import Target from "./components/target_path.vue";
+import Rec_left from "./components/restore_left.vue";
+import Rec_right from "./components/restore_right.vue";
 import axios from "axios";
 export default {
-  name: "two",
+  name: "thr",
   components: {
-    Backup,
-    Target,
+    Rec_left,
+    Rec_right,
   },
   data() {
     return {
-      source: "",
-      destin: "",
+      rec_source: "",
+      rec_destin: "",
       header: "http://localhost:8090/method",
       newBody: "",
       opt: [],
       back_status: "",
+      default_pth: "",
       Body: {
         op: "local_dir",
         get_dir_para: {
@@ -88,15 +82,16 @@ export default {
       },
     };
   },
+
   methods: {
     parent_ori: function (data) {
       var that = this;
-      that.source = data;
+      that.rec_destin = data;
       that.back_status = "";
     },
     parent_tar: function (data) {
       var that = this;
-      that.destin = data;
+      that.rec_source = data;
       that.back_status = "";
     },
     Post: function (type) {
@@ -111,7 +106,7 @@ export default {
           .then(function (response) {
             var rsp = response.data;
             if (rsp.succeed == "false") {
-              window.alert("上传失败:" + rsp.err);
+              window.alert("还原失败:" + rsp.err);
               that.back_status += type + "失败" + "; ";
             } else {
               that.back_status += type + "成功" + "; ";
@@ -123,23 +118,28 @@ export default {
           });
       }
     },
+    get_rec_destin: function() {
+      return "";
+    },
     submit: function () {
-      var s_pth = this.source;
-      var d_pth = this.destin;
+      var that = this;
+      that.rec_destin = this.get_rec_destin();
+      var s_pth = this.rec_source;
+      var d_pth = this.rec_destin;
       var opt = this.opt;
-      var filename = s_pth.substring(s_pth.lastIndexOf("/"));
-      d_pth += filename;
+      /*var filename = s_pth.substring(s_pth.lastIndexOf("/"));
+      d_pth += filename;*/
       var r = window.confirm(
         "您要将文件(夹)：" +
           s_pth +
           "\n" +
-          "备份到：" +
+          "还原到：" +
           d_pth +
           "\n" +
           "备份选项：" +
           opt +
           "\n" +
-          "注意：若目标地址存在重名文件可能会被覆盖！"
+          "注意：若还原地址存在重名文件可能会被覆盖！"
       );
       if (r == true) {
         var that = this;
@@ -147,49 +147,47 @@ export default {
         var type = 0; //local
         var pack = 0,
           enco = 0,
-          compress = 0,
-          custom = 0;
+          compress = 0;
         that.newBody = that.Body;
         for (var i = 0; i < that.opt.length; i++) {
-          if (that.opt[i] == "自定义备份") {
-            custom = 1; 
-          } else if (that.opt[i] == "压缩") {
+          if (that.opt[i] == "解压") {
             compress = 1;
-          } else if (that.opt[i] == "打包") {
+          } else if (that.opt[i] == "解包") {
             pack = 1;
-          } else if (that.opt[i] == "加密") {
+          } else if (that.opt[i] == "解密") {
             enco = 1;
           }
-        }  
-        that.newBody.op = "local_copy";
-        that.newBody.copy_para.origin_path = s_pth;
-        that.newBody.copy_para.backup_path = d_pth;
-        this.Post("备份");
-        if (custom == 1) {} //TODO
-        if (pack == 1) {
+        }
+
+        if (enco == 1) {
           that.newBody = that.Body;
-          if (type == 0) that.newBody.op = "local_pack";
-          else that.newBody.op = "remote_pack";
-          that.newBody.pack_para.is_pack = true;
-          that.newBody.pack_para.pack_path = d_pth;
-          this.Post("打包");
+          if (type == 0) that.newBody.op = "local_encode";
+          else that.newBody.op = "remote_encode";
+          that.newBody.encode_para.is_encode = false;
+          that.newBody.encode_para.encode_para = s_pth;
+          this.Post("解密");
         }
         if (compress == 1) {
           that.newBody = that.Body;
           if (type == 0) that.newBody.op = "local_compress";
           else that.newBody.op = "remote_compress";
-          that.newBody.compress_para.is_compress = true;
-          that.newBody.compress_para.compress_path = d_pth;
-          this.Post("压缩");
+          that.newBody.compress_para.is_compress = false;
+          that.newBody.compress_para.compress_path = s_pth;
+          this.Post("解压");
         }
-        if (enco == 1) {
+        if (pack == 1) {
           that.newBody = that.Body;
-          if (type == 0) that.newBody.op = "local_encode";
-          else that.newBody.op = "remote_encode";
-          that.newBody.encode_para.is_encode = true;
-          that.newBody.encode_para.encode_para = d_pth;
-          this.Post("加密");
+          if (type == 0) that.newBody.op = "local_pack";
+          else that.newBody.op = "remote_pack";
+          that.newBody.pack_para.is_pack = false;
+          that.newBody.pack_para.pack_path = s_pth;
+          this.Post("解包");
         }
+        that.newBody = that.Body;
+        that.newBody.op = "local_recover";
+        that.newBody.recover_para.recover_path = s_pth;
+        //that.newBody.copy_para. = d_pth;
+        this.Post("还原");
       }
     },
   },

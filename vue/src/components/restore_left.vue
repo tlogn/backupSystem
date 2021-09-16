@@ -1,6 +1,6 @@
 <template>
-  <div >
-    <h2>选择要备份的文件</h2>
+  <div>
+    <h2>选择要还原的路径</h2>
     <input
       placeholder="请输入目录，如'C:'或'Users'。注意不带斜杠"
       v-model="root"
@@ -26,12 +26,7 @@
           <div v-if="fil.is_dir == true">
             <ul id="column1" style="width: 350px; padding: 8px">
               <div id="fil1">
-                <button
-                  @click="sel_ori(fil.file_name)"
-                  id="btn2"
-                >
-                  备份
-                </button>
+                <button @click="sel_ori(fil.file_name)" id="btn2">选择</button>
                 <button @click="sele(fil.file_name, fil.is_dir)" id="btn3">
                   进入
                 </button>
@@ -46,12 +41,6 @@
           <div v-if="fil.is_dir != true">
             <ul id="column2" style="width: 350px; padding: 8px">
               <div id="fil2">
-                <button
-                  @click="sel_ori(fil.file_name)"
-                  id="btn2"
-                >
-                  备份
-                </button>
                 <label style="font-size: 18px">
                   {{ fil.file_name }}
                 </label>
@@ -69,7 +58,7 @@ import axios from "axios";
 import qs from "qs";
 axios.defaults.headers.post["content-type"] = "application/json";
 export default {
-  name: "Backup",
+  name: "Rec_left",
   data() {
     return {
       msg: "",
@@ -109,8 +98,8 @@ export default {
     };
   },
   methods: {
-    emitToParent: function(para) {
-      this.$emit('ori', para);
+    emitToParent: function (para) {
+      this.$emit("ori", para);
     },
     ini_get: function (para = "/mnt/d") {
       var that = this;
@@ -139,7 +128,7 @@ export default {
       if (type == true) {
         var pth = this.Body.get_dir_para.dir_path + para;
         this.ini_get(pth);
-      } 
+      }
     },
     Return: function () {
       var that = this;
@@ -155,10 +144,10 @@ export default {
       that.Body.get_dir_para.dir_path = pth;
       this.ini_get(that.Body.get_dir_para.dir_path);
     },
-    sel_ori: function(filename) {
+    sel_ori: function (filename) {
       var oripth = this.Body.get_dir_para.dir_path + filename;
       this.emitToParent(oripth);
-    }
+    },
   },
 };
 </script>

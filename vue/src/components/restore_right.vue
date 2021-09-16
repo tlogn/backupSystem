@@ -1,10 +1,11 @@
 <template>
-  <div >
-    <h2>选择要备份的文件</h2>
+  <div id="sel_back">
+    <h2>选择要还原的文件(夹)</h2>
+    请删掉默认文字：
     <input
-      placeholder="请输入目录，如'C:'或'Users'。注意不带斜杠"
-      v-model="root"
-      style="height: 23px; width: 400px; font-size: 18px"
+      placeholder="请输入默认备份目录，该目录下至少有一个子目录："
+      v-model="default_pth"
+      style="height: 23px; width: 600px; font-size: 18px"
     />
     <br /><br />
     <div>
@@ -26,12 +27,7 @@
           <div v-if="fil.is_dir == true">
             <ul id="column1" style="width: 350px; padding: 8px">
               <div id="fil1">
-                <button
-                  @click="sel_ori(fil.file_name)"
-                  id="btn2"
-                >
-                  备份
-                </button>
+                <button @click="sel_tar(fil.file_name)" id="btn2">还原</button>
                 <button @click="sele(fil.file_name, fil.is_dir)" id="btn3">
                   进入
                 </button>
@@ -46,12 +42,7 @@
           <div v-if="fil.is_dir != true">
             <ul id="column2" style="width: 350px; padding: 8px">
               <div id="fil2">
-                <button
-                  @click="sel_ori(fil.file_name)"
-                  id="btn2"
-                >
-                  备份
-                </button>
+                <button @click="sel_tar(fil.file_name)" id="btn2">还原</button>
                 <label style="font-size: 18px">
                   {{ fil.file_name }}
                 </label>
@@ -69,13 +60,14 @@ import axios from "axios";
 import qs from "qs";
 axios.defaults.headers.post["content-type"] = "application/json";
 export default {
-  name: "Backup",
+  name: "Rec_right",
   data() {
     return {
       msg: "",
       header: "http://localhost:8090/method",
-      newBody: null,
       lis: "",
+      newBody: null,
+      default_pth: "",
       Body: {
         op: "local_dir",
         get_dir_para: {
@@ -108,11 +100,28 @@ export default {
       },
     };
   },
+  mounted: function () {
+    this.get_os_type();
+  },
   methods: {
-    emitToParent: function(para) {
-      this.$emit('ori', para);
+    get_os_type: function () {
+      var that = this;
+      var type = navigator.userAgent.toLowerCase();
+      if (type.indexOf("win") > -1) {
+        type = "win";
+        that.default_pth = "/mnt/d/123/0Bachelor/大四上/软件开发实验/backup";
+      } else if (type.indexOf("mac") > -1) {
+        type = "mac";
+        that.default_pth = "/users/backup";
+      } else if (type.indexOf("linux") > -1) {
+        type = "linux";
+        that.default_pth = "/mnt/d/123";
+      } else type = "unknown";
     },
-    ini_get: function (para = "/mnt/d") {
+    emitToParent: function (para) {
+      this.$emit("tar", para);
+    },
+    ini_get: function (para = this.default_pth) {
       var that = this;
       that.Body.get_dir_para.dir_path = para + "/";
       //window.alert(that.Body.get_dir_para.dir_path);
@@ -139,11 +148,13 @@ export default {
       if (type == true) {
         var pth = this.Body.get_dir_para.dir_path + para;
         this.ini_get(pth);
-      } 
+      }
     },
     Return: function () {
       var that = this;
       var pth = that.Body.get_dir_para.dir_path;
+      if (pth == that.default_pth + '/') 
+        return ;
       if (pth.length == 4) {
         that.Body.get_dir_para.dir_path = "";
         return;
@@ -155,10 +166,10 @@ export default {
       that.Body.get_dir_para.dir_path = pth;
       this.ini_get(that.Body.get_dir_para.dir_path);
     },
-    sel_ori: function(filename) {
-      var oripth = this.Body.get_dir_para.dir_path + filename;
-      this.emitToParent(oripth);
-    }
+    sel_tar: function (filename) {
+      var pth = this.Body.get_dir_para.dir_path + filename;
+      this.emitToParent(pth);
+    },
   },
 };
-</script>
+</script>   

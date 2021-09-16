@@ -16,6 +16,7 @@ module.exports = {
     app: './src/main.js',
     one: './src/one.js',
     two: './src/two.js',
+    thr: './src/thr.js',
   },
   output: {
     path: config.build.assetsRoot,

@@ -3,6 +3,7 @@ package main
 import (
 	"backupSystem/copy"
 	"backupSystem/dir"
+	"backupSystem/login"
 	"backupSystem/recover"
 	"backupSystem/utils"
 	"errors"
@@ -15,6 +16,8 @@ type HTTPHandler func(w http.ResponseWriter, r *utils.Request)
 
 var (
 	route = map[string]HTTPHandler {
+		"login": login.Login,
+		"register": login.Register,
 		"local_copy" : copy.LocalCpFile,
 		"local_dir" : dir.LocalDir,
 		"local_encode" : func(w http.ResponseWriter, r *utils.Request){},
@@ -76,6 +79,13 @@ func main() {
 /*
 {
 	"op":"",
+
+	"user_name":"",
+
+	"login_para":{
+		"username":"",
+		"password":""
+	},
 
 	"get_dir_para":{
 		"dir_path":""

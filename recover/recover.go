@@ -33,6 +33,11 @@ func Recover(recoverKey string) error {
 		log.Println(err)
 		return err
 	}
+	if recoverInfo == nil {
+		err = errors.New("nil recoverInfo")
+		log.Println(err)
+		return err
+	}
 	handler, ok := recoverHandlerMap[recoverInfo.FileType]
 	if !ok {
 		err = errors.New("unknown file type")
