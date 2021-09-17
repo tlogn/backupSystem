@@ -22,6 +22,7 @@ func RemoteDir(w http.ResponseWriter, r *utils.Request) {
 		fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
 		return
 	}
+	fmt.Println(request, response)
 	resp, _ := json.Marshal(response)
 
 	fmt.Fprintf(w, "%v", string(resp))
