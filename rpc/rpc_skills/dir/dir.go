@@ -23,7 +23,9 @@ func RemoteDir(Request *rpc_utils.Request, Response *utils.Response ) error {
 		dirFile := utils.DirFile{FileName: file.Name(), IsDir: file.IsDir(), FilePath: absPath}
 		dirFiles = append(dirFiles, dirFile)
 	}
-	Response = &utils.Response{Succeed: true, DirFiles: dirFiles}
+	//Response = &utils.Response{Succeed: true, DirFiles: dirFiles}
+	Response.Succeed = true
+	Response.DirFiles = dirFiles
 	fmt.Println("response:", Response)
 	return nil
 }
