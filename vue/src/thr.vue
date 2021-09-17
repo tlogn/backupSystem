@@ -1,5 +1,7 @@
 <template>
   <div>
+    <h1 style="text-align:center;">本地还原</h1>
+    <hr>
     <h3>
       <center>
         <p id="lbl">还原源路径：{{ rec_source }}</p>
@@ -12,6 +14,11 @@
         >
           确定还原
         </button>
+        <a href="/">
+          <button id="btn2" style="height: 35px; width: 120px; font-size: 18px">
+            返回首页
+          </button>
+        </a>
       </center>
     </h3>
     <hr />
@@ -51,9 +58,16 @@ export default {
       back_status: "",
       default_pth: "",
       Body: {
-        op: "local_dir",
+        op: "",
         get_dir_para: {
           dir_path: "",
+        },
+
+        user_name: "",
+
+        login_para: {
+          username: "",
+          password: "",
         },
 
         copy_para: {
@@ -105,11 +119,14 @@ export default {
           .post(addr, data)
           .then(function (response) {
             var rsp = response.data;
-            if (rsp.succeed == "false") {
-              window.alert("还原失败:" + rsp.err);
-              that.back_status += type + "失败" + "; ";
-            } else {
+            if (rsp.succeed == true) {
               that.back_status += type + "成功" + "; ";
+            } else {
+              if (rsp.err == "redis: nil")
+                window.alert(type + "失败：该文件(夹)不是备份文件(夹)");
+              else 
+                window.alert(type + "失败：" + rsp.err);
+              that.back_status += type + "失败" + "; ";
             }
           })
           .catch(function (error) {
@@ -118,7 +135,7 @@ export default {
           });
       }
     },
-    get_rec_destin: function() {
+    get_rec_destin: function () {
       return "";
     },
     submit: function () {
@@ -126,6 +143,10 @@ export default {
       that.rec_destin = this.get_rec_destin();
       var s_pth = this.rec_source;
       var d_pth = this.rec_destin;
+      if (s_pth == "") {
+        window.alert("还原源路径为空！");
+        return;
+      }
       var opt = this.opt;
       /*var filename = s_pth.substring(s_pth.lastIndexOf("/"));
       d_pth += filename;*/

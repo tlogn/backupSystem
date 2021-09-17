@@ -13,7 +13,7 @@
     <div id="first">
       <br>
       <h1>本地模式</h1>
-      <div id="button1" style="flaot: left" align="left">
+      <div>
         <center>
           <a href="./../one.html"> <button>测试页面</button> </a><br /><br />
           <a href="./../two.html">
@@ -43,23 +43,122 @@
         <h1>Login</h1>  
         <input type="text" required="required" placeholder="用户名" v-model="u" autocomplete="off"></input>  
         <input type="password" required="required" placeholder="密码" v-model="p"></input>  
-        <button class="but" type="submit" style="cursor:pointer" @click="login(u,p)">登录</button>  
+      </div>
+      <div id="reg">
+        <button id="but" style="cursor:pointer" @click="login(u,p)">登录</button>  
+        <button id="but" style="cursor:pointer" @click="reg(u,p)">注册</button> 
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import axios from "axios";
 export default {
   data() {
     return {
       messege: "",
+      newBody: "",
+      header: "http://localhost:8090/method",
+      body: {
+        op: "",
+
+        user_name: "",
+
+        login_para: {
+          username: "",
+          password: "",
+        },
+
+        get_dir_para: {
+          dir_path: "",
+        },
+
+        copy_para: {
+          origin_path: "",
+          backup_path: "",
+        },
+
+        recover_para: {
+          recover_path: "",
+        },
+
+        compress_para: {
+          is_compress: false,
+          compress_path: "",
+        },
+
+        encode_para: {
+          is_encode: false,
+          encode_path: "",
+        },
+
+        pack_para: {
+          is_pack: false,
+          pack_path: "",
+        },
+      },
     };
   },
   methods: {
     login: function (u, p) {
-      console.log(u, p);
-      window.location.href="./../one.html";
+      var that = this;
+      that.newBody = that.body;
+      that.newBody.op = "login";
+      that.newBody.login_para.username = u;
+      that.newBody.login_para.password = p;
+      this.Post("登陆");
+    },
+    reg: function (u, p) {
+      var r = window.confirm("是否确定注册用户名为" + u + "的新用户?");
+      if (r == true) {
+        var that = this;
+        that.newBody = that.body;
+        that.newBody.op = "register";
+        that.newBody.login_para.username = u;
+        that.newBody.login_para.password = p;
+        this.Post("注册");
+      }
+    },
+    Post: function (type) {
+      var addr = this.header,
+        data = this.newBody;
+      var that = this;
+      if (addr == null) {
+        window.alert("Empty URL");
+      } else {
+        axios
+          .post(addr, data)
+          .then(function (response) {
+            var rsp = response.data;
+            if (rsp.succeed == false) { //login/reg fail
+              var err = rsp.err;
+              if (type == "登陆") { //login
+                if (err == "wrong password") window.alert("密码错误！");
+                else if (err == "username not exists")
+                  window.alert("用户不存在！请先注册");
+                else window.alert("未知错误");
+              } else {  //reg
+                if (err == "username already exists")
+                  window.alert("注册失败：用户名已被注册");
+                else  
+                  window.alert("未知错误");
+              }
+            } else {  //login/reg succeed
+              if (type == "登陆") { //login
+                window.location.href =
+                  "./../remote.html?" + that.newBody.login_para.username;
+              } else {  //reg
+                window.alert( 
+                  "注册成功！您的用户名为" + that.newBody.login_para.username
+                );
+              }
+            }
+          })
+          .catch(function (error) {
+            window.alert(error);
+          });
+      }
     },
   },
 };
@@ -112,18 +211,15 @@ button {
   left: 50%;
   margin: -150px 0 0 -150px;
   width: 300px;
-  height: 300px;
+  height: 150px;
 }
-#login h1 {
+#login {
   color: rgb(197, 8, 235);
   text-shadow: 0 0 2px;
   letter-spacing: 1px;
   text-align: center;
 }
-h1 {
-  font-size: 2em;
-  margin: 0.67em 0;
-}
+
 input {
   width: 278px;
   height: 18px;
@@ -139,10 +235,9 @@ input {
   border-radius: 4px;
   background-color: #2d2d3f;
 }
-.but {
-  width: 300px;
+#but {
+  width: 150px;
   min-height: 20px;
-  display: block;
   background-color: #d851bb;
   border: 2px solid #3762bc;
   color: #fff;
@@ -151,5 +246,10 @@ input {
   line-height: normal;
   border-radius: 5px;
   margin: 0;
+}
+#reg {
+  position: relative;
+  padding: 10px;
+  top: 40%;
 }
 </style>

@@ -76,6 +76,12 @@ const devWebpackConfig = merge(baseWebpackConfig, {
       inject: true,
       chunks: ['thr']
     }),
+    new HtmlWebpackPlugin({
+      filename: 'remote.html',
+      template: 'remote.html',
+      inject: true,
+      chunks: ['remote']
+    }),
     // copy custom static assets
     new CopyWebpackPlugin([
       {

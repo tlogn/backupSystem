@@ -30,7 +30,7 @@
                   @click="sel_ori(fil.file_name)"
                   id="btn2"
                 >
-                  备份
+                  选择
                 </button>
                 <button @click="sele(fil.file_name, fil.is_dir)" id="btn3">
                   进入
@@ -50,7 +50,7 @@
                   @click="sel_ori(fil.file_name)"
                   id="btn2"
                 >
-                  备份
+                  选择
                 </button>
                 <label style="font-size: 18px">
                   {{ fil.file_name }}
@@ -80,6 +80,13 @@ export default {
         op: "local_dir",
         get_dir_para: {
           dir_path: "",
+        },
+
+        user_name: "",
+
+        login_para: {
+          username: "",
+          password: "",
         },
 
         copy_para: {
@@ -128,6 +135,10 @@ export default {
             that.lis = data.dir_files;
           } else {
             window.alert(data.err);
+            var pth = that.Body.get_dir_para.dir_path;
+            pth = pth.substring(0, pth.lastIndexOf('/'));
+            pth = pth.substring(0, pth.lastIndexOf('/')+1);
+            that.Body.get_dir_para.dir_path = pth;
           }
         })
         .catch(function (error) {
@@ -157,6 +168,7 @@ export default {
     },
     sel_ori: function(filename) {
       var oripth = this.Body.get_dir_para.dir_path + filename;
+      window.scrollTo(0, -50);
       this.emitToParent(oripth);
     }
   },

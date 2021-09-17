@@ -1,11 +1,10 @@
 <template>
-  <div id="sel_back">
-    <h2>选择要还原的文件(夹)</h2>
-    默认备份目录(测试用)：
+  <div >
+    <h2>本地目录</h2>
     <input
-      placeholder="请输入默认备份目录，该目录下至少有一个子目录："
-      v-model="default_pth"
-      style="height: 23px; width: 600px; font-size: 18px"
+      placeholder="请输入目录，如'C:'或'Users'。注意不带斜杠"
+      v-model="root"
+      style="height: 23px; width: 400px; font-size: 18px"
     />
     <br /><br />
     <div>
@@ -23,14 +22,16 @@
     <br />
     <div id="list">
       <center>
-        <ul id="column1" style="width: 350px; padding: 8px">
-        <button @click="sel_tar()" id="btn2" >选择当前路径</button>
-        </ul>
         <div id="for" v-for="fil in lis">
           <div v-if="fil.is_dir == true">
             <ul id="column1" style="width: 350px; padding: 8px">
               <div id="fil1">
-                <button @click="sel_tar(fil.file_name)" id="btn2">选择</button>
+                <button
+                  @click="sel_ori(fil.file_name)"
+                  id="btn2"
+                >
+                  选择
+                </button>
                 <button @click="sele(fil.file_name, fil.is_dir)" id="btn3">
                   进入
                 </button>
@@ -45,7 +46,12 @@
           <div v-if="fil.is_dir != true">
             <ul id="column2" style="width: 350px; padding: 8px">
               <div id="fil2">
-                <button @click="sel_tar(fil.file_name)" id="btn2">选择</button>
+                <button
+                  @click="sel_ori(fil.file_name)"
+                  id="btn2"
+                >
+                  备份
+                </button>
                 <label style="font-size: 18px">
                   {{ fil.file_name }}
                 </label>
@@ -63,14 +69,13 @@ import axios from "axios";
 import qs from "qs";
 axios.defaults.headers.post["content-type"] = "application/json";
 export default {
-  name: "Rec_right",
+  name: "rleft",
   data() {
     return {
       msg: "",
       header: "http://localhost:8090/method",
-      lis: "",
       newBody: null,
-      default_pth: "",
+      lis: "",
       Body: {
         op: "local_dir",
         get_dir_para: {
@@ -110,30 +115,11 @@ export default {
       },
     };
   },
-  mounted: function () {
-    this.get_os_type();
-    var that = this;
-    that.Body.get_dir_para.dir_path = that.default_pth;
-  },
   methods: {
-    get_os_type: function () {
-      var that = this;
-      var type = navigator.userAgent.toLowerCase();
-      if (type.indexOf("win") > -1) {
-        type = "win";
-        that.default_pth = "/mnt/d/123/0Bachelor/大四上/软件开发实验/backup";
-      } else if (type.indexOf("mac") > -1) {
-        type = "mac";
-        that.default_pth = "/users/backup";
-      } else if (type.indexOf("linux") > -1) {
-        type = "linux";
-        that.default_pth = "/mnt/d/123";
-      } else type = "unknown";
+    emitToParent: function(para) {
+      this.$emit('left', para);
     },
-    emitToParent: function (para) {
-      this.$emit("tar", para);
-    },
-    ini_get: function (para = this.default_pth) {
+    ini_get: function (para = "/mnt/d") {
       var that = this;
       that.Body.get_dir_para.dir_path = para + "/";
       //window.alert(that.Body.get_dir_para.dir_path);
@@ -164,13 +150,11 @@ export default {
       if (type == true) {
         var pth = this.Body.get_dir_para.dir_path + para;
         this.ini_get(pth);
-      }
+      } 
     },
     Return: function () {
       var that = this;
       var pth = that.Body.get_dir_para.dir_path;
-      if (pth == that.default_pth + '/' || pth == that.default_pth) 
-        return ;
       if (pth.length == 4) {
         that.Body.get_dir_para.dir_path = "";
         return;
@@ -182,18 +166,11 @@ export default {
       that.Body.get_dir_para.dir_path = pth;
       this.ini_get(that.Body.get_dir_para.dir_path);
     },
-    sel_tar: function (filename = "") {
-      var pth;
-      if (filename!="")
-        pth = this.Body.get_dir_para.dir_path + filename;
-      else {
-        pth = this.Body.get_dir_para.dir_path;
-        if (pth[pth.length-1] == '/')
-          pth = pth.substring(0, pth.lastIndexOf('/'));
-      }
+    sel_ori: function(filename) {
+      var oripth = this.Body.get_dir_para.dir_path + filename;
       window.scrollTo(0, -50);
-      this.emitToParent(pth);
-    },
+      this.emitToParent(oripth);
+    }
   },
 };
-</script>   
+</script>
