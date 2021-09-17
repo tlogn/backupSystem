@@ -1,9 +1,9 @@
 <template>
   <div id="sel_back">
     <h2>选择备份目标目录</h2>
-    请删掉默认文字：
+    默认备份目录(测试用)：
     <input
-      placeholder="请输入默认备份目录，该目录下至少有一个子目录："
+      placeholder="请输入默认备份目录"
       v-model="default_pth"
       style="height: 23px; width: 400px; font-size: 18px"
     />
@@ -23,6 +23,9 @@
     <br />
     <div id="list">
       <center>
+        <ul id="column1" style="width: 350px; padding: 8px">
+        <button @click="sel_tar()" id="btn2" >选择当前路径</button>
+        </ul>
         <div id="for" v-for="fil in lis">
           <div v-if="fil.is_dir == true">
             <ul id="column1" style="width: 350px; padding: 8px">
@@ -73,6 +76,13 @@ export default {
           dir_path: "",
         },
 
+        user_name: "",
+
+        login_para: {
+          username: "",
+          password: "",
+        },
+
         copy_para: {
           origin_path: "",
           backup_path: "",
@@ -101,6 +111,8 @@ export default {
   },
   mounted: function () {
     this.get_os_type();
+    var that = this;
+    that.Body.get_dir_para.dir_path = that.default_pth;
   },
   methods: {
     get_os_type: function () {
@@ -136,6 +148,10 @@ export default {
             that.lis = data.dir_files;
           } else {
             window.alert(data.err);
+            var pth = that.Body.get_dir_para.dir_path;
+            pth = pth.substring(0, pth.lastIndexOf('/'));
+            pth = pth.substring(0, pth.lastIndexOf('/')+1);
+            that.Body.get_dir_para.dir_path = pth;
           }
         })
         .catch(function (error) {
@@ -152,8 +168,7 @@ export default {
     Return: function () {
       var that = this;
       var pth = that.Body.get_dir_para.dir_path;
-      if (pth == that.default_pth + '/') 
-        return ;
+      if (pth == that.default_pth + "/" || pth == that.default_pth) return;
       if (pth.length == 4) {
         that.Body.get_dir_para.dir_path = "";
         return;
@@ -165,8 +180,16 @@ export default {
       that.Body.get_dir_para.dir_path = pth;
       this.ini_get(that.Body.get_dir_para.dir_path);
     },
-    sel_tar: function (filename) {
-      var pth = this.Body.get_dir_para.dir_path + filename;
+    sel_tar: function (filename = "") {
+      var pth;
+      if (filename!="")
+        pth = this.Body.get_dir_para.dir_path + filename;
+      else {
+        pth = this.Body.get_dir_para.dir_path;
+        if (pth[pth.length-1] == '/')
+          pth = pth.substring(0, pth.lastIndexOf('/'));
+      }
+      window.scrollTo(0, -50);
       this.emitToParent(pth);
     },
   },
