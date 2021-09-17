@@ -13,17 +13,16 @@ func Register(w http.ResponseWriter, r *utils.Request){
 }
 
 func register(username string, password string) string {
-	_, err := utils.RedisClient.Get(utils.Ctx, username).Result()
-	if err != nil {
-		err = utils.RedisClient.Set(utils.Ctx, username, password, 0).Err()
-		fmt.Println("errrrr:", err)
-		if err != nil {
-			log.Println(err)
-			return utils.ErrorResponse(err)
-		}
-		return utils.SucceedResponse()
+	if utils.IsRedisKeyExist(username) {
+		err := errors.New("username already exists")
+		log.Println(err)
+		return utils.ErrorResponse(err)
 	}
-	err = errors.New("username already exists")
-	log.Println(err)
-	return utils.ErrorResponse(err)
+
+	err := utils.RedisClient.Set(utils.Ctx, username, password, 0).Err()
+	if err != nil {
+		log.Println(err)
+		return utils.ErrorResponse(err)
+	}
+	return utils.SucceedResponse()
 }

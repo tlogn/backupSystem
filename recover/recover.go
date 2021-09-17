@@ -80,7 +80,7 @@ func NormalFileRecover(recoverInfo *utils.RecoverInfo) error {
 
 func DirRecover(recoverInfo *utils.RecoverInfo) error {
 	if recoverInfo.LinkedPath != "" {
-		if utils.IsExist(recoverInfo.LinkedPath) {
+		if utils.IsFileExist(recoverInfo.LinkedPath) {
 			os.Symlink(recoverInfo.LinkedPath, recoverInfo.SrcPath)
 			MetaRecover(recoverInfo.SrcPath, recoverInfo)
 			return nil
