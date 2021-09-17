@@ -3,7 +3,6 @@ package dir
 import (
 	"backupSystem/rpc/rpc_utils"
 	"backupSystem/utils"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"path"
@@ -25,6 +24,5 @@ func RemoteDir(Request *rpc_utils.Request, Response *utils.Response ) error {
 	}
 	Response = &utils.Response{Succeed: true, DirFiles: dirFiles}
 
-	fmt.Println("hello")
 	return nil
 }
