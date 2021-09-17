@@ -16,5 +16,5 @@ func RunRpcServer() {
 		log.Fatal("listen error:", err)
 	}
 
-	go http.Serve(Listener, nil)
+	http.Serve(Listener, nil)
 }
