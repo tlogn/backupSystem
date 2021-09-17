@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/json"
 	"errors"
+	"github.com/go-redis/redis/v8"
 	"log"
 	"os"
 	"syscall"
@@ -59,13 +60,24 @@ func IsPipeLine(filename string) bool {
 	return false
 }
 
-func IsExist(filename string) bool {
+func IsFileExist(filename string) bool {
 	_, err := os.Stat(filename)
 	if err != nil {
 		if os.IsExist(err) {
 			return true
 		}
 		return false
+	}
+	return true
+}
+
+func IsRedisKeyExist(key string) bool {
+	_, err := RedisClient.Get(Ctx, key).Result()
+	if err == redis.Nil {
+		return false
+	}
+	if err != nil {
+		return IsRedisKeyExist(key)
 	}
 	return true
 }

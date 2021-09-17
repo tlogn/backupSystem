@@ -13,13 +13,13 @@ func Login(w http.ResponseWriter, r *utils.Request){
 }
 
 func login(username string, password string) string {
-	value, err := utils.RedisClient.Get(utils.Ctx, username).Result()
-	if err != nil {
+	if !utils.IsRedisKeyExist(username) {
+		err := errors.New("username not exists")
 		log.Println(err)
 		return utils.ErrorResponse(err)
 	}
-	if value == "" {
-		err = errors.New("username not exists")
+	value, err := utils.RedisClient.Get(utils.Ctx, username).Result()
+	if err != nil {
 		log.Println(err)
 		return utils.ErrorResponse(err)
 	}
