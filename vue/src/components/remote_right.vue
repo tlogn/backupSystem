@@ -1,15 +1,8 @@
 <template>
-  <div id="sel_back">
-    <h2>选择要还原的文件(夹)</h2>
-    默认备份目录(测试用)：
-    <input
-      placeholder="请输入默认备份目录，该目录下至少有一个子目录："
-      v-model="default_pth"
-      style="height: 23px; width: 600px; font-size: 18px"
-    />
-    <br /><br />
+  <div>
+    <h2>网盘目录</h2>
     <div>
-      <button id="btn2" @click="ini_get(root)">浏览文件</button>
+      <button id="btn2" @click="ini_get()">浏览文件</button>
       <br />
       <h4>当前路径：{{ Body.get_dir_para.dir_path }}</h4>
       <button
@@ -25,6 +18,7 @@
       <center>
         <ul id="column1" style="width: 350px; padding: 8px">
         <button @click="sel_tar()" id="btn2" >选择当前路径</button>
+        <button @click="new_folder()" id="btn3">创建文件夹</button>
         </ul>
         <div id="for" v-for="fil in lis">
           <div v-if="fil.is_dir == true">
@@ -45,7 +39,6 @@
           <div v-if="fil.is_dir != true">
             <ul id="column2" style="width: 350px; padding: 8px">
               <div id="fil2">
-                <button @click="sel_tar(fil.file_name)" id="btn2">选择</button>
                 <label style="font-size: 18px">
                   {{ fil.file_name }}
                 </label>
@@ -63,7 +56,7 @@ import axios from "axios";
 import qs from "qs";
 axios.defaults.headers.post["content-type"] = "application/json";
 export default {
-  name: "Rec_right",
+  name: "rright",
   data() {
     return {
       msg: "",
@@ -72,7 +65,7 @@ export default {
       newBody: null,
       default_pth: "",
       Body: {
-        op: "local_dir",
+        op: "remote_dir",
         get_dir_para: {
           dir_path: "",
         },
@@ -111,32 +104,20 @@ export default {
     };
   },
   mounted: function () {
-    this.get_os_type();
     var that = this;
+    var usrname = window.location.href.split('?')[1];
+    that.default_pth = "/home/lighthouse/backup/" + usrname;
+    that.Body.user_name = usrname;
     that.Body.get_dir_para.dir_path = that.default_pth;
   },
   methods: {
-    get_os_type: function () {
-      var that = this;
-      var type = navigator.userAgent.toLowerCase();
-      if (type.indexOf("win") > -1) {
-        type = "win";
-        that.default_pth = "/mnt/d/123/0Bachelor/大四上/软件开发实验/backup";
-      } else if (type.indexOf("mac") > -1) {
-        type = "mac";
-        that.default_pth = "/users/backup";
-      } else if (type.indexOf("linux") > -1) {
-        type = "linux";
-        that.default_pth = "/mnt/d/123";
-      } else type = "unknown";
-    },
     emitToParent: function (para) {
-      this.$emit("tar", para);
+      this.$emit("right", para);
     },
+    new_folder: function() {},
     ini_get: function (para = this.default_pth) {
       var that = this;
       that.Body.get_dir_para.dir_path = para + "/";
-      //window.alert(that.Body.get_dir_para.dir_path);
       axios
         .get(that.header, {
           params: {
@@ -149,10 +130,6 @@ export default {
             that.lis = data.dir_files;
           } else {
             window.alert(data.err);
-            var pth = that.Body.get_dir_para.dir_path;
-            pth = pth.substring(0, pth.lastIndexOf('/'));
-            pth = pth.substring(0, pth.lastIndexOf('/')+1);
-            that.Body.get_dir_para.dir_path = pth;
           }
         })
         .catch(function (error) {
@@ -169,8 +146,7 @@ export default {
     Return: function () {
       var that = this;
       var pth = that.Body.get_dir_para.dir_path;
-      if (pth == that.default_pth + '/' || pth == that.default_pth) 
-        return ;
+      if (pth == that.default_pth + "/" || pth == that.default_pth) return;
       if (pth.length == 4) {
         that.Body.get_dir_para.dir_path = "";
         return;

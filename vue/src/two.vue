@@ -1,17 +1,24 @@
 <template>
   <div>
+    <h1 style="text-align:center;">本地备份</h1>
+    <hr>
     <h3>
-        <p id="lbl">源路径：{{ source }}</p>
-        <p id="lbl">目标路径：{{ destin }}</p>
-        <p id="lbl">备份状态：{{ back_status }}</p>
+      <p id="lbl">源路径：{{ source }}</p>
+      <p id="lbl">目标路径：{{ destin }}</p>
+      <p id="lbl">备份状态：{{ back_status }}</p>
       <center>
-      <button
-        id="btn2"
-        @click="submit()"
-        style="height: 35px; width: 120px; font-size: 18px"
-      >
-        确定备份
-      </button>
+        <button
+          id="btn2"
+          @click="submit()"
+          style="height: 35px; width: 120px; font-size: 18px"
+        >
+          确定备份
+        </button>
+        <a href="/">
+          <button id="btn2" style="height: 35px; width: 120px; font-size: 18px">
+            返回首页
+          </button>
+        </a>
       </center>
     </h3>
     <hr />
@@ -57,9 +64,16 @@ export default {
       opt: [],
       back_status: "",
       Body: {
-        op: "local_dir",
+        op: "",
         get_dir_para: {
           dir_path: "",
+        },
+
+        user_name: "",
+
+        login_para: {
+          username: "",
+          password: "",
         },
 
         copy_para: {
@@ -110,11 +124,11 @@ export default {
           .post(addr, data)
           .then(function (response) {
             var rsp = response.data;
-            if (rsp.succeed == "false") {
-              window.alert("上传失败:" + rsp.err);
-              that.back_status += type + "失败" + "; ";
-            } else {
+            if (rsp.succeed == true) {
               that.back_status += type + "成功" + "; ";
+            } else {
+              window.alert(type + "失败:" + rsp.err);
+              that.back_status += type + "失败" + "; ";
             }
           })
           .catch(function (error) {
@@ -129,6 +143,10 @@ export default {
       var opt = this.opt;
       var filename = s_pth.substring(s_pth.lastIndexOf("/"));
       d_pth += filename;
+      if (s_pth == "" || d_pth == "") {
+        window.alert("源路径或目标路径为空！");
+        return;
+      }
       var r = window.confirm(
         "您要将文件(夹)：" +
           s_pth +
@@ -152,7 +170,7 @@ export default {
         that.newBody = that.Body;
         for (var i = 0; i < that.opt.length; i++) {
           if (that.opt[i] == "自定义备份") {
-            custom = 1; 
+            custom = 1;
           } else if (that.opt[i] == "压缩") {
             compress = 1;
           } else if (that.opt[i] == "打包") {
@@ -160,12 +178,13 @@ export default {
           } else if (that.opt[i] == "加密") {
             enco = 1;
           }
-        }  
+        }
         that.newBody.op = "local_copy";
         that.newBody.copy_para.origin_path = s_pth;
         that.newBody.copy_para.backup_path = d_pth;
         this.Post("备份");
-        if (custom == 1) {} //TODO
+        if (custom == 1) {
+        } //TODO
         if (pack == 1) {
           that.newBody = that.Body;
           if (type == 0) that.newBody.op = "local_pack";
@@ -199,12 +218,12 @@ export default {
 <style>
 @import "./backup.CSS";
 #first {
-  width: 50%;
+  width: 49%;
   float: left;
   text-align: center;
 }
 #second {
-  width: 50%;
+  width: 49%;
   float: right;
   text-align: center;
 }
