@@ -5,8 +5,11 @@ import (
 	"backupSystem/dir"
 	"backupSystem/login"
 	"backupSystem/recover"
+	"backupSystem/rpc/client"
+	"backupSystem/rpc/server"
 	"backupSystem/utils"
 	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -25,12 +28,14 @@ var (
 		"local_recover" : recover.LocalRecover,
 		"local_pack" : func(w http.ResponseWriter, r *utils.Request){},
 		"remote_copy" : func(w http.ResponseWriter, r *utils.Request){},
-		"remote_dir" : func(w http.ResponseWriter, r *utils.Request){},
+		"remote_dir" : client.RemoteDir,
 		"remote_encode" : func(w http.ResponseWriter, r *utils.Request){},
 		"remote_compress" : func(w http.ResponseWriter, r *utils.Request){},
 		"remote_recover" : func(w http.ResponseWriter, r *utils.Request){},
 		"remote_pack" : func(w http.ResponseWriter, r *utils.Request){},
 	}
+	rpcServerSelect bool
+
 )
 
 func method(w http.ResponseWriter, r *http.Request) {
@@ -63,17 +68,19 @@ func method(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-
-	http.HandleFunc("/method", method) // 设置访问的路由
-	err := http.ListenAndServe(":8090", nil) // 设置监听的端口
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
+	flag.BoolVar(&rpcServerSelect, "server", false, "server option")
+	flag.Parse()
+	if rpcServerSelect {
+		server.RunRpcServer()
+	} else {
+		http.HandleFunc("/method", method) // 设置访问的路由
+		err := http.ListenAndServe(":8090", nil) // 设置监听的端口
+		if err != nil {
+			log.Fatal("ListenAndServe: ", err)
+		}
 	}
 
-	//var a utils.Request
-	//a.DirFiles = []DirFile{{"", false}, {"", false}}
-	//b, _:= json.Marshal(a)
-	//fmt.Println(string(b))
+
 }
 
 /*
