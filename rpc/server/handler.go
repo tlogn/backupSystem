@@ -6,11 +6,10 @@ import (
 	"backupSystem/utils"
 )
 
-type Handler struct {
-}
+type Handler struct {}
 
-func (handler Handler) RemoteDir(request *rpc_utils.Request, response *utils.Response ) error {
-	err := dir.RemoteDir(request, response)
+func (handler *Handler) RemoteDir(Request *rpc_utils.Request, Response *utils.Response ) error {
+	err := dir.RemoteDir(Request, Response)
 	if err != nil {
 		return err
 	}

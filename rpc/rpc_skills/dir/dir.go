@@ -3,14 +3,15 @@ package dir
 import (
 	"backupSystem/rpc/rpc_utils"
 	"backupSystem/utils"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"path"
 	"path/filepath"
 )
 
-func RemoteDir(request *rpc_utils.Request, response *utils.Response ) error {
-	Path := request.ProcessPath
+func RemoteDir(Request *rpc_utils.Request, Response *utils.Response ) error {
+	Path := Request.ProcessPath
 	fileList, err := ioutil.ReadDir(Path)
 	if err != nil {
 		log.Println(err)
@@ -22,6 +23,8 @@ func RemoteDir(request *rpc_utils.Request, response *utils.Response ) error {
 		dirFile := utils.DirFile{FileName: file.Name(), IsDir: file.IsDir(), FilePath: absPath}
 		dirFiles = append(dirFiles, dirFile)
 	}
-	response = &utils.Response{Succeed: true, DirFiles: dirFiles}
+	Response = &utils.Response{Succeed: true, DirFiles: dirFiles}
+
+	fmt.Println("hello")
 	return nil
 }

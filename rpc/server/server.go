@@ -1,13 +1,26 @@
 package server
 
 import (
-	"net/http"
+	"log"
+	"net"
 	"net/rpc"
+	"net/rpc/jsonrpc"
 )
 
 func RunRpcServer() {
-	server := rpc.NewServer()
-	server.Register(new(Handler))
+	listener, err := net.Listen("tcp", ":8800")
+	if err != nil {
+		log.Fatal("listen error:", err)
+	}
 
-	http.ListenAndServe("0.0.0.0:8800", server)
+	rpc.Register(new(Handler))
+
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			log.Println("accept error:", err)
+		}
+
+		go rpc.ServeCodec(jsonrpc.NewServerCodec(conn))
+	}
 }

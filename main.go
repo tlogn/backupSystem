@@ -85,7 +85,7 @@ func main() {
 
 /*
 {
-	"op":"",
+	"op":"remote_dir",
 
 	"user_name":"",
 
@@ -95,7 +95,7 @@ func main() {
 	},
 
 	"get_dir_para":{
-		"dir_path":""
+		"dir_path":"/home/lighthouse"
 	},
 
 	"copy_para":{

@@ -2,7 +2,9 @@ package client
 
 import (
 	"log"
+	"net"
 	"net/rpc"
+	"net/rpc/jsonrpc"
 )
 
 const (
@@ -14,9 +16,10 @@ var (
 )
 
 func NewClient() *rpc.Client{
-	client, err := rpc.Dial("tcp", remoteServerAddress)
+	conn, err := net.Dial("tcp", remoteServerAddress)
 	if err != nil {
 		log.Println("dialing error:", err)
 	}
+	client := rpc.NewClientWithCodec(jsonrpc.NewClientCodec(conn))
 	return client
 }
