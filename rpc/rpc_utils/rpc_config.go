@@ -1,14 +1,8 @@
 package rpc_utils
 
-import "fmt"
-
 type Request struct {
-	Username	string
-	SrcPath		string
-	CopiedPath	string
-	ProcessPath	string
-}
-
-func (req Request) String()	string {
-	return fmt.Sprintf(`{"Username":%s,"SrcPath":%s,"CopiedPath":%s,"ProcessPath":%s}`, req.Username, req.SrcPath, req.CopiedPath, req.ProcessPath)
+	Username	string	`json:"username"`
+	SrcPath		string	`json:"src_path"`
+	CopiedPath	string	`json:"copied_path"`
+	ProcessPath	string	`json:"process_path"`
 }
