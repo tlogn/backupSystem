@@ -8,8 +8,16 @@ import (
 
 type Handler struct {}
 
-func (handler *Handler) RemoteDir(Request *rpc_utils.Request, Response *utils.Response ) error {
+func (handler *Handler) RemoteDir(Request *rpc_utils.Request, Response *utils.Response) error {
 	err := dir.RemoteDir(Request, Response)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (handler *Handler) RemoteMkdir(Request *rpc_utils.Request, Response *utils.Response) error {
+	err := dir.RemoteMkdir(Request, Response)
 	if err != nil {
 		return err
 	}
