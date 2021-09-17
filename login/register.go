@@ -24,5 +24,6 @@ func register(username string, password string) string {
 		log.Println(err)
 		return utils.ErrorResponse(err)
 	}
+	// todo 远程服务器建立用户文件夹
 	return utils.SucceedResponse()
 }
