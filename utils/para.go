@@ -17,6 +17,7 @@ type CompressPara struct {
 type EncodePara struct {
 	IsEncode	bool	`json:"is_encode"`
 	EncodePath	string	`json:"encode_path"`
+	Password	string  `json:"password"`
 }
 
 type PackPara struct {

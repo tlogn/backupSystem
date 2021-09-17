@@ -25,3 +25,8 @@ func TestIsPipeLine(t *testing.T) {
 	fmt.Println(IsPipeLine("../test/symlink"))
 
 }
+
+func TestIsRedisKey(t *testing.T) {
+	fmt.Println("-------------------------------------------------------------")
+	fmt.Println(IsRedisKeyExist("123_/mnt/d/123/0Bachelor/我的成绩.xls_encode"))
+}

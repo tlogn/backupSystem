@@ -63,3 +63,21 @@ func GetRecoverInfo(key string) (*RecoverInfo, error) {
 	}
 	return &recoverInfo, nil
 }
+
+func SetPassword(pwd []byte, key string) error {
+	err := RedisClient.Set(Ctx, key, pwd, 0).Err()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+
+func DelPassword(key string) error {
+	err := RedisClient.Del(Ctx, key).Err()
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}

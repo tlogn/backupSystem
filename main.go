@@ -5,6 +5,7 @@ import (
 	"backupSystem/dir"
 	"backupSystem/login"
 	"backupSystem/recover"
+	"backupSystem/encode"
 	"backupSystem/rpc/client"
 	"backupSystem/rpc/server"
 	"backupSystem/utils"
@@ -23,7 +24,7 @@ var (
 		"register": login.Register,
 		"local_copy" : copy.LocalCpFile,
 		"local_dir" : dir.LocalDir,
-		"local_encode" : func(w http.ResponseWriter, r *utils.Request){},
+		"local_encode" : encode.LocalEncode,
 		"local_compress" : func(w http.ResponseWriter, r *utils.Request){},
 		"local_recover" : recover.LocalRecover,
 		"local_pack" : func(w http.ResponseWriter, r *utils.Request){},
