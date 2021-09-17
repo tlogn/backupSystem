@@ -43,7 +43,7 @@ func method(w http.ResponseWriter, r *http.Request) {
 
 	request := utils.Request{}
 
-	err := request.SetRequest(r)
+	err := request.SetRequestFromHttp(r)
 	fmt.Println(request, request.Op)
 	if err != nil {
 		log.Println(err)
