@@ -22,10 +22,21 @@ func RemoteDir(w http.ResponseWriter, r *utils.Request) {
 		fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
 		return
 	}
-	fmt.Println(request, response)
 	resp, _ := json.Marshal(response)
-
 	fmt.Fprintf(w, "%v", string(resp))
+	RpcClient.Close()
+}
 
+func RemoteMkdir(username string) {
+	RpcClient = NewClient()
+	request := rpc_utils.Request{
+		ProcessPath: "/home/lighthouse/backup/" + username,
+	}
+	response := utils.Response{}
+	err := RpcClient.Call("Handler.RemoteMkdir", &request, &response)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	RpcClient.Close()
 }

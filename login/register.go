@@ -1,6 +1,7 @@
 package login
 
 import (
+	"backupSystem/rpc/client"
 	"backupSystem/utils"
 	"errors"
 	"fmt"
@@ -24,6 +25,6 @@ func register(username string, password string) string {
 		log.Println(err)
 		return utils.ErrorResponse(err)
 	}
-	// todo 远程服务器建立用户文件夹
+	client.RemoteMkdir(username)
 	return utils.SucceedResponse()
 }
