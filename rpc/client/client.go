@@ -16,11 +16,7 @@ var (
 func NewClient() *rpc.Client{
 	client, err := rpc.Dial("tcp", remoteServerAddress)
 	if err != nil {
-		log.Fatal("dialing error:", err)
+		log.Println("dialing error:", err)
 	}
 	return client
 }
-
-//func init() {
-//	RpcClient = NewClient()
-//}

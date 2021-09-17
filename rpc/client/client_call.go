@@ -10,6 +10,7 @@ import (
 )
 
 func RemoteDir(w http.ResponseWriter, r *utils.Request) {
+	RpcClient = NewClient()
 	request := rpc_utils.Request{
 		Username: r.UserName,
 		ProcessPath: r.GetDirPara.DirPath,
