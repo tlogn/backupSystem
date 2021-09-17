@@ -16,7 +16,7 @@ func RemoteDir(w http.ResponseWriter, r *utils.Request) {
 		ProcessPath: r.GetDirPara.DirPath,
 	}
 	response := utils.Response{}
-	err := RpcClient.Call("Handler.RemoteDir", &request, &response)
+	err := RpcClient.Call("RemoteDir", &request, &response)
 	if err != nil {
 		log.Println(err)
 		fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
@@ -25,4 +25,6 @@ func RemoteDir(w http.ResponseWriter, r *utils.Request) {
 	resp, _ := json.Marshal(response)
 
 	fmt.Fprintf(w, "%v", string(resp))
+
+	RpcClient.Close()
 }
