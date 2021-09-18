@@ -1,9 +1,9 @@
 package utils
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
-	"github.com/go-redis/redis/v8"
 	"log"
 	"os"
 	"syscall"
@@ -71,13 +71,9 @@ func IsFileExist(filename string) bool {
 	return true
 }
 
-func IsRedisKeyExist(key string) bool {
-	_, err := RedisClient.Get(Ctx, key).Result()
-	if err == redis.Nil {
-		return false
-	}
-	if err != nil {
-		return IsRedisKeyExist(key)
-	}
-	return true
+func GenHash16(key string) string {
+	hashWriter := sha256.New()
+	hashWriter.Write([]byte(key))
+	hashCode := hashWriter.Sum(nil)
+	return string(hashCode[:16])
 }

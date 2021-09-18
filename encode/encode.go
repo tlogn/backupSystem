@@ -5,95 +5,91 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/sha256"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 func LocalEncode(w http.ResponseWriter, r *utils.Request) {
 	redisKey := r.UserName + "_" + r.EncodePara.EncodePath + "_encode"
-	fileEncoded := utils.IsRedisKeyExist(redisKey)
-	if fileEncoded && r.EncodePara.IsEncode {
-		err := errors.New("Encoded file")
+	isFileEncoded := utils.IsRedisKeyExist(redisKey)
+	if isFileEncoded && r.EncodePara.IsEncode {
+		err := errors.New("cannot encode encoded file")
 		log.Println(err)
 		utils.ErrorResponse(err)
 		return
 	}
-	fmt.Fprintf(w, "%v", EncodeOrDecode(r.EncodePara.IsEncode, r.EncodePara.EncodePath, r.EncodePara.Password, redisKey))
+	fmt.Fprintf(w, "%v", SelectEncodeOrDecode(r.EncodePara.IsEncode, r.EncodePara.EncodePath, r.EncodePara.Password, redisKey))
 }
 
-func EncodeOrDecode(flag bool, filePth, pwd, redisKey string) string {
-	if utils.IsDir(filePth) {
-		err := errors.New("Is dir")
+func SelectEncodeOrDecode(isEncode bool, filePath, password, redisKey string) string {
+	filePath, _ = filepath.Abs(filePath)
+	if utils.IsDir(filePath) {
+		err := errors.New("cannot encode dir")
 		log.Println(err)
 		return utils.ErrorResponse(err)
 	}
-	Pwd := []byte(pwd)
-	hash := sha256.New()
-	hash.Write(Pwd)
-	hashCode := hash.Sum(nil)
-	hashCode = hashCode[:16]
-	if flag {
-		return localEncode(filePth, hashCode, redisKey)
+	recvPassword := utils.GenHash16(password)
+	if isEncode {
+		return localEncode(filePath, recvPassword, redisKey)
 	} else {
-		correctPwd,err := utils.RedisClient.Get(utils.Ctx, redisKey).Result()
-		stringPwd := string(hashCode[:])
+		correctPassword, err := utils.RedisClient.Get(utils.Ctx, redisKey).Result()
 		if err!= nil {
 			log.Println(err)
 			return utils.ErrorResponse(err)
 		}
-		if stringPwd != correctPwd {
+		if recvPassword != correctPassword {
 			err = errors.New("wrong password")
 			log.Println(err)
 			return utils.ErrorResponse(err)
 		}
-		return localDecode(filePth, hashCode, redisKey)
+		return localDecode(filePath, recvPassword, redisKey)
 	}
 }
 
-func localEncode(filePth string, pwd []byte, redisKey string) string {
+func localEncode(filePth string, password string, redisKey string) string {
 	file, err := ioutil.ReadFile(filePth)
 	if err != nil {
 		log.Println(err)
 		return utils.ErrorResponse(err)
 	}
-	block, err := aes.NewCipher(pwd)
+	block, err := aes.NewCipher([]byte(password))
 	if err != nil {
 		log.Println(err)
 		return utils.ErrorResponse(err)
 	}
 	blockSize := block.BlockSize()
 	fileAfterPadding := padding(file, blockSize)
-	blockMode := cipher.NewCBCEncrypter(block, []byte(pwd))
+	blockMode := cipher.NewCBCEncrypter(block, []byte(password))
 	blockMode.CryptBlocks(fileAfterPadding, fileAfterPadding)
-	//fmt.Println(string(fileAfterPadding[:]))
+
 	err = os.WriteFile(filePth, fileAfterPadding, 0777)
 	if err != nil {
 		err = errors.New("unable to write")
 		log.Println(err)
 		return utils.ErrorResponse(err)
 	}
-	utils.SetPassword(pwd, redisKey)
+	utils.SetKeyValue(redisKey, password)
 	return utils.SucceedResponse()
 }
 
-func localDecode(filePth string, pwd []byte, redisKey string) string {
+func localDecode(filePth string, pwd string, redisKey string) string {
 	file, err := ioutil.ReadFile(filePth)
 	if err != nil {
 		log.Println(err)
 		return utils.ErrorResponse(err)
 	}
-	block, err := aes.NewCipher(pwd)
+	block, err := aes.NewCipher([]byte(pwd))
 	if err != nil {
 		log.Println(err)
 		return utils.ErrorResponse(err)
 	}
 	blockSize := block.BlockSize()
-	blockMode := cipher.NewCBCDecrypter(block, pwd)
+	blockMode := cipher.NewCBCDecrypter(block, []byte(pwd))
 	blockMode.CryptBlocks(file, file)
 	fileAfterDecrypt := unpadding(file, blockSize)
 	err = os.WriteFile(filePth, fileAfterDecrypt, 0777)
@@ -103,12 +99,12 @@ func localDecode(filePth string, pwd []byte, redisKey string) string {
 		log.Println(err)
 		return utils.ErrorResponse(err)
 	}
-	utils.DelPassword(redisKey)
+	utils.DelKey(redisKey)
 	return utils.SucceedResponse()
 }
 
 func padding(fileBeforePadding []byte, blockSize int) []byte {
-	padNum := blockSize - len(fileBeforePadding)%blockSize
+	padNum := blockSize - len(fileBeforePadding) % blockSize
 	padText := bytes.Repeat([]byte{byte(padNum)}, padNum)
 	fileAfterPadding := append(fileBeforePadding, padText...)
 	return fileAfterPadding
@@ -116,6 +112,6 @@ func padding(fileBeforePadding []byte, blockSize int) []byte {
 
 func unpadding(fileBeforeUnpadding []byte, blockSize int) []byte {
 	originLen := len(fileBeforeUnpadding)
-	padNum := int(fileBeforeUnpadding[originLen-1])
-	return fileBeforeUnpadding[:originLen-padNum]
+	padNum := int(fileBeforeUnpadding[originLen - 1])
+	return fileBeforeUnpadding[ : originLen-padNum]
 }

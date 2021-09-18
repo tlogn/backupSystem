@@ -29,8 +29,8 @@ func SetRecoverInfo(prefix string, fileType string, fileInfo os.FileInfo, srcPat
 		Mode: fileInfo.Mode(),
 		UId: int(fileInfo.Sys().(*syscall.Stat_t).Uid),
 		GId: int(fileInfo.Sys().(*syscall.Stat_t).Gid),
-		ATime: time.Unix(fileInfo.Sys().(*syscall.Stat_t).Atim.Sec, fileInfo.Sys().(*syscall.Stat_t).Atim.Nsec),
-		MTime: time.Unix(fileInfo.Sys().(*syscall.Stat_t).Mtim.Sec, fileInfo.Sys().(*syscall.Stat_t).Mtim.Nsec),
+		ATime: time.Unix(fileInfo.Sys().(*syscall.Stat_t).Atimespec.Sec, fileInfo.Sys().(*syscall.Stat_t).Atimespec.Nsec),
+		MTime: time.Unix(fileInfo.Sys().(*syscall.Stat_t).Mtimespec.Sec, fileInfo.Sys().(*syscall.Stat_t).Mtimespec.Nsec),
 		SrcPath: srcPath,
 		CopiedPath: copiedPath,
 		LinkedPath: linkedPath,
@@ -64,20 +64,32 @@ func GetRecoverInfo(key string) (*RecoverInfo, error) {
 	return &recoverInfo, nil
 }
 
-func SetPassword(pwd []byte, key string) error {
-	err := RedisClient.Set(Ctx, key, pwd, 0).Err()
+func SetKeyValue(key string, value string) error {
+	err := RedisClient.Set(Ctx, key, value, 0).Err()
 	if err != nil {
-		log.Println(err)
-		return err
+		time.Sleep(time.Millisecond)
+		return SetKeyValue(key, value)
 	}
 	return nil
 }
 
-func DelPassword(key string) error {
+func DelKey(key string) error {
 	err := RedisClient.Del(Ctx, key).Err()
 	if err != nil {
-		log.Println(err)
-		return err
+		time.Sleep(time.Millisecond)
+		return DelKey(key)
 	}
 	return nil
+}
+
+func IsRedisKeyExist(key string) bool {
+	_, err := RedisClient.Get(Ctx, key).Result()
+	if err == redis.Nil {
+		return false
+	}
+	if err != nil {
+		time.Sleep(time.Millisecond)
+		return IsRedisKeyExist(key)
+	}
+	return true
 }
