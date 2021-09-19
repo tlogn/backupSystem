@@ -16,7 +16,7 @@ func LockPack(w http.ResponseWriter, r *utils.Request){
 	if packOrUnPack {
 		fmt.Fprintf(w, "%v", localPack(r))
 	} else {
-		fmt.Fprintf(w, "%v", localUnPack(r))
+		fmt.Fprintf(w, "%v", localUnpack(r))
 	}
 }
 
@@ -54,14 +54,14 @@ func localPack(r *utils.Request) error {
 	}
 
 
-	filelist := unfoldDir(srcPath)
-	key := "local_" + r.UserName + "_" + srcPath + ".pack"
+	fileList := unfoldDir(srcPath)
+	key := "local_" + r.UserName + "_pack_" + srcPath + ".pack"
 	utils.DelKey(key)
-	utils.SetKeyList(key,filelist)
+	utils.SetKeyList(key,fileList)
 
 	packedFile := make([]byte, 0)
 
-	for _, filePath := range filelist {
+	for _, filePath := range fileList {
 		file, err := ioutil.ReadFile(filePath)
 		if err != nil {
 			log.Printf("read file %v error, %v",srcPath, err)
@@ -73,8 +73,6 @@ func localPack(r *utils.Request) error {
 		fileHead[1] =  (byte) ((len(file)>>8) & 0xFF)
 		fileHead[0] =  (byte) (len(file) & 0xFF)
 
-		//fileHead := []byte(strconv.FormatInt(int64(len(file)), 10))
-		fmt.Println(len(fileHead))
 		file = append(fileHead, file...)
 		packedFile = append(packedFile, file...)
 	}
@@ -89,7 +87,7 @@ func localPack(r *utils.Request) error {
 	return nil
 }
 
-func localUnPack(r *utils.Request) error {
+func localUnpack(r *utils.Request) error {
 	srcPath := r.PackPara.PackPath
 	packedFile, err := ioutil.ReadFile(srcPath)
 	fmt.Println(len(packedFile))
@@ -107,7 +105,6 @@ func localUnPack(r *utils.Request) error {
 		fileHead := packedFile[pointer : pointer + 4]
 		size := int(fileHead[0]) + int(fileHead[1]<<8) + int(fileHead[2]<<16) + int(fileHead[3]<<24)
 		fmt.Println(size)
-		//size, err := strconv.ParseInt(string(packedFile[pointer : pointer + 4]), 10, 32)
 		if err != nil {
 			log.Printf("read packedfile %v size error, %v", filePath, err)
 			return err
@@ -119,8 +116,7 @@ func localUnPack(r *utils.Request) error {
 			log.Printf("write packedfile %v error, %v",filePath, err)
 			return errors.New("write unpackedfile error")
 		}
-		pointer += int(size)
-		fmt.Println(size)
+		pointer += size
 	}
 	return nil
 }
