@@ -3,6 +3,7 @@ package file_transport
 import (
 	"backupSystem/rpc/rpc_utils"
 	"backupSystem/utils"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -10,6 +11,7 @@ import (
 )
 
 func RemoteUpload(Request *rpc_utils.Request, Response *utils.Response) error {
+	fmt.Println(Request)
 	Response.Succeed = true
 	if Request.FileType == utils.FILE_TYPE_PIPELINE {
 		err := syscall.Mkfifo(Request.ProcessPath, 0777)
