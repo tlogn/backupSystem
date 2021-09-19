@@ -4,11 +4,11 @@ import (
 	"backupSystem/rpc/rpc_utils"
 	"backupSystem/utils"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"path/filepath"
 )
 
 func RemoteDir(w http.ResponseWriter, r *utils.Request) {
@@ -46,20 +46,34 @@ func RemoteMkdir(username string) {
 func RemoteUpload(w http.ResponseWriter, r *utils.Request) {
 	localPath := r.TransPara.LocalPath
 	remotePath := r.TransPara.RemotePath
+	fmt.Fprintf(w, "%v", remoteUpload(localPath, remotePath))
+}
 
+
+func remoteUpload(localPath, remotePath string) string {
 	RpcClient = NewClient()
 	defer RpcClient.Close()
 	if utils.IsDir(localPath) {
-		err := errors.New("cannot upload dir")
-		log.Println(err)
-		fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
-		return
+		request := rpc_utils.Request{
+			ProcessPath: remotePath,
+			FileType: utils.FILE_TYPE_DIR,
+		}
+		response := utils.Response{}
+		err := RpcClient.Call("Handler.RemoteUpload", &request, &response)
+		if err != nil {
+			log.Println(err)
+			return utils.ErrorResponse(err)
+		}
+		fileInfoList, err := ioutil.ReadDir(localPath)
+		for _, fileInfo := range fileInfoList {
+			remoteUpload(filepath.Join(localPath, fileInfo.Name()), filepath.Join(remotePath, fileInfo.Name()))
+		}
+		return utils.SucceedResponse()
 	}
 	data, err := ioutil.ReadFile(localPath)
 	if err != nil {
 		log.Println(err)
-		fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
-		return
+		return utils.ErrorResponse(err)
 	}
 	request := rpc_utils.Request{
 		ProcessPath: remotePath,
@@ -70,10 +84,9 @@ func RemoteUpload(w http.ResponseWriter, r *utils.Request) {
 	err = RpcClient.Call("Handler.RemoteUpload", &request, &response)
 	if err != nil {
 		log.Println(err)
-		fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
-		return
+		return utils.ErrorResponse(err)
 	}
-	fmt.Fprintf(w, "%v", utils.SucceedResponse())
+	return utils.SucceedResponse()
 }
 
 func RemoteDownload(w http.ResponseWriter, r *utils.Request) {
