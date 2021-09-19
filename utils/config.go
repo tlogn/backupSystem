@@ -81,4 +81,6 @@ type Response struct {
 	Succeed		bool		`json:"succeed"`
 	Err			string 		`json:"err"`
 	DirFiles	[]DirFile 	`json:"dir_files"`
+	FileType	string		`json:"file_type"`
+	Data		[]byte		`json:"data"`
 }

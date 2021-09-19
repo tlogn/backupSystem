@@ -25,6 +25,5 @@ func TestGetRecoverInfo(t *testing.T) {
 		panic(err)
 	}
 	fmt.Println(r)
-
 }
 

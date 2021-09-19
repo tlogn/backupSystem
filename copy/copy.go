@@ -106,7 +106,7 @@ func CpDir(dstPath, srcPath string) error {
 
 	fileInfoList, err := ioutil.ReadDir(srcPath)
 	if err != nil {
-		log.Fatalf("read dir %v error, %v",srcPath, err)
+		log.Printf("read dir %v error, %v",srcPath, err)
 		return err
 	}
 

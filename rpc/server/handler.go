@@ -32,3 +32,11 @@ func (handler *Handler) RemoteUpload(Request *rpc_utils.Request, Response *utils
 	}
 	return nil
 }
+
+func (handler *Handler) RemoteDownload(Request *rpc_utils.Request, Response *utils.Response) error {
+	err := file_transport.RemoteDownload(Request, Response)
+	if err != nil {
+		return err
+	}
+	return nil
+}

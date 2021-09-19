@@ -3,6 +3,7 @@ package utils
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	redis "github.com/go-redis/redis/v8"
 	"log"
 	"os"
@@ -73,6 +74,41 @@ func SetKeyValue(key string, value string) error {
 	return nil
 }
 
+func SetKeyList(key string, values []string) error {
+	for _, value := range values {
+		fmt.Println(value)
+		err := RedisClient.RPush(Ctx, key, value).Err()
+		for {
+			if err != nil {
+				time.Sleep(time.Millisecond)
+				err = RedisClient.RPush(Ctx, key, value).Err()
+			} else {
+				break
+			}
+		}
+	}
+	return nil
+}
+
+func GetKeyList(key string) ([]string, error) {
+	length, err := RedisClient.LLen(Ctx, key).Result()
+	if err != nil {
+		time.Sleep(time.Millisecond)
+		return GetKeyList(key)
+	}
+	fmt.Println(length)
+	ans := make([]string, 0)
+	for i := int64(0);i < length;i++ {
+		tp, err := RedisClient.LIndex(Ctx, key, i).Result()
+		if err != nil {
+			time.Sleep(time.Millisecond)
+			return GetKeyList(key)
+		}
+		ans = append(ans, tp)
+	}
+	return ans, nil
+}
+
 func DelKey(key string) error {
 	err := RedisClient.Del(Ctx, key).Err()
 	if err != nil {
@@ -93,3 +129,4 @@ func IsRedisKeyExist(key string) bool {
 	}
 	return true
 }
+
