@@ -41,7 +41,6 @@ func unfoldDir(srcPath string) []string {
 func localPack(r *utils.Request) error {
 
 	srcPath, err := filepath.Abs(r.PackPara.PackPath)
-
 	if err != nil {
 		log.Println(err)
 		return err
@@ -90,21 +89,19 @@ func localPack(r *utils.Request) error {
 func localUnpack(r *utils.Request) error {
 	srcPath := r.PackPara.PackPath
 	packedFile, err := ioutil.ReadFile(srcPath)
-	fmt.Println(len(packedFile))
 	if err != nil {
 		log.Printf("read file %v error, %v",srcPath, err)
 		return err
 	}
 
-	key := "local_" + r.UserName + "_" + srcPath
-	filelist,_ := utils.GetKeyList(key)
+	key := "local_" + r.UserName + "_pack_" + srcPath
+	fileList, _ := utils.GetKeyList(key)
 	pointer := 0
-	fmt.Println(len(filelist))
-	for _, filePath := range filelist {
-		fmt.Println(filePath)
+
+	for _, filePath := range fileList {
+
 		fileHead := packedFile[pointer : pointer + 4]
 		size := int(fileHead[0]) + int(fileHead[1]<<8) + int(fileHead[2]<<16) + int(fileHead[3]<<24)
-		fmt.Println(size)
 		if err != nil {
 			log.Printf("read packedfile %v size error, %v", filePath, err)
 			return err
