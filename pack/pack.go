@@ -42,28 +42,21 @@ func unfoldDir(srcPath string, head string) []string {
 }
 
 
-func localPack(r *utils.Request) error {
+func localPack(r *utils.Request) string {
 
 	srcPath, err := filepath.Abs(r.PackPara.PackPath)
 	if err != nil {
 		log.Println(err)
-		return err
+		return utils.ErrorResponse(err)
 	}
 
 	if !utils.IsDir(srcPath) {
 		err := errors.New("is not a dir")
 		log.Printf("%v %v", srcPath, err)
-		return err
+		return utils.ErrorResponse(err)
 	}
 
-
-
 	filelist := unfoldDir(srcPath,"")
-	//key := "local_" + r.UserName + "_" + srcPath + ".pack"
-	//utils.DelKey(key)
-	//utils.SetKeyList(key,filelist)
-
-
 
 	packedFile := make([]byte, 0)
 
@@ -83,7 +76,7 @@ func localPack(r *utils.Request) error {
 
 		if err != nil {
 			log.Printf("read file %v error, %v",srcPath, err)
-			return err
+			return utils.ErrorResponse(err)
 		}
 		fmt.Println(len(file))
 
@@ -104,18 +97,18 @@ func localPack(r *utils.Request) error {
 	err = ioutil.WriteFile(dstPath, packedFile, 0777)
 	if err != nil {
 		log.Printf("write packedfile %v error, %v",dstPath, err)
-		return errors.New("write packedfile error")
+		return utils.ErrorResponse(errors.New("write packedfile error"))
 	}
 
-	return nil
+	return utils.SucceedResponse()
 }
 
-func localUnpack(r *utils.Request) error {
+func localUnpack(r *utils.Request) string {
 	srcPath := r.PackPara.PackPath
 	packedFile, err := ioutil.ReadFile(srcPath)
 	if err != nil {
 		log.Printf("read file %v error, %v",srcPath, err)
-		return err
+		return utils.ErrorResponse(err)
 	}
 
 
@@ -126,7 +119,7 @@ func localUnpack(r *utils.Request) error {
 	for {
 		//fmt.Println(filePath)
 		if pointer == len(packedFile) {
-			break;
+			break
 		}
 		pathHeadLen := packedFile[pointer : pointer + 4]
 		size := int(pathHeadLen[0]) + int(pathHeadLen[1]<<8) + int(pathHeadLen[2]<<16) + int(pathHeadLen[3]<<24)
@@ -153,9 +146,9 @@ func localUnpack(r *utils.Request) error {
 		err = ioutil.WriteFile(filePath, packedFile[pointer : pointer + size], 0777)
 		if err != nil {
 			log.Printf("write packedfile %v error, %v",filePath, err)
-			return errors.New("write unpackedfile error")
+			return utils.ErrorResponse(errors.New("write unpackedfile error"))
 		}
 		pointer += size
 	}
-	return nil
+	return utils.SucceedResponse()
 }
