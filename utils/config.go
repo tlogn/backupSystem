@@ -8,6 +8,14 @@ import (
 	"time"
 )
 
+const (
+	FILE_TYPE_DIR 		= "Dir"
+	FILE_TYPE_FILE		= "File"
+	FILE_TYPE_PIPELINE 	= "Pipeline"
+	FILE_TYPE_SYMLINK 	= "Symlink"
+	FILE_TYPE_HARDLINK	= "Hardlink"
+)
+
 type RecoverInfo struct {
 	FileType	string			`json:"file_type"`
 	Mode		os.FileMode		`json:"mode"`
@@ -26,9 +34,11 @@ type Request struct {
 
 	UserName		string			`json:"user_name"`
 
+	TransPara		TransPara		`json:"trans_para"`
+
 	LoginPara		LoginPara		`json:"login_para"`
 
-	GetDirPara		DirPara			`json:"get_dir_para"`
+	DirPara			DirPara			`json:"dir_para"`
 
 	CopyPara		CopyPara		`json:"copy_para"`
 

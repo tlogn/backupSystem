@@ -12,7 +12,7 @@ import (
 )
 
 func LocalDir(w http.ResponseWriter, r *utils.Request){
-	srcPath := r.GetDirPara.DirPath
+	srcPath := r.DirPara.DirPath
 	fmt.Fprintf(w, "%v", localDir(srcPath))
 }
 

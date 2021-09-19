@@ -3,9 +3,9 @@ package main
 import (
 	"backupSystem/copy"
 	"backupSystem/dir"
+	"backupSystem/encode"
 	"backupSystem/login"
 	"backupSystem/recover"
-	"backupSystem/encode"
 	"backupSystem/rpc/client"
 	"backupSystem/rpc/server"
 	"backupSystem/utils"
@@ -34,6 +34,8 @@ var (
 		"remote_compress" : func(w http.ResponseWriter, r *utils.Request){},
 		"remote_recover" : func(w http.ResponseWriter, r *utils.Request){},
 		"remote_pack" : func(w http.ResponseWriter, r *utils.Request){},
+		"remote_download" : func(w http.ResponseWriter, r *utils.Request){},
+		"remote_upload" : client.RemoteUpload,
 	}
 	rpcServerSelect bool
 
@@ -86,17 +88,22 @@ func main() {
 
 /*
 {
-	"op":"remote_dir",
+	"op":"remote_upload",
 
 	"user_name":"",
+
+	"trans_para":{
+		"local_path":"/Users/bytedance/go/src/backupSystem/go.mod",
+		"remote_path":"/home/lighthouse/backup/1234/1.txt"
+	},
 
 	"login_para":{
 		"username":"",
 		"password":""
 	},
 
-	"get_dir_para":{
-		"dir_path":"/home/lighthouse"
+	"dir_para":{
+		"dir_path":""
 	},
 
 	"copy_para":{

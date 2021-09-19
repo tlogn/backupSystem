@@ -4,6 +4,11 @@ type DirPara struct {
 	DirPath string	`json:"dir_path"`
 }
 
+type TransPara struct {
+	LocalPath	string `json:"local_path"`
+	RemotePath	string	`json:"remote_path"`
+}
+
 type CopyPara struct {
 	OriginPath 	string	`json:"origin_path"`
 	BackupPath	string	`json:"backup_path"`
