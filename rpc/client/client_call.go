@@ -75,3 +75,27 @@ func RemoteUpload(w http.ResponseWriter, r *utils.Request) {
 	}
 	fmt.Fprintf(w, "%v", utils.SucceedResponse())
 }
+
+func RemoteDownload(w http.ResponseWriter, r *utils.Request) {
+	localPath := r.TransPara.LocalPath
+	remotePath := r.TransPara.RemotePath
+	RpcClient = NewClient()
+	defer RpcClient.Close()
+	request := rpc_utils.Request{
+		ProcessPath: remotePath,
+	}
+	response := utils.Response{}
+	err := RpcClient.Call("Handler.RemoteDownload", &request, &response)
+	if err != nil {
+		log.Println(err)
+		fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
+		return
+	}
+	err = ioutil.WriteFile(localPath, response.Data, 0777)
+	if err != nil {
+		log.Println(err)
+		fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
+		return
+	}
+	fmt.Fprintf(w, "%v", utils.SucceedResponse())
+}
