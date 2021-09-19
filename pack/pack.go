@@ -16,7 +16,7 @@ func LockPack(w http.ResponseWriter, r *utils.Request){
 	if packOrUnPack {
 		fmt.Fprintf(w, "%v", localPack(r))
 	} else {
-		fmt.Fprintf(w, "%v", localUnPack(r))
+		fmt.Fprintf(w, "%v", localUnpack(r))
 	}
 }
 
@@ -45,7 +45,6 @@ func unfoldDir(srcPath string, head string) []string {
 func localPack(r *utils.Request) error {
 
 	srcPath, err := filepath.Abs(r.PackPara.PackPath)
-
 	if err != nil {
 		log.Println(err)
 		return err
@@ -56,6 +55,7 @@ func localPack(r *utils.Request) error {
 		log.Printf("%v %v", srcPath, err)
 		return err
 	}
+
 
 
 	filelist := unfoldDir(srcPath,"")
@@ -80,6 +80,7 @@ func localPack(r *utils.Request) error {
 		fmt.Println(len(pathHead))
 
 		file, err := ioutil.ReadFile(filepath.Join(filepath.Dir(srcPath), filePath))
+
 		if err != nil {
 			log.Printf("read file %v error, %v",srcPath, err)
 			return err
@@ -94,6 +95,7 @@ func localPack(r *utils.Request) error {
 
 		//fileHead := []byte(strconv.FormatInt(int64(len(file)), 10))
 		//fmt.Println(len(fileHead))
+
 		file = append(fileHead, file...)
 		packedFile = append(packedFile, file...)
 	}
@@ -108,14 +110,14 @@ func localPack(r *utils.Request) error {
 	return nil
 }
 
-func localUnPack(r *utils.Request) error {
+func localUnpack(r *utils.Request) error {
 	srcPath := r.PackPara.PackPath
 	packedFile, err := ioutil.ReadFile(srcPath)
-	fmt.Println(len(packedFile))
 	if err != nil {
 		log.Printf("read file %v error, %v",srcPath, err)
 		return err
 	}
+
 
 	//key := "local_" + r.UserName + "_" + srcPath
 	//filelist,_ := utils.GetKeyList(key)
@@ -145,6 +147,7 @@ func localUnPack(r *utils.Request) error {
 		//	log.Printf("read packedfile %v size error, %v", filePath, err)
 		//	return err
 		//}
+
 		pointer += 4
 		os.MkdirAll(filepath.Dir(filePath),0777)
 		err = ioutil.WriteFile(filePath, packedFile[pointer : pointer + size], 0777)
@@ -152,8 +155,7 @@ func localUnPack(r *utils.Request) error {
 			log.Printf("write packedfile %v error, %v",filePath, err)
 			return errors.New("write unpackedfile error")
 		}
-		pointer += int(size)
-		fmt.Println(size)
+		pointer += size
 	}
 	return nil
 }

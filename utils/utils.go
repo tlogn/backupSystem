@@ -77,3 +77,19 @@ func GenHash16(key string) string {
 	hashCode := hashWriter.Sum(nil)
 	return string(hashCode[:16])
 }
+
+func GetFileType(filepath string) string {
+	if IsDir(filepath) {
+		return FILE_TYPE_DIR
+	}
+	if IsSymLink(filepath) {
+		return FILE_TYPE_SYMLINK
+	}
+	if IsHardLink(filepath) {
+		return FILE_TYPE_HARDLINK
+	}
+	if IsPipeLine(filepath) {
+		return FILE_TYPE_PIPELINE
+	}
+	return FILE_TYPE_FILE
+}

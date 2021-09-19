@@ -63,7 +63,7 @@ func CpNormalFile(dstPath, srcPath string) error {
 		log.Printf("write file %v error, %v",dstPath, err)
 		return errors.New("write file error")
 	}
-	utils.SetRecoverInfo("local_", "File", f, srcPath, dstPath, "", nil)
+	utils.SetRecoverInfo("local_", utils.FILE_TYPE_FILE, f, srcPath, dstPath, "", nil)
 	return nil
 }
 
@@ -75,7 +75,7 @@ func CpHardLink(dstPath, srcPath string) error {
 	}
 
 	f, _ := os.Lstat(srcPath)
-	utils.SetRecoverInfo("local_", "HardLink", f, srcPath, dstPath, "", nil)
+	utils.SetRecoverInfo("local_", utils.FILE_TYPE_HARDLINK, f, srcPath, dstPath, "", nil)
 	return nil
 }
 
@@ -88,7 +88,7 @@ func CpSymLink(dstPath, srcPath string) error {
 
 	linkedSrcPath, _ := os.Readlink(srcPath)
 	LinkedSrcPath, _ := filepath.Abs(linkedSrcPath)
-	utils.SetRecoverInfo("local_", "SymLink", f, srcPath, dstPath, LinkedSrcPath, nil)
+	utils.SetRecoverInfo("local_", utils.FILE_TYPE_SYMLINK, f, srcPath, dstPath, LinkedSrcPath, nil)
 	return nil
 }
 
@@ -98,7 +98,7 @@ func CpPipeline(dstPath, srcPath string) error {
 		return err
 	}
 	f, _ := os.Lstat(srcPath)
-	utils.SetRecoverInfo("local_", "Pipeline", f, srcPath, dstPath, "", nil)
+	utils.SetRecoverInfo("local_", utils.FILE_TYPE_PIPELINE, f, srcPath, dstPath, "", nil)
 	return nil
 }
 
@@ -126,7 +126,7 @@ func CpDir(dstPath, srcPath string) error {
 		linkedPath, _ = os.Readlink(srcPath)
 		linkedPath, _ = filepath.Abs(linkedPath)
 	}
-	utils.SetRecoverInfo("local_", "Dir", f, srcPath, dstPath, linkedPath, dirList)
+	utils.SetRecoverInfo("local_", utils.FILE_TYPE_DIR, f, srcPath, dstPath, linkedPath, dirList)
 
 	for _, fileInfo := range fileInfoList {
 		CpFile(path.Join(dstPath, fileInfo.Name()), path.Join(srcPath, fileInfo.Name()))
