@@ -23,7 +23,10 @@ func ErrorResponse(err error) string {
 
 func GetErrFromResponse(response string) error {
 	resp := Response{}
-	json.Unmarshal([]byte(response), resp)
+	err := json.Unmarshal([]byte(response), &resp)
+	if err != nil {
+		log.Println(err)
+	}
 	return errors.New(resp.Err)
 }
 
