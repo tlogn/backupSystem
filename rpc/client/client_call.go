@@ -1,6 +1,7 @@
 package client
 
 import (
+	"backupSystem/pack"
 	"backupSystem/rpc/rpc_utils"
 	"backupSystem/utils"
 	"encoding/json"
@@ -8,6 +9,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"syscall"
 )
 
 func RemoteDir(w http.ResponseWriter, r *utils.Request) {
@@ -52,8 +55,15 @@ func RemoteUpload(w http.ResponseWriter, r *utils.Request) {
 func remoteUpload(localPath, remotePath string) string {
 	RpcClient = NewClient()
 	defer RpcClient.Close()
+	fileType := utils.GetFileType(localPath)
 	if utils.IsDir(localPath) {
-
+		err := pack.LPack(localPath)
+		if err != nil {
+			log.Println(err)
+			return utils.ErrorResponse(err)
+		}
+		localPath = localPath + ".pack"
+		remotePath = remotePath + ".pack"
 	}
 	data, err := ioutil.ReadFile(localPath)
 	if err != nil {
@@ -62,7 +72,7 @@ func remoteUpload(localPath, remotePath string) string {
 	}
 	request := rpc_utils.Request{
 		ProcessPath: remotePath,
-		FileType: utils.GetFileType(localPath),
+		FileType: fileType,
 		Data: data,
 	}
 	response := utils.Response{}
@@ -70,6 +80,13 @@ func remoteUpload(localPath, remotePath string) string {
 	if err != nil {
 		log.Println(err)
 		return utils.ErrorResponse(err)
+	}
+	if fileType == utils.FILE_TYPE_DIR {
+		err = os.Remove(localPath)
+		if err != nil {
+			log.Println(err)
+			return utils.ErrorResponse(err)
+		}
 	}
 	return utils.SucceedResponse()
 }
@@ -89,11 +106,36 @@ func RemoteDownload(w http.ResponseWriter, r *utils.Request) {
 		fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
 		return
 	}
+	if response.FileType == utils.FILE_TYPE_PIPELINE {
+		err = syscall.Mkfifo(localPath, 0777)
+		if err != nil {
+			log.Println(err)
+			fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
+			return
+		}
+		fmt.Fprintf(w, "%v", utils.SucceedResponse())
+	}
+
+	if response.FileType == utils.FILE_TYPE_DIR {
+		localPath = localPath + ".pack"
+	}
+
 	err = ioutil.WriteFile(localPath, response.Data, 0777)
 	if err != nil {
 		log.Println(err)
 		fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
 		return
 	}
+
+	if response.FileType == utils.FILE_TYPE_DIR {
+		pack.UPack(localPath)
+		err = os.Remove(localPath)
+		if err != nil {
+			log.Println(err)
+			fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
+			return
+		}
+	}
+
 	fmt.Fprintf(w, "%v", utils.SucceedResponse())
 }
