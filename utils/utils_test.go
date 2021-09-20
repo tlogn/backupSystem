@@ -1,9 +1,18 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 )
+
+func TestGetErrFromResponse(t *testing.T) {
+	a := ErrorResponse(errors.New("test error"))
+	b := GetErrFromResponse(a)
+	fmt.Println(a)
+	fmt.Println(b)
+	fmt.Println(ErrorResponse(b))
+}
 
 func TestIsHardLink(t *testing.T) {
 	fmt.Println("--------------------hardLink test---------------------------")

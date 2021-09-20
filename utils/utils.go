@@ -24,6 +24,15 @@ func ErrorResponse(err error) string {
 	return string(resp)
 }
 
+func GetErrFromResponse(response string) error {
+	resp := Response{}
+	err := json.Unmarshal([]byte(response), &resp)
+	if err != nil {
+		log.Println(err)
+	}
+	return errors.New(resp.Err)
+}
+
 func IsSymLink(filename string) bool {
 	stats, _ := os.Lstat(filename)
 	return (stats.Mode().Type() & os.ModeSymlink) == os.ModeSymlink
