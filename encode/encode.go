@@ -15,18 +15,10 @@ import (
 )
 
 func LocalEncode(w http.ResponseWriter, r *utils.Request) {
-	redisKey := r.UserName + "_" + r.EncodePara.EncodePath + "_encode"
-	isFileEncoded := utils.IsRedisKeyExist(redisKey)
-	if isFileEncoded && r.EncodePara.IsEncode {
-		err := errors.New("cannot encode encoded file")
-		log.Println(err)
-		utils.ErrorResponse(err)
-		return
-	}
-	fmt.Fprintf(w, "%v", SelectEncodeOrDecode(r.EncodePara.IsEncode, r.EncodePara.EncodePath, r.EncodePara.Password, redisKey))
+	fmt.Fprintf(w, "%v", SelectEncodeOrDecode(r.EncodePara.IsEncode, r.EncodePara.EncodePath, r.EncodePara.Password))
 }
 
-func SelectEncodeOrDecode(isEncode bool, filePath, password, redisKey string) string {
+func SelectEncodeOrDecode(isEncode bool, filePath, password string) string {
 	filePath, _ = filepath.Abs(filePath)
 	if utils.IsDir(filePath) {
 		err := errors.New("cannot encode dir")
@@ -35,25 +27,21 @@ func SelectEncodeOrDecode(isEncode bool, filePath, password, redisKey string) st
 	}
 	recvPassword := utils.GenHash16(password)
 	if isEncode {
-		return localEncode(filePath, recvPassword, redisKey)
+		return localEncode(filePath, recvPassword)
 	} else {
-		correctPassword, err := utils.RedisClient.Get(utils.Ctx, redisKey).Result()
-		if err!= nil {
-			log.Println(err)
-			return utils.ErrorResponse(err)
-		}
-		if recvPassword != correctPassword {
-			err = errors.New("wrong password")
-			log.Println(err)
-			return utils.ErrorResponse(err)
-		}
-		return localDecode(filePath, recvPassword, redisKey)
+		return localDecode(filePath, recvPassword)
 	}
 }
 
-func localEncode(filePth string, password string, redisKey string) string {
+func localEncode(filePth string, password string) string {
 	file, err := ioutil.ReadFile(filePth)
 	if err != nil {
+		log.Println(err)
+		return utils.ErrorResponse(err)
+	}
+	ifEncoded := file[0:8]
+	if bytes.Equal([]byte("11111111"), ifEncoded) {
+		err = errors.New("cannot encode encoded file")
 		log.Println(err)
 		return utils.ErrorResponse(err)
 	}
@@ -66,20 +54,39 @@ func localEncode(filePth string, password string, redisKey string) string {
 	fileAfterPadding := padding(file, blockSize)
 	blockMode := cipher.NewCBCEncrypter(block, []byte(password))
 	blockMode.CryptBlocks(fileAfterPadding, fileAfterPadding)
-
+	fmt.Println(fileAfterPadding)
+	header := []byte("11111111")
+	fileAfterPadding = append(header, fileAfterPadding...)
+	fmt.Println(fileAfterPadding)
+	fmt.Println("---------------------------")
+	fmt.Println([]byte(password))
+	fileAfterPadding = append(fileAfterPadding, []byte(password)...)
+	fmt.Println(fileAfterPadding)
 	err = os.WriteFile(filePth, fileAfterPadding, 0777)
 	if err != nil {
 		err = errors.New("unable to write")
 		log.Println(err)
 		return utils.ErrorResponse(err)
 	}
-	utils.SetKeyValue(redisKey, password)
 	return utils.SucceedResponse()
 }
 
-func localDecode(filePth string, pwd string, redisKey string) string {
+func localDecode(filePth string, pwd string) string {
 	file, err := ioutil.ReadFile(filePth)
 	if err != nil {
+		log.Println(err)
+		return utils.ErrorResponse(err)
+	}
+	ifEncoded := file[0:8]
+	if !bytes.Equal([]byte("11111111"), ifEncoded) {
+		err = errors.New("file not encoded")
+		log.Println(err)
+		return utils.ErrorResponse(err)
+	}
+	fileLen := len(file)
+	correctPwd := file[fileLen-16:]
+	if !bytes.Equal(correctPwd, []byte(pwd)) {
+		err = errors.New("wrong password")
 		log.Println(err)
 		return utils.ErrorResponse(err)
 	}
@@ -88,6 +95,7 @@ func localDecode(filePth string, pwd string, redisKey string) string {
 		log.Println(err)
 		return utils.ErrorResponse(err)
 	}
+	file = file[8:fileLen-16]
 	blockSize := block.BlockSize()
 	blockMode := cipher.NewCBCDecrypter(block, []byte(pwd))
 	blockMode.CryptBlocks(file, file)
@@ -99,7 +107,6 @@ func localDecode(filePth string, pwd string, redisKey string) string {
 		log.Println(err)
 		return utils.ErrorResponse(err)
 	}
-	utils.DelKey(redisKey)
 	return utils.SucceedResponse()
 }
 
