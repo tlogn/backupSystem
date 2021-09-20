@@ -4,25 +4,19 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"syscall"
-	"time"
 )
 
 func SucceedResponse()	string {
-    time.Sleep(200 *time.Millisecond)
 	response := Response{Succeed: true}
 	resp, _ := json.Marshal(response)
-<<<<<<< HEAD
-    	
-=======
->>>>>>> 57c8996b0fee3f4dfc3df0d5e0175f4424dbbf49
 	return string(resp)
 }
 
 func ErrorResponse(err error) string {
-	time.Sleep(200 *time.Millisecond)
 	response := Response{Succeed: false, Err: err.Error()}
 	resp, _ := json.Marshal(response)
 	return string(resp)
@@ -66,7 +60,13 @@ func IsHardLink(filename string) bool {
 }
 
 func IsDir(filename string) bool {
-	stats, _ := os.Stat(filename)
+	stats, err := os.Stat(filename)
+	if err!=nil {
+		fmt.Println("***************************IsDir Err*******************************")
+		fmt.Println(err)
+		ErrorResponse(err)
+		return false;
+	}
 	return stats.IsDir()
 }
 

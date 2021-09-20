@@ -192,15 +192,16 @@ export default {
       that.Body.op = "local_pack";
       that.Body.pack_para.is_pack = true;
       that.Body.pack_para.pack_path = this.d_pth;
-      this.Post("打包").catch((err) => {
+      await this.Post("打包").catch((err) => {
+        console.log("packErr")
         window.alert(err);
+        return;
       });
-      if (this.pack_suc) {
-        that.Body.op = "local_remove";
-        that.Body.dir_para.dir_path = this.d_pth;
-        axios.post(that.header, that.Body);
-      }
+      that.Body.op = "local_remove";
+      that.Body.dir_para.dir_path = this.d_pth;
+      await axios.post(that.header, that.Body);
       that.d_pth += ".pack";
+      console.log(that.d_pth);
     },
     async Compress() {
       if (!this.compress) {
@@ -214,8 +215,9 @@ export default {
       that.Body.op = "local_compress";
       that.Body.compress_para.is_compress = true;
       that.Body.compress_para.compress_path = this.d_pth;
-      this.Post("压缩").catch((err) => {
+      await this.Post("压缩").catch((err) => {
         window.alert(err);
+        return;
       });
     },
     async Encode() {
@@ -231,7 +233,7 @@ export default {
       that.Body.encode_para.is_encode = true;
       that.Body.encode_para.encode_path = this.d_pth;
       that.Body.encode_para.password = this.encode_pwd;
-      this.Post("加密").catch((err) => {
+      await this.Post("加密").catch((err) => {
         window.alert(err);
       });
     },
