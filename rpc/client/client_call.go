@@ -153,7 +153,7 @@ func RemoteRemove(w http.ResponseWriter, r *utils.Request) {
 		ProcessPath: r.DirPara.DirPath,
 	}
 	response := utils.Response{}
-	err := RpcClient.Call("Handler.RemoteDownload", &request, &response)
+	err := RpcClient.Call("Handler.RemoteRemove", &request, &response)
 	if err != nil {
 		fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
 		return
