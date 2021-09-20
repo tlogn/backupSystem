@@ -13,7 +13,7 @@ import (
 func SucceedResponse()	string {
 	response := Response{Succeed: true}
 	resp, _ := json.Marshal(response)
-    time.Sleep(200 *time.Millisecond)
+    	time.Sleep(199 *time.Millisecond)
 	return string(resp)
 }
 
