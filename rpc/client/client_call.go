@@ -160,3 +160,23 @@ func RemoteRemove(w http.ResponseWriter, r *utils.Request) {
 	}
 	fmt.Fprintf(w, "%v", utils.SucceedResponse())
 }
+
+func RemoteEncode(w http.ResponseWriter, r *utils.Request) {
+	RpcClient = NewClient()
+	defer RpcClient.Close()
+	request := rpc_utils.Request{
+		ProcessPath: r.EncodePara.EncodePath,
+		Password: r.EncodePara.Password,
+	}
+	response := utils.Response{}
+	method := "Handler.RemoteDecode"
+	if r.EncodePara.IsEncode {
+		method = "Handler.RemoteEncode"
+	}
+	err := RpcClient.Call(method, &request, &response)
+	if err != nil {
+		fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
+		return
+	}
+	fmt.Fprintf(w, "%v", utils.SucceedResponse())
+}

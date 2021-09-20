@@ -32,7 +32,7 @@ var (
 		"local_remove" : dir.LocalRemove,
 		"local_mkdir" : dir.LocalMkdir,
 		"remote_dir" : client.RemoteDir,
-		"remote_encode" : func(w http.ResponseWriter, r *utils.Request){},
+		"remote_encode" : client.RemoteEncode,
 		"remote_compress" : func(w http.ResponseWriter, r *utils.Request){},
 		"remote_pack" : func(w http.ResponseWriter, r *utils.Request){},
 		"remote_download" : client.RemoteDownload,
