@@ -24,13 +24,14 @@
     <div id="list">
       <center>
         <ul id="column1" style="width: 350px; padding: 8px">
-        <button @click="sel_tar()" id="btn2" >选择当前路径</button>
+          <button @click="sel_tar()" id="btn2">选择当前路径</button>
         </ul>
         <div id="for" v-for="fil in lis">
           <div v-if="fil.is_dir == true">
             <ul id="column1" style="width: 350px; padding: 8px">
               <div id="fil1">
                 <button @click="sel_tar(fil.file_name)" id="btn2">选择</button>
+                <button @click="del(fil.file_name)" id="btn4">删除</button>
                 <button @click="sele(fil.file_name, fil.is_dir)" id="btn3">
                   进入
                 </button>
@@ -46,6 +47,7 @@
             <ul id="column2" style="width: 350px; padding: 8px">
               <div id="fil2">
                 <button @click="sel_tar(fil.file_name)" id="btn2">选择</button>
+                <button @click="del(fil.file_name)" id="btn4">删除</button>
                 <label style="font-size: 18px">
                   {{ fil.file_name }}
                 </label>
@@ -60,7 +62,7 @@
 
 <script>
 import axios from "axios";
-import c from "../../common.vue"
+import c from "../../common.vue";
 import qs from "qs";
 axios.defaults.headers.post["content-type"] = "application/json";
 export default {
@@ -72,13 +74,14 @@ export default {
       lis: "",
       curPth: "",
       default_pth: "",
-      Body: c.Body
+      Body: c.Body,
     };
   },
   mounted: function () {
     this.get_os_type();
     var that = this;
     that.curPth = that.default_pth;
+    that.ini_get();
   },
   methods: {
     get_os_type: function () {
@@ -97,6 +100,24 @@ export default {
     },
     emitToParent: function (para) {
       this.$emit("tar", para);
+    },
+    del: function (filename) {
+      var r = confirm("确定删除 " + this.curPth + filename + " ？不可恢复！");
+      if (r == false) return;
+      var that = this;
+      that.Body.op = "local_remove";
+      that.Body.dir_para.dir_path = that.curPth + filename;
+      axios
+        .post(that.header, that.Body)
+        .then(function (response) {
+          var res = response.data;
+          if (res.succeed == false) {
+            window.alert("删除失败：" + res.err);
+          } else window.location.reload();
+        })
+        .catch((error) => {
+          window.alert(error);
+        });
     },
     ini_get: function (para = this.default_pth) {
       var that = this;
@@ -117,8 +138,8 @@ export default {
           } else {
             window.alert(data.err);
             var pth = that.curPth;
-            pth = pth.substring(0, pth.lastIndexOf('/'));
-            pth = pth.substring(0, pth.lastIndexOf('/')+1);
+            pth = pth.substring(0, pth.lastIndexOf("/"));
+            pth = pth.substring(0, pth.lastIndexOf("/") + 1);
             that.curPth = pth;
           }
         })
@@ -136,8 +157,7 @@ export default {
     Return: function () {
       var that = this;
       var pth = that.curPth;
-      if (pth == that.default_pth + '/' || pth == that.default_pth) 
-        return ;
+      if (pth == that.default_pth + "/" || pth == that.default_pth) return;
       if (pth.length == 0) {
         return;
       }
@@ -148,12 +168,11 @@ export default {
     },
     sel_tar: function (filename = "") {
       var pth;
-      if (filename!="")
-        pth = this.curPth + filename;
+      if (filename != "") pth = this.curPth + filename;
       else {
         pth = this.curPth;
-        if (pth[pth.length-1] == '/')
-          pth = pth.substring(0, pth.lastIndexOf('/'));
+        if (pth[pth.length - 1] == "/")
+          pth = pth.substring(0, pth.lastIndexOf("/"));
       }
       window.scrollTo(0, -50);
       this.emitToParent(pth);

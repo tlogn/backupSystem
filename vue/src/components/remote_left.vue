@@ -22,6 +22,9 @@
     <br />
     <div id="list">
       <center>
+        <ul id="column1" style="width: 350px; padding: 8px">
+          <button @click="sel_ori()" id="btn2">选择当前路径</button>
+        </ul>
         <div id="for" v-for="fil in lis">
           <div v-if="fil.is_dir == true">
             <ul id="column1" style="width: 350px; padding: 8px">
@@ -50,7 +53,7 @@
                   @click="sel_ori(fil.file_name)"
                   id="btn2"
                 >
-                  备份
+                  选择
                 </button>
                 <label style="font-size: 18px">
                   {{ fil.file_name }}
@@ -80,11 +83,14 @@ export default {
       curPth: "",
     };
   },
+  mounted: function() {
+    this.ini_get();
+  },
   methods: {
     emitToParent: function(para) {
       this.$emit('left', para);
     },
-    ini_get: function (para = "/mnt/d") {
+    ini_get: function (para = "/mnt/d/123/0Bachelor/大四上/软件开发实验") {
       var that = this;
       that.curPth = para + "/";
       that.Body.op = "local_dir";
@@ -130,10 +136,12 @@ export default {
       that.curPth = pth;
       this.ini_get(that.curPth);
     },
-    sel_ori: function(filename) {
-      var oripth = this.curPth + filename;
+    sel_ori: function(filename = "") {
+      var pth = this.curPth + filename;
+      if (pth[pth.length - 1] == "/")
+          pth = pth.substring(0, pth.lastIndexOf("/"));
       window.scrollTo(0, -50);
-      this.emitToParent(oripth);
+      this.emitToParent(pth);
     }
   },
 };

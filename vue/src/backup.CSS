@@ -30,6 +30,14 @@
   border: none;
   border-radius: 5px;
 }
+#btn4 {
+  cursor: pointer;
+  padding: 5px 10px;
+  background: #db053bc9;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+}
 #fil2 {
   color: #00b0f0;
   text-align: left;

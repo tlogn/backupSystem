@@ -7,17 +7,20 @@ import (
 	"log"
 	"os"
 	"syscall"
+	"time"
 )
 
 func SucceedResponse()	string {
 	response := Response{Succeed: true}
 	resp, _ := json.Marshal(response)
+    time.Sleep(200 *time.Millisecond)
 	return string(resp)
 }
 
 func ErrorResponse(err error) string {
 	response := Response{Succeed: false, Err: err.Error()}
 	resp, _ := json.Marshal(response)
+	time.Sleep(200 *time.Millisecond)
 	return string(resp)
 }
 

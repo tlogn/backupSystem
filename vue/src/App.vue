@@ -10,6 +10,7 @@
     <div id="first">
       <br>
       <h1>本地模式</h1>
+      
       <div>
         <center>
           <a href="./../one.html"> <button>测试页面</button> </a><br /><br />
@@ -58,10 +59,18 @@ export default {
       messege: "",
       header: "http://localhost:8090/method",
       Body:c.Body,
+      u: "",
+      p: "",
+      vis: false,
+      src: "../../../1.课程概述与需求分析.pdf",
     };
   },
   methods: {
     login: function (u, p) {
+      if (u.length == 0 || p.length == 0) {
+        window.alert("用户名或密码为空！");
+        return;
+      }
       var that = this;
       that.Body.op = "login";
       that.Body.login_para.username = u;
@@ -69,6 +78,10 @@ export default {
       this.Post("登陆");
     },
     reg: function (u, p) {
+      if (u.length == 0 || p.length == 0) {
+        window.alert("用户名或密码为空！");
+        return;
+      }
       var r = window.confirm("是否确定注册用户名为" + u + "的新用户?");
       if (r == true) {
         var that = this;
