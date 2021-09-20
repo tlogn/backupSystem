@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 style="text-align: center">网盘模式(用户：{{ Body.user_name }})</h1>
+    <h1 style="text-align: center">网盘模式(用户：{{ curUser }})</h1>
     <hr />
     <h3>
       <p id="lbl">本地路径：{{ local }}</p>
@@ -67,6 +67,7 @@
 <script>
 import rleft from "./components/remote_left.vue";
 import rright from "./components/remote_right.vue";
+import c from "../common.vue"
 import axios from "axios";
 export default {
   name: "remote",
@@ -79,54 +80,25 @@ export default {
       local: "",
       server: "",
       header: "http://localhost:8090/method",
-      newBody: "",
       default_pth: "",
       b_opt: [],
       r_opt: [],
       back_status: "",
-      Body: {
-        op: "",
-        get_dir_para: {
-          dir_path: "",
-        },
-
-        user_name: "",
-
-        login_para: {
-          username: "",
-          password: "",
-        },
-
-        copy_para: {
-          origin_path: "",
-          backup_path: "",
-        },
-
-        recover_para: {
-          recover_path: "",
-        },
-
-        compress_para: {
-          is_compress: false,
-          compress_path: "",
-        },
-
-        encode_para: {
-          is_encode: false,
-          encode_path: "",
-        },
-
-        pack_para: {
-          is_pack: false,
-          pack_path: "",
-        },
-      },
+      Body: c.Body,
+      curUser: "",
     };
   },
   mounted: function () {
     var that = this;
-    var usrname = window.location.href.split("?")[1];
-    that.Body.user_name = usrname;
+    var cur_usrname = window.location.href.split("?")[1];
+    var usrname = sessionStorage.getItem("user_name");
+    //console.log(usrname);
+    if (usrname != cur_usrname) {
+      window.location.href = "/";
+    } else {
+      that.Body.user_name = cur_usrname;
+      that.curUser = cur_usrname;
+    }
   },
   methods: {
     left: function (data) {
@@ -141,7 +113,7 @@ export default {
     },
     Post: function (type) {
       var addr = this.header,
-        data = this.newBody;
+        data = this.Body;
       var that = this;
       if (addr == null) {
         window.alert("Empty URL");
@@ -186,7 +158,7 @@ export default {
           "您要将文件(夹)：" +
             l_pth +
             "\n" +
-            "备份到：" +
+            "上传到：" +
             r_pth +
             "\n" +
             "备份选项：" +
@@ -199,10 +171,10 @@ export default {
           "您要将文件(夹)：" +
             r_pth +
             "\n" +
-            "还原到：" +
+            "下载到：" +
             l_pth +
             "\n" +
-            "还原选项：" +
+            "附件选项：" +
             r_opt +
             "\n" +
             "注意：若目标路径存在重名文件可能会被覆盖！"
@@ -216,7 +188,6 @@ export default {
       if (r == true) {
         if (type == "backup") {
           that.back_status = "";
-          that.newBody = that.Body;
           for (var i = 0; i < b_opt.length; i++) {
             if (b_opt[i] == "自定义备份") {
               custom = 1;
@@ -228,37 +199,33 @@ export default {
               enco = 1;
             }
           }
-          that.newBody.op = "remote_copy";
-          that.newBody.copy_para.origin_path = l_pth;
-          that.newBody.copy_para.backup_path = r_pth;
+          that.Body.op = "remote_upload";
+          that.Body.copy_para.origin_path = l_pth;
+          that.Body.copy_para.backup_path = r_pth;
           this.Post("备份");
           if (custom == 1) {
           } //TODO
           if (pack == 1) {
-            that.newBody = that.Body;
-            that.newBody.op = "remote_pack";
-            that.newBody.pack_para.is_pack = true;
-            that.newBody.pack_para.pack_path = r_pth;
+            that.Body.op = "remote_pack";
+            that.Body.pack_para.is_pack = true;
+            that.Body.pack_para.pack_path = r_pth;
             this.Post("打包");
           }
           if (compress == 1) {
-            that.newBody = that.Body;
-            that.newBody.op = "remote_compress";
-            that.newBody.compress_para.is_compress = true;
-            that.newBody.compress_para.compress_path = r_pth;
+            that.Body.op = "remote_compress";
+            that.Body.compress_para.is_compress = true;
+            that.Body.compress_para.compress_path = r_pth;
             this.Post("压缩");
           }
           if (enco == 1) {
-            that.newBody = that.Body;
-            that.newBody.op = "remote_encode";
-            that.newBody.encode_para.is_encode = true;
-            that.newBody.encode_para.encode_para = r_pth;
+            that.Body.op = "remote_encode";
+            that.Body.encode_para.is_encode = true;
+            that.Body.encode_para.encode_para = r_pth;
             this.Post("加密");
           }
         } else {
           /*==============================还原================================= */
           that.back_status = "";
-          that.newBody = that.Body;
           for (var i = 0; i < r_opt.length; i++) {
             if (r_opt[i] == "解压") {
               compress = 1;
@@ -269,29 +236,25 @@ export default {
             }
           }
           if (enco == 1) {
-            that.newBody = that.Body;
-            that.newBody.op = "remote_encode";
-            that.newBody.encode_para.is_encode = false;
-            that.newBody.encode_para.encode_para = r_pth;
+            that.Body.op = "remote_encode";
+            that.Body.encode_para.is_encode = false;
+            that.Body.encode_para.encode_para = r_pth;
             this.Post("解密");
           }
           if (compress == 1) {
-            that.newBody = that.Body;
-            that.newBody.op = "remote_compress";
-            that.newBody.compress_para.is_compress = false;
-            that.newBody.compress_para.compress_path = r_pth;
+            that.Body.op = "remote_compress";
+            that.Body.compress_para.is_compress = false;
+            that.Body.compress_para.compress_path = r_pth;
             this.Post("解压");
           }
           if (pack == 1) {
-            that.newBody = that.Body;
-            that.newBody.op = "remote_pack";
-            that.newBody.pack_para.is_pack = false;
-            that.newBody.pack_para.pack_path = r_pth;
+            that.Body.op = "remote_pack";
+            that.Body.pack_para.is_pack = false;
+            that.Body.pack_para.pack_path = r_pth;
             this.Post("解包");
           }
-          that.newBody = that.Body;
-          that.newBody.op = "remote_recover";
-          that.newBody.recover_para.recover_path = r_pth;
+          that.Body.op = "remote_download";
+          that.Body.recover_para.recover_path = r_pth;
           //that.newBody.recover_para. = l_pth;
           this.Post("还原");
         }

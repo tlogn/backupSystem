@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h1 style="text-align:center;">本地备份</h1>
-    <hr>
+    <h1 style="text-align: center">本地备份</h1>
+    <hr />
     <h3>
       <p id="lbl">源路径：{{ source }}</p>
       <p id="lbl">目标路径：{{ destin }}</p>
@@ -32,8 +32,17 @@
           <label>压缩</label>
           <input type="checkbox" id="ckx" value="打包" v-model="opt" />
           <label>打包</label>
+          <br />
           <input type="checkbox" id="ckx" value="加密" v-model="opt" />
-          <label>加密</label>
+          <label
+            >加密
+            <input
+              v-model="encode_pwd"
+              type="password"
+              v-show="IsShow"
+              placeholder="请输入密码"
+            />
+          </label>
           <br />
         </div>
       </center>
@@ -48,6 +57,7 @@
 <script>
 import Backup from "./components/origin_path.vue";
 import Target from "./components/target_path.vue";
+import c from "../common.vue";
 import axios from "axios";
 export default {
   name: "two",
@@ -60,46 +70,15 @@ export default {
       source: "",
       destin: "",
       header: "http://localhost:8090/method",
-      newBody: "",
       opt: [],
       back_status: "",
-      Body: {
-        op: "",
-        get_dir_para: {
-          dir_path: "",
-        },
-
-        user_name: "",
-
-        login_para: {
-          username: "",
-          password: "",
-        },
-
-        copy_para: {
-          origin_path: "",
-          backup_path: "",
-        },
-
-        recover_para: {
-          recover_path: "",
-        },
-
-        compress_para: {
-          is_compress: false,
-          compress_path: "",
-        },
-
-        encode_para: {
-          is_encode: false,
-          encode_path: "",
-        },
-
-        pack_para: {
-          is_pack: false,
-          pack_path: "",
-        },
-      },
+      Body: c.Body,
+      IsShow: true,
+      encode_pwd: "",
+      pack_suc: false,
+      compress_suc: false,
+      encode_suc: false,
+      backup_suc: false,
     };
   },
   methods: {
@@ -115,7 +94,7 @@ export default {
     },
     Post: function (type) {
       var addr = this.header,
-        data = this.newBody;
+        data = this.Body;
       var that = this;
       if (addr == null) {
         window.alert("Empty URL");
@@ -126,6 +105,10 @@ export default {
             var rsp = response.data;
             if (rsp.succeed == true) {
               that.back_status += type + "成功" + "; ";
+              if (type == "打包") that.pack_suc = true;
+              if (type == "压缩") that.compress_suc = true;
+              if (type == "加密") that.encode_suc = true;
+              if (type == "备份") that.backup_suc = true;
             } else {
               window.alert(type + "失败:" + rsp.err);
               that.back_status += type + "失败" + "; ";
@@ -141,6 +124,11 @@ export default {
       var s_pth = this.source;
       var d_pth = this.destin;
       var opt = this.opt;
+      var that = this;
+      that.pack_suc = true;
+      that.compress_suc = true;
+      that.encode_suc = true;
+      that.backup_suc = false;
       var filename = s_pth.substring(s_pth.lastIndexOf("/"));
       d_pth += filename;
       if (s_pth == "" || d_pth == "") {
@@ -167,47 +155,62 @@ export default {
           enco = 0,
           compress = 0,
           custom = 0;
-        that.newBody = that.Body;
         for (var i = 0; i < that.opt.length; i++) {
           if (that.opt[i] == "自定义备份") {
             custom = 1;
           } else if (that.opt[i] == "压缩") {
+            that.compress_suc = false;
             compress = 1;
           } else if (that.opt[i] == "打包") {
+            that.pack_suc = false;
             pack = 1;
           } else if (that.opt[i] == "加密") {
+            that.encode_suc = false;
             enco = 1;
+            if (this.encode_pwd.length == 0) {
+              window.alert("密码为空！");
+              return;
+            }
           }
         }
-        that.newBody.op = "local_copy";
-        that.newBody.copy_para.origin_path = s_pth;
-        that.newBody.copy_para.backup_path = d_pth;
+
+        that.Body.op = "local_copy";
+        that.Body.copy_para.origin_path = s_pth;
+        that.Body.copy_para.backup_path = d_pth;
         this.Post("备份");
         if (custom == 1) {
         } //TODO
         if (pack == 1) {
-          that.newBody = that.Body;
-          if (type == 0) that.newBody.op = "local_pack";
-          else that.newBody.op = "remote_pack";
-          that.newBody.pack_para.is_pack = true;
-          that.newBody.pack_para.pack_path = d_pth;
-          this.Post("打包");
+          setTimeout(() => {
+            if (this.backup_suc) {
+              that.Body.op = "local_pack";
+              that.Body.pack_para.is_pack = true;
+              that.Body.pack_para.pack_path = d_pth;
+              d_pth += ".pack";
+              this.Post("打包");
+            }
+          }, 1500);
         }
         if (compress == 1) {
-          that.newBody = that.Body;
-          if (type == 0) that.newBody.op = "local_compress";
-          else that.newBody.op = "remote_compress";
-          that.newBody.compress_para.is_compress = true;
-          that.newBody.compress_para.compress_path = d_pth;
-          this.Post("压缩");
+          setTimeout(() => {
+            if (this.backup_suc && this.pack_suc) {
+              that.Body.op = "local_compress";
+              that.Body.compress_para.is_compress = true;
+              that.Body.compress_para.compress_path = d_pth;
+              this.Post("压缩");
+            }
+          }, 3000);
         }
         if (enco == 1) {
-          that.newBody = that.Body;
-          if (type == 0) that.newBody.op = "local_encode";
-          else that.newBody.op = "remote_encode";
-          that.newBody.encode_para.is_encode = true;
-          that.newBody.encode_para.encode_para = d_pth;
-          this.Post("加密");
+          setTimeout(() => {
+            if (this.backup_suc && this.pack_suc && this.compress_suc) {
+              that.Body.op = "local_encode";
+              that.Body.encode_para.is_encode = true;
+              that.Body.encode_para.encode_path = d_pth;
+              that.Body.encode_para.password = this.encode_pwd;
+              this.Post("加密");
+            }
+          }, 4000);
         }
       }
     },

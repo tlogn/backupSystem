@@ -1,6 +1,3 @@
-<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-<script src='https://unpkg.com/vue-router/dist/vue-router.js'></script>
-
 <template>
   <div id="background">
     <div
@@ -54,75 +51,36 @@
 
 <script>
 import axios from "axios";
+import c from "../common.vue"
 export default {
   data() {
     return {
       messege: "",
-      newBody: "",
       header: "http://localhost:8090/method",
-      body: {
-        op: "",
-
-        user_name: "",
-
-        login_para: {
-          username: "",
-          password: "",
-        },
-
-        get_dir_para: {
-          dir_path: "",
-        },
-
-        copy_para: {
-          origin_path: "",
-          backup_path: "",
-        },
-
-        recover_para: {
-          recover_path: "",
-        },
-
-        compress_para: {
-          is_compress: false,
-          compress_path: "",
-        },
-
-        encode_para: {
-          is_encode: false,
-          encode_path: "",
-        },
-
-        pack_para: {
-          is_pack: false,
-          pack_path: "",
-        },
-      },
+      Body:c.Body,
     };
   },
   methods: {
     login: function (u, p) {
       var that = this;
-      that.newBody = that.body;
-      that.newBody.op = "login";
-      that.newBody.login_para.username = u;
-      that.newBody.login_para.password = p;
+      that.Body.op = "login";
+      that.Body.login_para.username = u;
+      that.Body.login_para.password = p;
       this.Post("登陆");
     },
     reg: function (u, p) {
       var r = window.confirm("是否确定注册用户名为" + u + "的新用户?");
       if (r == true) {
         var that = this;
-        that.newBody = that.body;
-        that.newBody.op = "register";
-        that.newBody.login_para.username = u;
-        that.newBody.login_para.password = p;
+        that.Body.op = "register";
+        that.Body.login_para.username = u;
+        that.Body.login_para.password = p;
         this.Post("注册");
       }
     },
     Post: function (type) {
       var addr = this.header,
-        data = this.newBody;
+        data = this.Body;
       var that = this;
       if (addr == null) {
         window.alert("Empty URL");
@@ -137,20 +95,22 @@ export default {
                 if (err == "wrong password") window.alert("密码错误！");
                 else if (err == "username not exists")
                   window.alert("用户不存在！请先注册");
-                else window.alert("未知错误");
+                else window.alert("未知错误:"+err);
               } else {  //reg
                 if (err == "username already exists")
                   window.alert("注册失败：用户名已被注册");
                 else  
-                  window.alert("未知错误");
+                  window.alert("未知错误:"+err);
               }
             } else {  //login/reg succeed
               if (type == "登陆") { //login
+                sessionStorage.setItem("user_name",that.Body.login_para.username);
+                //console.log(that.Body.user_name)
                 window.location.href =
-                  "./../remote.html?" + that.newBody.login_para.username;
+                  "./../remote.html?" + that.Body.login_para.username;
               } else {  //reg
                 window.alert( 
-                  "注册成功！您的用户名为" + that.newBody.login_para.username
+                  "注册成功！您的用户名为" + that.Body.login_para.username
                 );
               }
             }

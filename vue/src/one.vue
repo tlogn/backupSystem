@@ -55,7 +55,7 @@
       {<br />
       "op":"local_dir",<br />
 
-      "get_dir_para":{<br />
+      "dir_para":{<br />
       "dir_path":"D:\"<br />
       },<br />
 

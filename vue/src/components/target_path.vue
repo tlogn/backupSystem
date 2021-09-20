@@ -11,7 +11,7 @@
     <div>
       <button id="btn2" @click="ini_get()">浏览文件</button>
       <br />
-      <h4>当前路径：{{ Body.get_dir_para.dir_path }}</h4>
+      <h4>当前路径：{{ curPth }}</h4>
       <button
         id="btn2"
         @click="Return()"
@@ -60,6 +60,7 @@
 <script>
 import axios from "axios";
 import qs from "qs";
+import c from "../../common.vue"
 axios.defaults.headers.post["content-type"] = "application/json";
 export default {
   name: "Target",
@@ -70,49 +71,14 @@ export default {
       lis: "",
       newBody: null,
       default_pth: "",
-      Body: {
-        op: "local_dir",
-        get_dir_para: {
-          dir_path: "",
-        },
-
-        user_name: "",
-
-        login_para: {
-          username: "",
-          password: "",
-        },
-
-        copy_para: {
-          origin_path: "",
-          backup_path: "",
-        },
-
-        recover_para: {
-          recover_path: "",
-        },
-
-        compress_para: {
-          is_compress: false,
-          compress_path: "",
-        },
-
-        encode_para: {
-          is_encode: false,
-          encode_path: "",
-        },
-
-        pack_para: {
-          is_pack: false,
-          pack_path: "",
-        },
-      },
+      Body: c.Body,
+      curPth: "",
     };
   },
   mounted: function () {
     this.get_os_type();
     var that = this;
-    that.Body.get_dir_para.dir_path = that.default_pth;
+    that.curPth = that.default_pth;
   },
   methods: {
     get_os_type: function () {
@@ -134,8 +100,10 @@ export default {
     },
     ini_get: function (para = this.default_pth) {
       var that = this;
-      that.Body.get_dir_para.dir_path = para + "/";
-      //window.alert(that.Body.get_dir_para.dir_path);
+      that.curPth = para + "/";
+      that.Body.op = "local_dir";
+      that.Body.dir_para.dir_path = that.curPth;
+      //window.alert(that.Body.dir_para.dir_path);
       axios
         .get(that.header, {
           params: {
@@ -148,10 +116,10 @@ export default {
             that.lis = data.dir_files;
           } else {
             window.alert(data.err);
-            var pth = that.Body.get_dir_para.dir_path;
+            var pth = that.curPth;
             pth = pth.substring(0, pth.lastIndexOf('/'));
             pth = pth.substring(0, pth.lastIndexOf('/')+1);
-            that.Body.get_dir_para.dir_path = pth;
+            that.curPth = pth;
           }
         })
         .catch(function (error) {
@@ -161,31 +129,28 @@ export default {
     },
     sele: function (para, type) {
       if (type == true) {
-        var pth = this.Body.get_dir_para.dir_path + para;
+        var pth = this.curPth + para;
         this.ini_get(pth);
       }
     },
     Return: function () {
       var that = this;
-      var pth = that.Body.get_dir_para.dir_path;
+      var pth = that.curPth;
       if (pth == that.default_pth + "/" || pth == that.default_pth) return;
-      if (pth.length == 4) {
-        that.Body.get_dir_para.dir_path = "";
-        return;
-      } else if (pth.length == 0) {
+      if (pth.length == 0) {
         return;
       }
       pth = pth.substring(0, pth.lastIndexOf("/"));
       pth = pth.substring(0, pth.lastIndexOf("/"));
-      that.Body.get_dir_para.dir_path = pth;
-      this.ini_get(that.Body.get_dir_para.dir_path);
+      that.curPth = pth;
+      this.ini_get(that.curPth);
     },
     sel_tar: function (filename = "") {
       var pth;
       if (filename!="")
-        pth = this.Body.get_dir_para.dir_path + filename;
+        pth = this.curPth + filename;
       else {
-        pth = this.Body.get_dir_para.dir_path;
+        pth = this.curPth;
         if (pth[pth.length-1] == '/')
           pth = pth.substring(0, pth.lastIndexOf('/'));
       }

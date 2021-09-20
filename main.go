@@ -28,7 +28,7 @@ var (
 		"local_encode" : encode.LocalEncode,
 		"local_compress" : func(w http.ResponseWriter, r *utils.Request){},
 		"local_recover" : recover.LocalRecover,
-		"local_pack" : pack.LockPack,
+		"local_pack" : pack.LocalPack,
 		"remote_dir" : client.RemoteDir,
 		"remote_encode" : func(w http.ResponseWriter, r *utils.Request){},
 		"remote_compress" : func(w http.ResponseWriter, r *utils.Request){},

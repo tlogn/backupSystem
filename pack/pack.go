@@ -11,26 +11,25 @@ import (
 	"path/filepath"
 )
 
-func LockPack(w http.ResponseWriter, r *utils.Request){
+func LocalPack(w http.ResponseWriter, r *utils.Request){
 	packOrUnPack := r.PackPara.IsPack
 	if packOrUnPack {
-		fmt.Fprintf(w, "%v", localPack(r))
+		fmt.Fprintf(w, "%v", localPack(r.PackPara.PackPath))
 	} else {
-		fmt.Fprintf(w, "%v", localUnpack(r))
+		fmt.Fprintf(w, "%v", localUnpack(r.PackPara.PackPath))
 	}
 }
 
 func unfoldDir(srcPath string, head string) []string {
 
 	ans := make([]string, 0)
-	//fmt.Println(filepath.Base(srcPath))
-	//filepath.Join(head, filepath.Base(srcPath))
-	//fmt.Println("pass")
+	if utils.IsPipeLine(srcPath) {
+		return ans
+	}
 	if !utils.IsDir(srcPath) {
 		ans = append(ans, filepath.Join(head, filepath.Base(srcPath)))
 		return ans
 	}
-
 
 	fileInfoList, _ := ioutil.ReadDir(srcPath)
 	for _, fileInfo := range fileInfoList {
@@ -41,10 +40,9 @@ func unfoldDir(srcPath string, head string) []string {
 	return ans
 }
 
+func localPack(packPath string) string {
 
-func localPack(r *utils.Request) string {
-
-	srcPath, err := filepath.Abs(r.PackPara.PackPath)
+	srcPath, err := filepath.Abs(packPath)
 	if err != nil {
 		log.Println(err)
 		return utils.ErrorResponse(err)
@@ -56,11 +54,11 @@ func localPack(r *utils.Request) string {
 		return utils.ErrorResponse(err)
 	}
 
-	filelist := unfoldDir(srcPath,"")
+	fileList := unfoldDir(srcPath,"")
 
 	packedFile := make([]byte, 0)
 
-	for _, filePath := range filelist {
+	for _, filePath := range fileList {
 
 		pathHead := []byte(filePath)
 		pathHeadLen := make([]byte, 4)
@@ -70,7 +68,6 @@ func localPack(r *utils.Request) string {
 		pathHeadLen[0] =  (byte) (len(pathHead) & 0xFF)
 		pathHeadLen = append(pathHeadLen, pathHead...)
 		packedFile = append(packedFile, pathHeadLen...)
-		fmt.Println(len(pathHead))
 
 		file, err := ioutil.ReadFile(filepath.Join(filepath.Dir(srcPath), filePath))
 
@@ -78,16 +75,12 @@ func localPack(r *utils.Request) string {
 			log.Printf("read file %v error, %v",srcPath, err)
 			return utils.ErrorResponse(err)
 		}
-		fmt.Println(len(file))
 
 		fileHead := make([]byte, 4)
 		fileHead[3] =  (byte) ((len(file)>>24) & 0xFF)
 		fileHead[2] =  (byte) ((len(file)>>16) & 0xFF)
 		fileHead[1] =  (byte) ((len(file)>>8) & 0xFF)
 		fileHead[0] =  (byte) (len(file) & 0xFF)
-
-		//fileHead := []byte(strconv.FormatInt(int64(len(file)), 10))
-		//fmt.Println(len(fileHead))
 
 		file = append(fileHead, file...)
 		packedFile = append(packedFile, file...)
@@ -103,21 +96,17 @@ func localPack(r *utils.Request) string {
 	return utils.SucceedResponse()
 }
 
-func localUnpack(r *utils.Request) string {
-	srcPath := r.PackPara.PackPath
+func localUnpack(packPath string) string {
+	srcPath := packPath
 	packedFile, err := ioutil.ReadFile(srcPath)
 	if err != nil {
 		log.Printf("read file %v error, %v",srcPath, err)
 		return utils.ErrorResponse(err)
 	}
 
-
-	//key := "local_" + r.UserName + "_" + srcPath
-	//filelist,_ := utils.GetKeyList(key)
 	pointer := 0
 
 	for {
-		//fmt.Println(filePath)
 		if pointer == len(packedFile) {
 			break
 		}
@@ -126,20 +115,12 @@ func localUnpack(r *utils.Request) string {
 		pointer += 4
 
 		filePath := string(packedFile[pointer : pointer + size])
-		fmt.Println(filePath)
 
 		filePath = filepath.Join(filepath.Dir(srcPath), filePath)
-		fmt.Println(filePath)
 
 		pointer += size
 		fileHead := packedFile[pointer : pointer + 4]
 		size = int(fileHead[0]) + int(fileHead[1]<<8) + int(fileHead[2]<<16) + int(fileHead[3]<<24)
-		fmt.Println(size)
-		//size, err := strconv.ParseInt(string(packedFile[pointer : pointer + 4]), 10, 32)
-		//if err != nil {
-		//	log.Printf("read packedfile %v size error, %v", filePath, err)
-		//	return err
-		//}
 
 		pointer += 4
 		os.MkdirAll(filepath.Dir(filePath),0777)

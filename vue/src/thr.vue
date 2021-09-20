@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h1 style="text-align:center;">本地还原</h1>
-    <hr>
+    <h1 style="text-align: center">本地还原</h1>
+    <hr />
     <h3>
       <center>
         <p id="lbl">还原源路径：{{ rec_source }}</p>
@@ -25,12 +25,21 @@
     <center>
       <h2>选择还原选项</h2>
       <div id="column3">
-        <input type="checkbox" id="ckx" value="压缩" v-model="opt" />
+        <input type="checkbox" id="ckx" value="解压" v-model="opt" />
         <label>解压</label>
-        <input type="checkbox" id="ckx" value="打包" v-model="opt" />
+        <input type="checkbox" id="ckx" value="解包" v-model="opt" />
         <label>解包</label>
-        <input type="checkbox" id="ckx" value="加密" v-model="opt" />
-        <label>解密</label>
+        <br />
+        <input type="checkbox" id="ckx" value="解密" v-model="opt" />
+        <label
+          >解密
+          <input
+            v-model="encode_pwd"
+            type="password"
+            v-show="IsShow"
+            placeholder="请输入密码"
+          />
+        </label>
         <br />
       </div>
       <rec_right @tar="parent_tar"></rec_right>
@@ -41,6 +50,7 @@
 <script>
 import Rec_left from "./components/restore_left.vue";
 import Rec_right from "./components/restore_right.vue";
+import c from "../common.vue";
 import axios from "axios";
 export default {
   name: "thr",
@@ -53,47 +63,15 @@ export default {
       rec_source: "",
       rec_destin: "",
       header: "http://localhost:8090/method",
-      newBody: "",
       opt: [],
       back_status: "",
       default_pth: "",
-      Body: {
-        op: "",
-        get_dir_para: {
-          dir_path: "",
-        },
-
-        user_name: "",
-
-        login_para: {
-          username: "",
-          password: "",
-        },
-
-        copy_para: {
-          origin_path: "",
-          backup_path: "",
-        },
-
-        recover_para: {
-          recover_path: "",
-        },
-
-        compress_para: {
-          is_compress: false,
-          compress_path: "",
-        },
-
-        encode_para: {
-          is_encode: false,
-          encode_path: "",
-        },
-
-        pack_para: {
-          is_pack: false,
-          pack_path: "",
-        },
-      },
+      Body: c.Body,
+      encode_pwd: "",
+      IsShow: true,
+      decode_suc: false,
+      decompress_suc: false,
+      unpack_suc: false,
     };
   },
 
@@ -110,7 +88,7 @@ export default {
     },
     Post: function (type) {
       var addr = this.header,
-        data = this.newBody;
+        data = this.Body;
       var that = this;
       if (addr == null) {
         window.alert("Empty URL");
@@ -121,11 +99,15 @@ export default {
             var rsp = response.data;
             if (rsp.succeed == true) {
               that.back_status += type + "成功" + "; ";
+              if (type == "解密") that.decode_suc = true;
+              if (type == "解压") that.decompress_suc = true;
+              if (type == "解包") that.unpack_suc = true;
             } else {
-              if (rsp.err == "redis: nil")
-                window.alert(type + "失败：该文件(夹)不是备份文件(夹)");
-              else 
-                window.alert(type + "失败：" + rsp.err);
+              if (rsp.err == "redis: nil") {
+                if (type == "还原")
+                  window.alert(type + "失败：该文件(夹)不是备份文件(夹)");
+                else window.alert(type + "失败: 该文件未加密");
+              } else window.alert(type + "失败：" + rsp.err);
               that.back_status += type + "失败" + "; ";
             }
           })
@@ -143,6 +125,9 @@ export default {
       that.rec_destin = this.get_rec_destin();
       var s_pth = this.rec_source;
       var d_pth = this.rec_destin;
+      that.decode_suc = true;
+      that.decompress_suc = true;
+      that.unpack_suc = true;
       if (s_pth == "") {
         window.alert("还原源路径为空！");
         return;
@@ -169,46 +154,57 @@ export default {
         var pack = 0,
           enco = 0,
           compress = 0;
-        that.newBody = that.Body;
         for (var i = 0; i < that.opt.length; i++) {
           if (that.opt[i] == "解压") {
             compress = 1;
+            that.decompress_suc = false;
           } else if (that.opt[i] == "解包") {
             pack = 1;
+            that.unpack_suc = false;
           } else if (that.opt[i] == "解密") {
             enco = 1;
+            that.decode_suc = false;
           }
         }
-
         if (enco == 1) {
-          that.newBody = that.Body;
-          if (type == 0) that.newBody.op = "local_encode";
-          else that.newBody.op = "remote_encode";
-          that.newBody.encode_para.is_encode = false;
-          that.newBody.encode_para.encode_para = s_pth;
+          that.Body.op = "local_encode";
+          that.Body.encode_para.is_encode = false;
+          that.Body.encode_para.encode_path = s_pth;
+          that.Body.encode_para.password = this.encode_pwd;
           this.Post("解密");
         }
         if (compress == 1) {
-          that.newBody = that.Body;
-          if (type == 0) that.newBody.op = "local_compress";
-          else that.newBody.op = "remote_compress";
-          that.newBody.compress_para.is_compress = false;
-          that.newBody.compress_para.compress_path = s_pth;
-          this.Post("解压");
+          setTimeout(() => {
+            if (this.decode_suc) {
+              that.Body.op = "local_compress";
+              that.Body.compress_para.is_compress = false;
+              that.Body.compress_para.compress_path = s_pth;
+              this.Post("解压");
+            }
+          }, 1500);
         }
         if (pack == 1) {
-          that.newBody = that.Body;
-          if (type == 0) that.newBody.op = "local_pack";
-          else that.newBody.op = "remote_pack";
-          that.newBody.pack_para.is_pack = false;
-          that.newBody.pack_para.pack_path = s_pth;
-          this.Post("解包");
+          setTimeout(() => {
+            if (this.decompress_suc && this.decode_suc) {
+              that.Body.op = "local_pack";
+              that.Body.pack_para.is_pack = false;
+              that.Body.pack_para.pack_path = s_pth;
+              s_pth = s_pth.substring(0, s_pth.length - 5);
+              this.Post("解包");
+              console.log("abc");
+            }
+          }, 3000);
         }
-        that.newBody = that.Body;
-        that.newBody.op = "local_recover";
-        that.newBody.recover_para.recover_path = s_pth;
-        //that.newBody.copy_para. = d_pth;
-        this.Post("还原");
+
+        setTimeout(() => {
+          console.log([this.unpack_suc,this.decode_suc, this.decode_suc]);
+          if (this.unpack_suc && this.decompress_suc && this.decode_suc) {
+            that.Body.op = "local_recover";
+            that.Body.recover_para.recover_path = s_pth;
+            //that.newBody.copy_para. = d_pth;
+            this.Post("还原");
+          }
+        }, 4500);
       }
     },
   },
