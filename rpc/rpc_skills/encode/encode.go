@@ -10,8 +10,9 @@ import (
 
 func RemoteEncode(Request *rpc_utils.Request, Response *utils.Response) error {
 	Response.Succeed = true
-	if encode.SelectEncodeOrDecode(true, Request.ProcessPath, Request.Password) != utils.SucceedResponse() {
-		err := errors.New("encode error")
+	errResp := encode.SelectEncodeOrDecode(true, Request.ProcessPath, Request.Password)
+	if  errResp != utils.SucceedResponse() {
+		err := utils.GetErrFromResponse(errResp)
 		log.Println(err)
 		return err
 	}
