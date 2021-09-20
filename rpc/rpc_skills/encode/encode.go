@@ -4,7 +4,6 @@ import (
 	"backupSystem/encode"
 	"backupSystem/rpc/rpc_utils"
 	"backupSystem/utils"
-	"errors"
 	"log"
 )
 
@@ -21,8 +20,9 @@ func RemoteEncode(Request *rpc_utils.Request, Response *utils.Response) error {
 
 func RemoteDecode(Request *rpc_utils.Request, Response *utils.Response) error {
 	Response.Succeed = true
-	if encode.SelectEncodeOrDecode(false, Request.ProcessPath, Request.Password) != utils.SucceedResponse() {
-		err := errors.New("encode error")
+	errResp := encode.SelectEncodeOrDecode(false, Request.ProcessPath, Request.Password)
+	if errResp != utils.SucceedResponse() {
+		err := utils.GetErrFromResponse(errResp)
 		log.Println(err)
 		return err
 	}
