@@ -40,3 +40,11 @@ func (handler *Handler) RemoteDownload(Request *rpc_utils.Request, Response *uti
 	}
 	return nil
 }
+
+func (handler *Handler) RemoteRemove(Request *rpc_utils.Request, Response *utils.Response) error {
+	err := dir.RemoteRemove(Request, Response)
+	if err != nil {
+		return err
+	}
+	return nil
+}

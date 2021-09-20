@@ -25,6 +25,6 @@ func register(username string, password string) string {
 		log.Println(err)
 		return utils.ErrorResponse(err)
 	}
-	client.RemoteMkdir(username)
+	client.RemoteMkdir("/home/lighthouse/backup/" + username)
 	return utils.SucceedResponse()
 }

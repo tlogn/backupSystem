@@ -31,18 +31,24 @@ func RemoteDir(w http.ResponseWriter, r *utils.Request) {
 	fmt.Fprintf(w, "%v", string(resp))
 }
 
-func RemoteMkdir(username string) {
+
+func RemoteMkDir(w http.ResponseWriter, r *utils.Request) {
+	fmt.Fprintf(w, "%v", RemoteMkdir(r.DirPara.DirPath))
+}
+
+func RemoteMkdir(processPath string) string {
 	RpcClient = NewClient()
 	defer RpcClient.Close()
 	request := rpc_utils.Request{
-		ProcessPath: "/home/lighthouse/backup/" + username,
+		ProcessPath: processPath,
 	}
 	response := utils.Response{}
 	err := RpcClient.Call("Handler.RemoteMkdir", &request, &response)
 	if err != nil {
 		log.Println(err)
-		return
+		return utils.ErrorResponse(err)
 	}
+	return utils.SucceedResponse()
 }
 
 func RemoteUpload(w http.ResponseWriter, r *utils.Request) {
@@ -137,5 +143,20 @@ func RemoteDownload(w http.ResponseWriter, r *utils.Request) {
 		}
 	}
 
+	fmt.Fprintf(w, "%v", utils.SucceedResponse())
+}
+
+func RemoteRemove(w http.ResponseWriter, r *utils.Request) {
+	RpcClient = NewClient()
+	defer RpcClient.Close()
+	request := rpc_utils.Request{
+		ProcessPath: r.DirPara.DirPath,
+	}
+	response := utils.Response{}
+	err := RpcClient.Call("Handler.RemoteDownload", &request, &response)
+	if err != nil {
+		fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
+		return
+	}
 	fmt.Fprintf(w, "%v", utils.SucceedResponse())
 }
