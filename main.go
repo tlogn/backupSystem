@@ -31,6 +31,7 @@ var (
 		"local_pack" : pack.LocalPack,
 		"local_remove" : dir.LocalRemove,
 		"local_mkdir" : dir.LocalMkdir,
+		"local_cmp"	: dir.LocalCmp,
 		"remote_dir" : client.RemoteDir,
 		"remote_encode" : client.RemoteEncode,
 		"remote_compress" : func(w http.ResponseWriter, r *utils.Request){},
