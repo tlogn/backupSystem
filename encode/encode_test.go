@@ -6,7 +6,7 @@ import (
 )
 
 func TestEncode(t *testing.T) {
-	//EncodeOrDecode(true, "/mnt/d/123/0Bachelor/我的成绩.xls", "123", "123_/mnt/d/123/0Bachelor/我的成绩.xls_encode")
+	//SelectEncodeOrDecode(true, "/mnt/d/123/0Bachelor/大四上/软件开发实验/backup/encode.txt", "123")
 	fmt.Println("-----------------------------------------------------")
-	SelectEncodeOrDecode(false, "/mnt/d/123/0Bachelor/我的成绩.xls", "123", "123_/mnt/d/123/0Bachelor/我的成绩.xls_encode")
+	SelectEncodeOrDecode(false, "/mnt/d/123/0Bachelor/大四上/软件开发实验/backup/encode.txt", "123")
 }
