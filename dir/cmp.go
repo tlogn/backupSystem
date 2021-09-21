@@ -13,22 +13,22 @@ import (
 func LocalCmp(w http.ResponseWriter, r *utils.Request){
 	dir1 := r.CopyPara.OriginPath
 	dir2 := r.CopyPara.BackupPath
-	fmt.Fprintf(w, "%v", localCmp(dir1, dir2))
+	fmt.Fprintf(w, "%v", utils.ErrorResponse(errors.New(localCmp(dir1, dir2))))
 }
 
 func localCmp(dir1, dir2 string) string {
 	if dir1 == dir2 {
-		return utils.SucceedResponse()
+		return ""
 	}
 	fileList1, err := ioutil.ReadDir(dir1)
 	if err != nil {
 		log.Println(err)
-		return utils.ErrorResponse(err)
+		return err.Error()
 	}
 	fileList2, err := ioutil.ReadDir(dir2)
 	if err != nil {
 		log.Println(err)
-		return utils.ErrorResponse(err)
+		return err.Error()
 	}
 	if len(fileList1) < len(fileList2) {
 		dir1, dir2 = dir2, dir1
@@ -54,7 +54,7 @@ func localCmp(dir1, dir2 string) string {
 			}
 		}
 	}
-	return utils.ErrorResponse(errors.New(diff))
+	return diff
 }
 
 func cmpFiles(filename1, filename2 string) string {
