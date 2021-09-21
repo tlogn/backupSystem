@@ -44,7 +44,11 @@ func Recover(recoverKey string) error {
 		log.Println(err)
 		return err
 	}
-	(*handler)(recoverInfo)
+	err = (*handler)(recoverInfo)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
 	return nil
 }
 
