@@ -46,7 +46,7 @@ func IsHardLink(filename string) bool {
 	s, ok := stats.Sys().(*syscall.Stat_t)
 	if !ok {
 		err = errors.New("cannot convert stat value to syscall.Stat_t")
-		log.Fatal(err)
+		log.Println(err)
 		return false
 	}
 
@@ -61,11 +61,11 @@ func IsHardLink(filename string) bool {
 
 func IsDir(filename string) bool {
 	stats, err := os.Stat(filename)
-	if err!=nil {
+	if err != nil {
 		fmt.Println("***************************IsDir Err*******************************")
 		fmt.Println(err)
 		ErrorResponse(err)
-		return false;
+		return false
 	}
 	return stats.IsDir()
 }

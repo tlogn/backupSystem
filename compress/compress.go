@@ -13,8 +13,16 @@ import (
 	"sort"
 )
 
+func init() {
+	err := readTree()
+	if err != nil {
+		panic(err)
+	}
+}
+
 func LocalCompress(w http.ResponseWriter, r *utils.Request){
 	comOrUncom := r.CompressPara.IsCompress
+	fmt.Println(r.CompressPara)
 	if comOrUncom {
 		fmt.Fprintf(w, "%v", Compress(r.CompressPara.CompressPath))
 	} else {
@@ -28,21 +36,23 @@ type Table struct {
 }
 
 type TreeNode struct {
-	left,right * TreeNode
-	value int
-	name byte
+	left, right *TreeNode
+	value 		int
+	name 		byte
 }
 type PairList []*TreeNode
-
 func (p PairList) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 func (p PairList) Len() int           { return len(p) }
 func (p PairList) Less(i, j int) bool { return p[i].value < p[j].value }
-var hafmap map[byte]string
-var versehafmap map[string]byte
+
+var (
+	huffMap map[byte]string
+	verseHuffMap map[string]byte
+)
 
 func search(tail string, node *TreeNode) {
 	if node.left == nil && node.right == nil {
-		hafmap[node.name] = tail
+		huffMap[node.name] = tail
 		return
 	}
 	if node.left != nil {
@@ -101,11 +111,11 @@ func buildTree(srcPath string) error {
 		arr[0] = &tp
 		sort.Sort(arr)
 	}
-	hafmap = make(map[byte]string)
+	huffMap = make(map[byte]string)
 	now := arr[0]
 	search("",now)
 	table := Table{}
-	for key,value := range hafmap {
+	for key,value := range huffMap {
 		tmp1 := key
 		tmp2 := value
 		table.Key = append(table.Key, tmp1)
@@ -117,26 +127,31 @@ func buildTree(srcPath string) error {
 	return nil
 }
 
-func readTree() {
-	inputTree, _ := ioutil.ReadFile("tree")
-	table := Table{}
-	hafmap = make(map[byte]string)
-	_ = json.Unmarshal(inputTree, &table)
-	for idx, key := range table.Key {
-		hafmap[key] = table.Value[idx]
+func readTree() error {
+	inputTree, err := ioutil.ReadFile("./compress/tree")
+	if err != nil {
+		log.Println(err)
+		return err
 	}
-}
-func readInverseTree() {
-	inputTree, _ := ioutil.ReadFile("tree")
 	table := Table{}
-	versehafmap = make(map[string]byte)
-	_ = json.Unmarshal(inputTree, &table)
-	for idx, key := range table.Key {
-		versehafmap[table.Value[idx]] = key
+	huffMap = make(map[byte]string)
+	verseHuffMap = make(map[string]byte)
+	err = json.Unmarshal(inputTree, &table)
+	if err != nil {
+		log.Println(err)
+		return err
 	}
+	for idx, key := range table.Key {
+		huffMap[key] = table.Value[idx]
+	}
+	for idx, key := range table.Key {
+		verseHuffMap[table.Value[idx]] = key
+	}
+
+	return nil
 }
+
 func Compress(srcPath string) string {
-	readTree()
 	file, err := ioutil.ReadFile(srcPath)
 	if err != nil {
 		log.Println(err)
@@ -146,19 +161,19 @@ func Compress(srcPath string) string {
 	output := make([]byte,0)
 	var tp byte
 	for _, by := range file {
-		for i:=0;i < len(hafmap[by]); i++ {
+		for i:=0;i < len(huffMap[by]); i++ {
 			if size == 0 {
 				tp<<=8
 			}
 			tp<<=1
-			if hafmap[by][i] == '1' {
+			if huffMap[by][i] == '1' {
 				tp |= 0x1
 			}
 			if size == 7 {
 				output = append(output, tp)
 			}
-			size+=1
-			size%=8
+			size += 1
+			size %= 8
 		}
 	}
 	if size != 0 {
@@ -175,7 +190,6 @@ func Compress(srcPath string) string {
 }
 
 func UndoCompress(srcPath string) string {
-	readInverseTree()
 	file, err := ioutil.ReadFile(srcPath)
 	if err != nil {
 		log.Println(err)
@@ -185,18 +199,18 @@ func UndoCompress(srcPath string) string {
 	trueInput := file[1:]
 	output := make([]byte,0)
 	var tp string
-	for idx,by :=range trueInput {
+	for idx, by :=range trueInput {
 		fmt.Println(by)
 		if idx == len(trueInput) - 1 {
 			for i:=7;i>=8-size;i-- {
 				fmt.Println(by&(0x1<<i),i)
-				if by&(0x1<<i) != 0 {
+				if by & (0x1 << i) != 0 {
 					tp = tp + "1"
 				} else {
 					tp = tp + "0"
 				}
-				if a,ok := versehafmap[tp];ok {
-					fmt.Println(tp,versehafmap[tp])
+				if a,ok := verseHuffMap[tp];ok {
+					fmt.Println(tp,verseHuffMap[tp])
 					output = append(output, a)
 					tp = ""
 				}
@@ -204,20 +218,20 @@ func UndoCompress(srcPath string) string {
 		} else {
 			for i:=7;i>=0;i-- {
 				fmt.Println(by&(0x1<<i),i)
-				if by&(0x1<<i) != 0 {
+				if by & (0x1 << i) != 0 {
 					tp = tp + "1"
 				} else {
 					tp = tp + "0"
 				}
-				if a,ok := versehafmap[tp];ok {
-					fmt.Println(tp,versehafmap[tp])
+				if a,ok := verseHuffMap[tp];ok {
+					fmt.Println(tp,verseHuffMap[tp])
 					output = append(output, a)
 					tp = ""
 				}
 			}
 		}
 	}
-	ioutil.WriteFile(srcPath[:len(srcPath)-4],output,0777)
+	ioutil.WriteFile(srcPath[ : len(srcPath) - 4],output,0777)
 	return utils.SucceedResponse()
 }
 
