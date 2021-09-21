@@ -196,7 +196,7 @@ func UndoCompress(srcPath string) string {
 	}
 	size := int(file[0])
 	trueInput := file[1:]
-	output := make([]byte,0)
+	output := make([]byte, 0)
 	var tp string
 	for idx, by :=range trueInput {
 		if idx == len(trueInput) - 1 {
