@@ -11,13 +11,6 @@ import (
 	"sort"
 )
 
-func init() {
-	err := readTree()
-	if err != nil {
-		panic(err)
-	}
-}
-
 func LocalCompress(w http.ResponseWriter, r *utils.Request){
 	selectCompress := r.CompressPara.IsCompress
 	if selectCompress {
@@ -45,6 +38,7 @@ func (p PairList) Less(i, j int) bool { return p[i].value < p[j].value }
 var (
 	huffMap map[byte]string
 	verseHuffMap map[string]byte
+	table	*Table
 )
 
 func search(tail string, node *TreeNode) {
@@ -59,10 +53,11 @@ func search(tail string, node *TreeNode) {
 		search(tail + "1", node.right)
 	}
 }
-func buildTree(srcPath string) error {
+
+func buildTree(srcPath string) ([]byte, error) {
 	file, err := ioutil.ReadFile(srcPath)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	mapp := make(map[byte]int)
 	for _, by := range file {
@@ -109,51 +104,27 @@ func buildTree(srcPath string) error {
 		sort.Sort(arr)
 	}
 	huffMap = make(map[byte]string)
+	verseHuffMap = make(map[string]byte)
 	now := arr[0]
-	search("",now)
-	table := Table{}
-	for key,value := range huffMap {
+	search("", now)
+	table = &Table{}
+	for key, value := range huffMap {
 		tmp1 := key
 		tmp2 := value
 		table.Key = append(table.Key, tmp1)
 		table.Value = append(table.Value, tmp2)
+		verseHuffMap[tmp2] = tmp1
 	}
-	bytes, err := json.Marshal(table)
-
-	ioutil.WriteFile("tree",bytes,0777)
-	return nil
-}
-
-func readTree() error {
-	inputTree, err := ioutil.ReadFile("./compress/tree")
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	table := Table{}
-	huffMap = make(map[byte]string)
-	verseHuffMap = make(map[string]byte)
-	err = json.Unmarshal(inputTree, &table)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	for idx, key := range table.Key {
-		huffMap[key] = table.Value[idx]
-	}
-	for idx, key := range table.Key {
-		verseHuffMap[table.Value[idx]] = key
-	}
-
-	return nil
+	return file, nil
 }
 
 func Compress(srcPath string) string {
-	file, err := ioutil.ReadFile(srcPath)
+	file, err := buildTree(srcPath)
 	if err != nil {
 		log.Println(err)
 		return utils.ErrorResponse(err)
 	}
+
 	size := 0
 	output := make([]byte,0)
 	var tp byte
@@ -174,14 +145,31 @@ func Compress(srcPath string) string {
 		}
 	}
 	if size != 0 {
-		tp <<= 8-size
+		tp <<= 8 - size
 		output = append(output, tp)
 	}
 	fileHead := make([]byte,0)
+
+	byteTree, err := json.Marshal(table)
+	if err != nil {
+		log.Println(err)
+		return utils.ErrorResponse(err)
+	}
+	lenTree := len(byteTree)
+	pathHeadLen := make([]byte, 4)
+	pathHeadLen[3] =  (byte) (lenTree>>24) & 0xFF
+	pathHeadLen[2] =  (byte) (lenTree>>16) & 0xFF
+	pathHeadLen[1] =  (byte) (lenTree>>8) & 0xFF
+	pathHeadLen[0] =  (byte) (lenTree) & 0xFF
+
+	fileHead = append(fileHead, pathHeadLen...)
+	fileHead = append(fileHead, byteTree...)
 	fileHead = append(fileHead, byte(size))
-	dstPath := srcPath + ".ylx"
 	fileHead = append(fileHead, output...)
+
+	dstPath := srcPath + ".ylx"
 	ioutil.WriteFile(dstPath, fileHead, 0777)
+
 	return utils.SucceedResponse()
 }
 
@@ -194,6 +182,26 @@ func UndoCompress(srcPath string) string {
 		log.Println(err)
 		return utils.ErrorResponse(err)
 	}
+
+	pathHeadLen := file[: 4]
+	lenTree := int(pathHeadLen[0]) + (int(pathHeadLen[1]) << 8) + (int(pathHeadLen[2]) << 16) + (int(pathHeadLen[3]) << 24)
+	byteTree := file[4 : 4 + lenTree]
+	table = &Table{}
+	err = json.Unmarshal(byteTree, table)
+	if err != nil {
+		log.Println(err)
+		return utils.ErrorResponse(err)
+	}
+	huffMap = make(map[byte]string)
+	verseHuffMap = make(map[string]byte)
+	for i, _ := range table.Key {
+		key := table.Key[i]
+		value := table.Value[i]
+		huffMap[key] = value
+		verseHuffMap[value] = key
+	}
+	file = file[4 + lenTree :]
+
 	size := int(file[0])
 	trueInput := file[1:]
 	output := make([]byte, 0)
