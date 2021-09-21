@@ -85,7 +85,7 @@ export default {
     emitToParent: function(para) {
       this.$emit('ori', para);
     },
-    ini_get: function (para = "/mnt/d") {
+    ini_get: function (para = "/mnt/d/123/0Bachelor/大四上/软件开发实验") {
       console.log(this.Body.user_name);
       this.curPth = para + "/";
       var that = this;

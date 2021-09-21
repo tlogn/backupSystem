@@ -1,16 +1,22 @@
 
 <script>
 const Body = {
-  op: "",
-  dir_para: {
-    dir_path: "",
-  },
+  op: "remote_upload",
 
   user_name: "",
+
+  trans_para: {
+    local_path: "",
+    remote_path: "",
+  },
 
   login_para: {
     username: "",
     password: "",
+  },
+
+  dir_para: {
+    dir_path: "",
   },
 
   copy_para: {
@@ -30,7 +36,6 @@ const Body = {
   encode_para: {
     is_encode: false,
     encode_path: "",
-    password: "",
   },
 
   pack_para: {

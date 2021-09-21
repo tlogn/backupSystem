@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"syscall"
@@ -59,7 +60,13 @@ func IsHardLink(filename string) bool {
 }
 
 func IsDir(filename string) bool {
-	stats, _ := os.Stat(filename)
+	stats, err := os.Stat(filename)
+	if err!=nil {
+		fmt.Println("***************************IsDir Err*******************************")
+		fmt.Println(err)
+		ErrorResponse(err)
+		return false;
+	}
 	return stats.IsDir()
 }
 
