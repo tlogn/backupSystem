@@ -20,8 +20,12 @@ var (
 	wg		sync.WaitGroup
 )
 
-func LocalCpFile(w http.ResponseWriter, r *utils.Request) {
+func LocalFilterCpFile(w http.ResponseWriter, r *utils.Request) {
 	filter.ReadFilter(r.FilterPath)
+	fmt.Fprintf(w, "%v", localCpFile(w, r))
+}
+
+func LocalCpFile(w http.ResponseWriter, r *utils.Request) {
 	fmt.Fprintf(w, "%v", localCpFile(w, r))
 }
 
