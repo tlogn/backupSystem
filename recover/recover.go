@@ -117,10 +117,10 @@ func MetaRecover(filePath string, recoverInfo *utils.RecoverInfo) {
 }
 
 func copy(dstPath, srcPath string) error {
-	if utils.IsFileExist(srcPath) {
+	if !utils.IsFileExist(srcPath) {
 		return errors.New(srcPath + " not exist")
 	}
-	if utils.IsFileExist(filepath.Dir(dstPath)) {
+	if !utils.IsFileExist(filepath.Dir(dstPath)) {
 		return errors.New(filepath.Dir(dstPath) + " not exist")
 	}
 	file, err := ioutil.ReadFile(srcPath)
