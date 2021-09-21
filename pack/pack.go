@@ -66,8 +66,9 @@ func localPack(packPath string) string {
 		pathHeadLen[2] =  (byte) ((len(pathHead)>>16) & 0xFF)
 		pathHeadLen[1] =  (byte) ((len(pathHead)>>8) & 0xFF)
 		pathHeadLen[0] =  (byte) (len(pathHead) & 0xFF)
-		pathHeadLen = append(pathHeadLen, pathHead...)
+
 		packedFile = append(packedFile, pathHeadLen...)
+		packedFile = append(packedFile, pathHead...)
 
 		file, err := ioutil.ReadFile(filepath.Join(filepath.Dir(srcPath), filePath))
 		if err != nil {
@@ -81,7 +82,7 @@ func localPack(packPath string) string {
 		fileHead[1] =  (byte) ((len(file)>>8) & 0xFF)
 		fileHead[0] =  (byte) (len(file) & 0xFF)
 
-		file = append(fileHead, file...)
+		packedFile = append(packedFile, fileHead...)
 		packedFile = append(packedFile, file...)
 	}
 
