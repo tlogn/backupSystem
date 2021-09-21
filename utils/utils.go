@@ -11,14 +11,14 @@ import (
 )
 
 func SucceedResponse()	string {
-    time.Sleep(200 *time.Millisecond)
+    time.Sleep(1*time.Second)
 	response := Response{Succeed: true}
 	resp, _ := json.Marshal(response)
 	return string(resp)
 }
 
 func ErrorResponse(err error) string {
-	time.Sleep(200 *time.Millisecond)
+	time.Sleep(1*time.Second)
 	response := Response{Succeed: false, Err: err.Error()}
 	resp, _ := json.Marshal(response)
 	return string(resp)

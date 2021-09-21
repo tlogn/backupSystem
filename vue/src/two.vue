@@ -1,5 +1,8 @@
 <template>
   <div>
+    <div class='popContainer' v-show="showPop">
+      <img id="img" style="height:40%; position:relative" src="./assets/LOADGIF.gif">
+    </div>
     <h1 style="text-align: center">本地备份</h1>
     <hr />
     <h3>
@@ -81,6 +84,7 @@ export default {
       encode: false,
       pack: false,
       custom: false,
+      showPop: false,
     };
   },
   methods: {
@@ -111,10 +115,7 @@ export default {
             } else {
               var err = rsp.err;
               that.back_status += type + "失败" + "; ";
-              if (type == "打包") throw type + "失败：" + err;
-              if (type == "压缩") throw type + "失败：" + err;
-              if (type == "加密") throw type + "失败：" + err;
-              if (type == "备份") throw type + "失败：" + err;
+              throw type + "失败：" + err;
             }
           })
           .catch(function (error) {
@@ -123,7 +124,7 @@ export default {
       }
       return "OK";
     },
-    submit: function () {
+    submit: async function () {
       var that = this;
       that.s_pth = this.source;
       that.d_pth = this.destin;
@@ -166,7 +167,9 @@ export default {
             }
           }
         }
-        this.Encode();
+        that.showPop = true;
+        await this.Encode();
+        that.showPop = false;
       }
     },
     async Copy() {
@@ -192,15 +195,16 @@ export default {
       that.Body.op = "local_pack";
       that.Body.pack_para.is_pack = true;
       that.Body.pack_para.pack_path = this.d_pth;
-      this.Post("打包").catch((err) => {
+      await this.Post("打包").catch((err) => {
+        console.log("packErr");
         window.alert(err);
+        return;
       });
-      if (this.pack_suc) {
-        that.Body.op = "local_remove";
-        that.Body.dir_para.dir_path = this.d_pth;
-        axios.post(that.header, that.Body);
-      }
+      that.Body.op = "local_remove";
+      that.Body.dir_para.dir_path = this.d_pth;
+      await axios.post(that.header, that.Body);
       that.d_pth += ".pack";
+      console.log(that.d_pth);
     },
     async Compress() {
       if (!this.compress) {
@@ -214,8 +218,9 @@ export default {
       that.Body.op = "local_compress";
       that.Body.compress_para.is_compress = true;
       that.Body.compress_para.compress_path = this.d_pth;
-      this.Post("压缩").catch((err) => {
+      await this.Post("压缩").catch((err) => {
         window.alert(err);
+        return;
       });
     },
     async Encode() {
@@ -231,7 +236,7 @@ export default {
       that.Body.encode_para.is_encode = true;
       that.Body.encode_para.encode_path = this.d_pth;
       that.Body.encode_para.password = this.encode_pwd;
-      this.Post("加密").catch((err) => {
+      await this.Post("加密").catch((err) => {
         window.alert(err);
       });
     },
@@ -241,6 +246,7 @@ export default {
 
 <style>
 @import "./backup.CSS";
+
 #first {
   width: 49%;
   float: left;
@@ -261,5 +267,18 @@ export default {
   text-align: left;
   padding: 5px;
   margin: 0%;
+}
+div.popContainer {
+  text-align: center;
+  font-size: 100px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+}
+#img {
+  padding-top: 15%;
 }
 </style>

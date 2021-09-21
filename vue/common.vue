@@ -36,6 +36,7 @@ const Body = {
   encode_para: {
     is_encode: false,
     encode_path: "",
+    password: "",
   },
 
   pack_para: {
