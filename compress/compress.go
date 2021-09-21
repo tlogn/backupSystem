@@ -3,6 +3,7 @@ package compress
 import (
 	"backupSystem/utils"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -185,6 +186,9 @@ func Compress(srcPath string) string {
 }
 
 func UndoCompress(srcPath string) string {
+	if srcPath[len(srcPath) - 4 : ] != ".ylx" {
+		return utils.ErrorResponse(errors.New("not compressed file"))
+	}
 	file, err := ioutil.ReadFile(srcPath)
 	if err != nil {
 		log.Println(err)
