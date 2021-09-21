@@ -3,13 +3,10 @@ package compress
 import (
 	"backupSystem/utils"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
-
-	"fmt"
-
-	"io/ioutil"
-	//"path/filepath"
 	"sort"
 )
 
@@ -21,9 +18,8 @@ func init() {
 }
 
 func LocalCompress(w http.ResponseWriter, r *utils.Request){
-	comOrUncom := r.CompressPara.IsCompress
-	fmt.Println(r.CompressPara)
-	if comOrUncom {
+	selectCompress := r.CompressPara.IsCompress
+	if selectCompress {
 		fmt.Fprintf(w, "%v", Compress(r.CompressPara.CompressPath))
 	} else {
 		fmt.Fprintf(w, "%v", UndoCompress(r.CompressPara.CompressPath))
@@ -77,12 +73,12 @@ func buildTree(srcPath string) error {
 	}
 	var arr PairList
 	for i := 0;i <= 255;i++ {
-		if a, ok := mapp[byte(i&0xFF)]; ok {
+		if a, ok := mapp[byte(i & 0xFF)]; ok {
 			tmp := TreeNode{
 				left:nil,
 				right:nil,
 				value:a,
-				name:byte(i&0xFF),
+				name:byte(i & 0xFF),
 			}
 			arr = append(arr, &tmp)
 		} else {
@@ -90,7 +86,7 @@ func buildTree(srcPath string) error {
 				left:nil,
 				right:nil,
 				value:0,
-				name:byte(i&0xFF),
+				name:byte(i & 0xFF),
 			}
 			arr = append(arr, &tmp)
 		}
@@ -163,16 +159,16 @@ func Compress(srcPath string) string {
 	for _, by := range file {
 		for i:=0;i < len(huffMap[by]); i++ {
 			if size == 0 {
-				tp<<=8
+				tp <<= 8
 			}
-			tp<<=1
+			tp <<= 1
 			if huffMap[by][i] == '1' {
 				tp |= 0x1
 			}
 			if size == 7 {
 				output = append(output, tp)
 			}
-			size += 1
+			size ++
 			size %= 8
 		}
 	}
@@ -181,11 +177,10 @@ func Compress(srcPath string) string {
 		output = append(output, tp)
 	}
 	fileHead := make([]byte,0)
-	fileHead = append(fileHead, (byte) (size))
+	fileHead = append(fileHead, byte(size))
 	dstPath := srcPath + ".ylx"
 	fileHead = append(fileHead, output...)
 	ioutil.WriteFile(dstPath, fileHead, 0777)
-	fmt.Println(size)
 	return utils.SucceedResponse()
 }
 
@@ -200,38 +195,36 @@ func UndoCompress(srcPath string) string {
 	output := make([]byte,0)
 	var tp string
 	for idx, by :=range trueInput {
-		fmt.Println(by)
 		if idx == len(trueInput) - 1 {
 			for i:=7;i>=8-size;i-- {
-				fmt.Println(by&(0x1<<i),i)
 				if by & (0x1 << i) != 0 {
 					tp = tp + "1"
 				} else {
 					tp = tp + "0"
 				}
-				if a,ok := verseHuffMap[tp];ok {
-					fmt.Println(tp,verseHuffMap[tp])
+				if a, ok := verseHuffMap[tp];ok {
 					output = append(output, a)
 					tp = ""
 				}
 			}
 		} else {
 			for i:=7;i>=0;i-- {
-				fmt.Println(by&(0x1<<i),i)
 				if by & (0x1 << i) != 0 {
 					tp = tp + "1"
 				} else {
 					tp = tp + "0"
 				}
 				if a,ok := verseHuffMap[tp];ok {
-					fmt.Println(tp,verseHuffMap[tp])
 					output = append(output, a)
 					tp = ""
 				}
 			}
 		}
 	}
-	ioutil.WriteFile(srcPath[ : len(srcPath) - 4],output,0777)
+	err = ioutil.WriteFile(srcPath[ : len(srcPath) - 4], output,0777)
+	if err != nil {
+		return utils.ErrorResponse(err)
+	}
 	return utils.SucceedResponse()
 }
 
