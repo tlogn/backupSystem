@@ -96,6 +96,8 @@ func main() {
 
 	"user_name":"",
 
+	"filter_path":"",
+
 	"trans_para":{
 		"local_path":"/Users/bytedance/go/src/backupSystem/compress/test",
 		"remote_path":"/home/lighthouse/go/src/test"

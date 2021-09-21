@@ -1,6 +1,7 @@
 package copy
 
 import (
+	filter2 "backupSystem/filter"
 	"backupSystem/utils"
 	"errors"
 	"fmt"
@@ -11,6 +12,10 @@ import (
 	"path"
 	"path/filepath"
 	"syscall"
+)
+
+var (
+	filter filter2.Filter
 )
 
 func LocalCpFile(w http.ResponseWriter, r *utils.Request) {

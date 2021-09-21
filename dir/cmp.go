@@ -48,7 +48,10 @@ func localCmp(dir1, dir2 string) string {
 		if !isFind {
 			diff += filepath.Join(dir1, fileInfo1.Name()) + " not found in " + dir2 + ";"
 		} else {
-			diff += cmpFiles(filepath.Join(dir1, fileInfo1.Name()), filepath.Join(dir2, fileInfo1.Name()))
+			ret := cmpFiles(filepath.Join(dir1, fileInfo1.Name()), filepath.Join(dir2, fileInfo1.Name()))
+			if ret != "" {
+				diff += ret
+			}
 		}
 	}
 	return utils.ErrorResponse(errors.New(diff))
