@@ -42,15 +42,34 @@ func buildTree(srcPath string) error {
 		}
 	}
 	var arr PairList
-	for key, value := range mapp {
-		tmp := TreeNode{
-			left:nil,
-			right:nil,
-			value:value,
-			name:key,
+	for i := 0;i <= 255;i++ {
+		if a, ok := mapp[byte(i&0xFF)]; ok {
+			tmp := TreeNode{
+				left:nil,
+				right:nil,
+				value:a,
+				name:byte(i&0xFF),
+			}
+			arr = append(arr, tmp)
+		} else {
+			tmp := TreeNode{
+				left:nil,
+				right:nil,
+				value:0,
+				name:byte(i&0xFF),
+			}
+			arr = append(arr, tmp)
 		}
-		arr = append(arr, tmp)
 	}
+	//for key, value := range mapp {
+	//	tmp := TreeNode{
+	//		left:nil,
+	//		right:nil,
+	//		value:value,
+	//		name:key,
+	//	}
+	//	arr = append(arr, tmp)
+	//}
 	sort.Sort(arr)
 	fmt.Println(arr.Len())
 	for _, node := range arr {

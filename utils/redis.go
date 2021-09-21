@@ -30,8 +30,13 @@ func SetRecoverInfo(prefix string, fileType string, fileInfo os.FileInfo, srcPat
 		Mode: fileInfo.Mode(),
 		UId: int(fileInfo.Sys().(*syscall.Stat_t).Uid),
 		GId: int(fileInfo.Sys().(*syscall.Stat_t).Gid),
+<<<<<<< HEAD
 		//ATime: time.Unix(fileInfo.Sys().(*syscall.Stat_t).Atim.Sec, fileInfo.Sys().(*syscall.Stat_t).Atim.Nsec),
 		//MTime: time.Unix(fileInfo.Sys().(*syscall.Stat_t).Mtim.Sec, fileInfo.Sys().(*syscall.Stat_t).Mtim.Nsec),
+=======
+		ATime: time.Unix(fileInfo.Sys().(*syscall.Stat_t).Atimespec.Sec, fileInfo.Sys().(*syscall.Stat_t).Atimespec.Nsec),
+		MTime: time.Unix(fileInfo.Sys().(*syscall.Stat_t).Mtimespec.Sec, fileInfo.Sys().(*syscall.Stat_t).Mtimespec.Nsec),
+>>>>>>> 25718bd57a2cec3da2b0414593a60731ba01ed6a
 		SrcPath: srcPath,
 		CopiedPath: copiedPath,
 		LinkedPath: linkedPath,
