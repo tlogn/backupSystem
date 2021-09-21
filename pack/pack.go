@@ -111,7 +111,7 @@ func localUnpack(packPath string) string {
 			break
 		}
 		pathHeadLen := packedFile[pointer : pointer + 4]
-		size := int(pathHeadLen[0]) + int(pathHeadLen[1]<<8) + int(pathHeadLen[2]<<16) + int(pathHeadLen[3]<<24)
+		size := int(pathHeadLen[0]) + (int(pathHeadLen[1]) << 8) + (int(pathHeadLen[2]) << 16) + (int(pathHeadLen[3]) << 24)
 		pointer += 4
 
 		filePath := string(packedFile[pointer : pointer + size])
@@ -120,7 +120,7 @@ func localUnpack(packPath string) string {
 
 		pointer += size
 		fileHead := packedFile[pointer : pointer + 4]
-		size = int(fileHead[0]) + int(fileHead[1]<<8) + int(fileHead[2]<<16) + int(fileHead[3]<<24)
+		size = int(fileHead[0]) + (int(fileHead[1]) << 8) + (int(fileHead[2]) << 16) + (int(fileHead[3]) << 24)
 
 		pointer += 4
 		os.MkdirAll(filepath.Dir(filePath),0777)
