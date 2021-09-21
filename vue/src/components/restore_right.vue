@@ -101,6 +101,20 @@ export default {
     emitToParent: function (para) {
       this.$emit("tar", para);
     },
+    Reload() {
+      var that = this;
+      that.Body.op = "local_dir";
+      that.Body.dir_para.dir_path = that.curPth;
+      axios
+        .get(that.header, {
+          params: {
+            body: that.Body,
+          },
+        })
+        .then((res) => {
+          that.lis = res.data.dir_files;
+        });
+    },
     del: function (filename) {
       var r = confirm("确定删除 " + this.curPth + filename + " ？不可恢复！");
       if (r == false) return;
@@ -113,7 +127,9 @@ export default {
           var res = response.data;
           if (res.succeed == false) {
             window.alert("删除失败：" + res.err);
-          } else window.location.reload();
+          } else {
+            that.Reload();
+          }
         })
         .catch((error) => {
           window.alert(error);

@@ -24,8 +24,8 @@
     <div id="list">
       <center>
         <ul id="column1" style="width: 350px; padding: 8px">
-        <button @click="sel_tar()" id="btn2" >选择当前路径</button>
-        <button @click="new_folder()" id="btn3">创建文件夹</button>
+          <button @click="sel_tar()" id="btn2">选择当前路径</button>
+          <button @click="new_folder()" id="btn3">创建文件夹</button>
         </ul>
         <div id="for" v-for="fil in lis">
           <div v-if="fil.is_dir == true">
@@ -64,7 +64,7 @@
 <script>
 import axios from "axios";
 import qs from "qs";
-import c from "../../common.vue"
+import c from "../../common.vue";
 axios.defaults.headers.post["content-type"] = "application/json";
 export default {
   name: "Target",
@@ -102,6 +102,20 @@ export default {
     emitToParent: function (para) {
       this.$emit("tar", para);
     },
+    Reload() {
+      var that = this;
+      that.Body.op = "local_dir";
+      that.Body.dir_para.dir_path = that.curPth;
+      axios
+        .get(that.header, {
+          params: {
+            body: that.Body,
+          },
+        })
+        .then((res) => {
+          that.lis = res.data.dir_files;
+        });
+    },
     new_folder: function () {
       var folder_name = prompt("请命名文件夹：", "新建文件夹");
       var that = this;
@@ -113,7 +127,7 @@ export default {
           var rsp = response.data;
           if (rsp.succeed == false) {
             window.alert("创建失败:" + rsp.err);
-          } else window.location.reload();
+          } else that.Reload();
         })
         .catch(function (error) {
           window.alert(error);
@@ -130,7 +144,9 @@ export default {
         .then(function (response) {
           var rsp = response.data;
           if (rsp.succeed == false) window.alert("删除失败：" + rsp.err);
-          else window.location.reload();
+          else {
+            that.Reload();
+          }
         })
         .catch(function (error) {
           window.alert(error);
@@ -155,8 +171,8 @@ export default {
           } else {
             window.alert(data.err);
             var pth = that.curPth;
-            pth = pth.substring(0, pth.lastIndexOf('/'));
-            pth = pth.substring(0, pth.lastIndexOf('/')+1);
+            pth = pth.substring(0, pth.lastIndexOf("/"));
+            pth = pth.substring(0, pth.lastIndexOf("/") + 1);
             that.curPth = pth;
           }
         })
@@ -185,12 +201,11 @@ export default {
     },
     sel_tar: function (filename = "") {
       var pth;
-      if (filename!="")
-        pth = this.curPth + filename;
+      if (filename != "") pth = this.curPth + filename;
       else {
         pth = this.curPth;
-        if (pth[pth.length-1] == '/')
-          pth = pth.substring(0, pth.lastIndexOf('/'));
+        if (pth[pth.length - 1] == "/")
+          pth = pth.substring(0, pth.lastIndexOf("/"));
       }
       window.scrollTo(0, -50);
       this.emitToParent(pth);

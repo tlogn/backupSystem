@@ -93,10 +93,24 @@ export default {
           var rsp = response.data;
           if (rsp.succeed == false) {
             window.alert("创建失败:" + rsp.err);
-          } else window.location.reload();
+          } else that.Reload();
         })
         .catch(function (error) {
           window.alert(error);
+        });
+    },
+    Reload() {
+      var that = this;
+      that.Body.op = "remote_dir";
+      that.Body.dir_para.dir_path = that.curPth;
+      axios
+        .get(that.header, {
+          params: {
+            body: that.Body,
+          },
+        })
+        .then((res) => {
+          that.lis = res.data.dir_files;
         });
     },
     del: function (filename) {
@@ -110,7 +124,9 @@ export default {
         .then(function (response) {
           var rsp = response.data;
           if (rsp.succeed == false) window.alert("删除失败：" + rsp.err);
-          else window.location.reload();
+          else {
+            that.Reload();
+          }
         })
         .catch(function (error) {
           window.alert(error);
@@ -133,6 +149,9 @@ export default {
             that.lis = data.dir_files;
           } else {
             window.alert(data.err);
+            pth = pth.substring(0, pth.lastIndexOf("/"));
+            pth = pth.substring(0, pth.lastIndexOf("/") + 1);
+            that.curPth = pth;
           }
         })
         .catch(function (error) {

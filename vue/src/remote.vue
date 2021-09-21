@@ -274,6 +274,12 @@ export default {
         }
       }
     },
+    async Remove(pth) {
+      var that = this;
+      that.Body.op = "remote_remove";
+      that.Body.dir_para.dir_path = pth;
+      await axios.post(that.header, that.Body);
+    },
     /************************************上传 ************************************/
     async Upload() {
       var that = this;
@@ -305,9 +311,7 @@ export default {
       await this.Post("打包").catch((err) => {
         throw err;
       });
-      that.Body.op = "remote_remove";
-      that.Body.dir_para.dir_path = that.r_pth;
-      await axios.post(that.header, that.Body);
+      await that.Remove(that.r_pth);
       that.r_pth += ".pack";
     },
     async Compress() {
@@ -330,13 +334,14 @@ export default {
       await this.Post("压缩").catch((err) => {
         throw err;
       });
+      await that.Remove(that.r_pth);
+      that.r_pth += ".ylx";
     },
     async Encode() {
       var that = this;
       if (!that.encode) {
         await that.Compress().catch((err) => {
           console.log("caught comopress");
-
           throw err;
         });
         console.log("not encode");
@@ -353,6 +358,8 @@ export default {
       await this.Post("加密").catch((err) => {
         throw err;
       });
+      await that.Remove(that.r_pth);
+      that.r_pth += ".lock"
     },
     /***********************************下载 ************************************/
     async Download() {
@@ -387,9 +394,7 @@ export default {
         console.log("unpack caught");
         throw err;
       });
-      that.Body.op = "local_remove";
-      that.Body.dir_para.dir_path = that.r_pth;
-      await axios.post(that.header, that.Body);
+      await that.Remove(that.r_pth);
       that.r_pth = that.r_pth.substring(0, that.r_pth.length - 5);
     },
     async Decompress() {
@@ -411,6 +416,7 @@ export default {
         console.log("decom caught");
         throw err;
       });
+      await that.Remove(that.r_pth);
       that.r_pth = that.r_pth.substring(0, that.r_pth.length - 4);
     },
     async Decode() {
@@ -426,6 +432,8 @@ export default {
         console.log("decode caught");
         throw err;
       });
+      await that.Remove(that.r_pth);
+      that.r_pth = that.r_pth.substring(0, that.r_pth.length - 5);
     },
   },
 };
