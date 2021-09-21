@@ -1,26 +1,41 @@
 <template>
-  <div>
+  <div id="main">
+    <div v-show="showPop">
+      <pop></pop>
+    </div>
     <h1 style="text-align: center">本地备份</h1>
     <hr />
-    <h3>
-      <p id="lbl">源路径：{{ source }}</p>
-      <p id="lbl">目标路径：{{ destin }}</p>
-      <p id="lbl">备份状态：{{ back_status }}</p>
-      <center>
-        <button
-          id="btn2"
-          @click="submit()"
-          style="height: 35px; width: 120px; font-size: 18px"
-        >
-          确定备份
-        </button>
-        <a href="/">
-          <button id="btn2" style="height: 35px; width: 120px; font-size: 18px">
-            返回首页
+    <div id="cmp">
+      <h3>
+        <p id="lbl">源路径：{{ source }}</p>
+        <p id="lbl">目标路径：{{ destin }}</p>
+        <p id="lbl">备份状态：{{ back_status }}</p>
+        <center>
+          <button
+            id="btn2"
+            @click="submit()"
+            style="height: 35px; width: 120px; font-size: 18px"
+          >
+            确定备份
           </button>
-        </a>
-      </center>
-    </h3>
+          <a href="/">
+            <button
+              id="btn2"
+              style="height: 35px; width: 120px; font-size: 18px"
+            >
+              返回首页
+            </button>
+          </a>
+          <button
+            id="btn2"
+            @click="cmp()"
+            style="height: 35px; width: 120px; font-size: 18px"
+          >
+            对比差异
+          </button>
+        </center>
+      </h3>
+    </div>
     <hr />
     <div id="first">
       <h2>选择备份选项</h2>
@@ -57,6 +72,7 @@
 <script>
 import Backup from "./components/origin_path.vue";
 import Target from "./components/target_path.vue";
+import pop from "./components/pop.vue";
 import c from "../common.vue";
 import axios from "axios";
 export default {
@@ -64,6 +80,7 @@ export default {
   components: {
     Backup,
     Target,
+    pop,
   },
   data() {
     return {
@@ -81,6 +98,8 @@ export default {
       encode: false,
       pack: false,
       custom: false,
+      showPop: false,
+      filter_path: "/mnt/d/123/0Bachelor/大四上/软件开发实验/.ignore",
     };
   },
   methods: {
@@ -94,6 +113,52 @@ export default {
       that.destin = data;
       that.back_status = "";
     },
+    cmp: async function () {
+      var that = this;
+      that.Body.op = "local_cmp";
+      that.Body.copy_para.origin_path = that.source;
+      that.Body.copy_para.backup_path = that.destin;
+      await axios
+        .post(that.header, that.Body)
+        .then((response) => {
+          var text = response.data.err.split(";");
+          this.ShowCmp(text);
+        })
+        .catch((err) => {
+          window.alert("比对失败：" + err);
+        });
+    },
+    ShowCmp: function (tex) {
+      var div = document.createElement("div");
+      div.id = "tmp";
+      div.style.position = "relative";
+      div.style.textAlign = "center";
+      var maxnum = document.createTextNode(
+        "注意：最多展示20条。未展示的文件无差别"
+      );
+      div.appendChild(maxnum);
+      for (var i = 0; i < Math.min(tex.length, 20); i++) {
+        var c = document.createElement("center");
+        var p = document.createElement("p");
+        p.style.color = "rgb(0,0,1)";
+        p.style.fontSize = "18px";
+        p.style.width = "60%";
+        var t = document.createTextNode(tex[i]);
+        p.appendChild(t);
+        c.appendChild(p);
+        div.appendChild(c);
+      }
+      var del = document.createElement("button");
+      var deltxt = document.createTextNode("关闭");
+      del.id = "tmpbtn";
+      del.appendChild(deltxt);
+      del.onclick = function () {
+        document.getElementById("cmp").removeChild(div);
+      };
+      div.appendChild(del);
+      document.getElementById("cmp").appendChild(div);
+    },
+
     async Post(type) {
       console.log("123" + type);
       var addr = this.header,
@@ -111,19 +176,16 @@ export default {
             } else {
               var err = rsp.err;
               that.back_status += type + "失败" + "; ";
-              if (type == "打包") throw type + "失败：" + err;
-              if (type == "压缩") throw type + "失败：" + err;
-              if (type == "加密") throw type + "失败：" + err;
-              if (type == "备份") throw type + "失败：" + err;
+              window.alert(type + "失败：" + err);
+              throw type + "失败：" + err;
             }
           })
           .catch(function (error) {
-            throw error;
+            throw type + "失败：" + error;
           });
       }
-      return "OK";
     },
-    submit: function () {
+    submit: async function () {
       var that = this;
       that.s_pth = this.source;
       that.d_pth = this.destin;
@@ -166,76 +228,96 @@ export default {
             }
           }
         }
-        this.Encode();
+        that.showPop = true;
+        await this.Encode().catch((err) => {
+          that.showPop = false;
+        });
+        that.showPop = false;
       }
+    },
+    async Remove(pth) {
+      var that = this;
+      that.Body.op = "local_remove";
+      that.Body.dir_para.dir_path = pth;
+      await axios.post(that.header, that.Body);
     },
     async Copy() {
       var that = this;
-      that.Body.op = "local_copy";
-      that.Body.copy_para.origin_path = this.s_pth;
-      that.Body.copy_para.backup_path = this.d_pth;
-      console.log("4");
+      if (!that.custom) {
+        that.Body.op = "local_copy";
+        that.Body.copy_para.origin_path = this.s_pth;
+        that.Body.copy_para.backup_path = this.d_pth;
+      } else {
+        that.Body.op = "local_filter_copy";
+        that.Body.filter_path = that.filter_path;
+        that.Body.copy_para.origin_path = this.s_pth;
+        that.Body.copy_para.backup_path = this.d_pth;
+      }
       await this.Post("备份").catch((err) => {
-        window.alert(err);
+        throw err;
       });
-      console.log("5");
     },
     async Pack() {
       if (!this.pack) {
-        await this.Copy();
+        await this.Copy().catch((err) => {
+          throw err;
+        });
         return;
       }
-      console.log("3");
-      await this.Copy();
-      console.log("6");
+      await this.Copy().catch((err) => {
+        throw err;
+      });
       var that = this;
       that.Body.op = "local_pack";
       that.Body.pack_para.is_pack = true;
       that.Body.pack_para.pack_path = this.d_pth;
       await this.Post("打包").catch((err) => {
-        console.log("packErr")
-        window.alert(err);
-        return;
+        throw err;
       });
-      that.Body.op = "local_remove";
-      that.Body.dir_para.dir_path = this.d_pth;
-      await axios.post(that.header, that.Body);
+      await this.Remove(that.d_pth);
       that.d_pth += ".pack";
-      console.log(that.d_pth);
     },
     async Compress() {
       if (!this.compress) {
-        await this.Pack();
+        await this.Pack().catch((err) => {
+          throw err;
+        });
         return;
       }
-      console.log("2");
-      await this.Pack();
-      console.log("7");
+      await this.Pack().catch((err) => {
+        throw err;
+      });
       var that = this;
       that.Body.op = "local_compress";
       that.Body.compress_para.is_compress = true;
       that.Body.compress_para.compress_path = this.d_pth;
+      console.log(that.d_pth);
       await this.Post("压缩").catch((err) => {
-        window.alert(err);
-        return;
+        throw err;
       });
+      await this.Remove(that.d_pth);
+      that.d_pth += ".ylx";
     },
     async Encode() {
       if (!this.encode) {
-        await this.Compress();
+        await this.Compress().catch((err) => {
+          throw err;
+        });
         return;
       }
-      console.log("1");
-      await this.Compress();
-      console.log("8");
+      await this.Compress().catch((err) => {
+        throw err;
+      });
       var that = this;
       that.Body.op = "local_encode";
       that.Body.encode_para.is_encode = true;
       that.Body.encode_para.encode_path = this.d_pth;
       that.Body.encode_para.password = this.encode_pwd;
       await this.Post("加密").catch((err) => {
-        window.alert(err);
+        throw err;
       });
+      await this.Remove(that.d_pth);
+      that.d_pth += ".lock";
     },
   },
 };

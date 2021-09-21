@@ -1,5 +1,8 @@
 <template>
   <div>
+    <div v-show="showPop">
+      <pop></pop>
+    </div>
     <h1 style="text-align: center">网盘模式(用户：{{ curUser }})</h1>
     <hr />
     <h3>
@@ -33,15 +36,14 @@
       <h2>选择备份选项</h2>
       <center>
         <div id="column3">
-          <input type="checkbox" id="ckx" value="自定义备份" v-model="b_opt" />
-          <label>自定义备份</label>
           <input type="checkbox" id="ckx" value="压缩" v-model="b_opt" />
           <label>压缩</label>
           <input type="checkbox" id="ckx" value="打包" v-model="b_opt" />
           <label>打包</label>
-          <br>
+          <br />
           <input type="checkbox" id="ckx" value="加密" v-model="b_opt" />
-          <label>加密
+          <label
+            >加密
             <input
               v-model="encode_pwd"
               type="password"
@@ -62,9 +64,10 @@
           <label>解压</label>
           <input type="checkbox" id="ckx" value="解包" v-model="r_opt" />
           <label>解包</label>
-          <br>
+          <br />
           <input type="checkbox" id="ckx" value="解密" v-model="r_opt" />
-          <label>解密
+          <label
+            >解密
             <input
               v-model="decode_pwd"
               type="password"
@@ -84,12 +87,14 @@
 import rleft from "./components/remote_left.vue";
 import rright from "./components/remote_right.vue";
 import c from "../common.vue";
+import pop from "./components/pop.vue";
 import axios from "axios";
 export default {
   name: "remote",
   components: {
     rleft,
     rright,
+    pop,
   },
   data() {
     return {
@@ -102,17 +107,20 @@ export default {
       back_status: "",
       Body: c.Body,
       curUser: "",
-      upload_suc: false,
-      encode_suc: false,
-      compress_suc: false,
+      upload: false,
+      encode: false,
+      compress: false,
       pack_suc: false,
-      download_suc: false,
-      decode_suc: false,
-      decompress_suc: false,
-      unpack_suc: false,
+      download: false,
+      decode: false,
+      decompress: false,
+      unpack: false,
       encode_pwd: "",
       decode_pwd: "",
       IsShow: true,
+      showPop: false,
+      l_pth: "",
+      r_pth: "",
     };
   },
   mounted: function () {
@@ -138,52 +146,46 @@ export default {
       that.server = data;
       that.back_status = "";
     },
-    Post: function (type) {
+    Post: async function (type) {
+      console.log("post" + type);
       var addr = this.header,
         data = this.Body;
       var that = this;
       if (addr == null) {
         window.alert("Empty URL");
       } else {
-        axios
+        await axios
           .post(addr, data)
           .then(function (response) {
             var rsp = response.data;
             if (rsp.succeed == true) {
               that.back_status += type + "成功" + "; ";
-              if (type == "上传") that.upload_suc = true;
-              if (type == "打包") that.pack_suc = true;
-              if (type == "压缩") that.compress_suc = true;
-              if (type == "加密") that.encode_suc = true;
-              if (type == "下载") that.download_suc = true;
-              if (type == "解包") that.unpack_suc = true;
-              if (type == "解压") that.decompress_suc = true;
-              if (type == "解密") that.decode_suc = true;
             } else {
+              that.back_status += type + "失败：" + rsp.err + ";" + "\n ";
               window.alert(type + "失败:" + rsp.err);
-              that.back_status += type + "失败" + "; ";
+              throw type + "失败:" + rsp.err;
             }
           })
           .catch(function (error) {
-            that.post_response_msg = null;
-            window.alert(error);
+            throw error;
           });
       }
     },
-    submit: function (type = "") {
-      var l_pth = this.local;
-      var r_pth = this.server;
+    submit: async function (type = "") {
+      var that = this;
+      that.l_pth = this.local;
+      that.r_pth = this.server;
       var b_opt = this.b_opt,
         r_opt = this.r_opt;
       var filename;
       if (type == "backup") {
-        filename = l_pth.substring(l_pth.lastIndexOf("/"));
-        r_pth += filename;
+        filename = that.l_pth.substring(that.l_pth.lastIndexOf("/"));
+        that.r_pth += filename;
       } else {
-        filename = r_pth.substring(r_pth.lastIndexOf("/"));
-        l_pth += filename;
+        filename = that.r_pth.substring(that.r_pth.lastIndexOf("/"));
+        that.l_pth += filename;
       }
-      if (l_pth == "" || r_pth == "") {
+      if (that.l_pth == "" || that.r_pth == "") {
         window.alert("本地路径或网盘路径为空！");
         return;
       }
@@ -191,10 +193,10 @@ export default {
       if (type == "backup") {
         r = window.confirm(
           "您要将文件(夹)：" +
-            l_pth +
+            that.l_pth +
             "\n" +
             "上传到：" +
-            r_pth +
+            that.r_pth +
             "\n" +
             "附加选项：" +
             b_opt +
@@ -204,10 +206,10 @@ export default {
       } else {
         r = window.confirm(
           "您要将文件(夹)：" +
-            r_pth +
+            that.r_pth +
             "\n" +
             "下载到：" +
-            l_pth +
+            that.l_pth +
             "\n" +
             "附加选项：" +
             r_opt +
@@ -215,120 +217,215 @@ export default {
             "注意：若目标路径存在重名文件可能会被覆盖！"
         );
       }
-      var pack = 0,
-        enco = 0,
-        compress = 0,
-        custom = 0;
-      var that = this;
       if (r == true) {
-        //that.upload_suc = true;
-        that.compress_suc = true;
-        that.pack_suc = true;
-        that.encode_suc = true;
+        that.upload = false;
+        that.compress = false;
+        that.pack = false;
+        that.encode = false;
+        that.download = false;
+        that.decompress = false;
+        that.unpack = false;
+        that.decode = false;
         if (type == "backup") {
           that.back_status = "";
           for (var i = 0; i < b_opt.length; i++) {
             if (b_opt[i] == "自定义备份") {
-              custom = 1;
             } else if (b_opt[i] == "压缩") {
-              compress = 1;
-              that.compress_suc = false;
+              that.compress = true;
             } else if (b_opt[i] == "打包") {
-              pack = 1;
-              that.pack_suc = false;
+              that.pack = true;
             } else if (b_opt[i] == "加密") {
-              enco = 1;
-              that.encode_suc = false;
+              that.encode = true;
+              if (this.encode_pwd.length == 0) {
+                window.alert("密码为空！");
+                return;
+              }
             }
           }
-          that.Body.op = "remote_upload";
-          that.Body.trans_para.local_path = l_pth;
-          that.Body.trans_para.remote_path = r_pth;
-          this.Post("上传");
-          if (custom == 1) {
-          } //TODO
-          setTimeout(() => {
-            if (pack == 1 && that.upload_suc) {
-              that.Body.op = "remote_pack";
-              that.Body.pack_para.is_pack = true;
-              that.Body.pack_para.pack_path = r_pth;
-              this.Post("打包");
-            }
-          }, 1500);
-          setTimeout(() => {
-            if (compress == 1 && that.upload_suc && that.pack_suc) {
-              that.Body.op = "remote_compress";
-              that.Body.compress_para.is_compress = true;
-              that.Body.compress_para.compress_path = r_pth;
-              this.Post("压缩");
-            }
-          }, 3000);
-          setTimeout(() => {
-            if (
-              enco == 1 &&
-              that.compress_suc &&
-              that.upload_suc &&
-              that.pack_suc
-            ) {
-              that.Body.op = "remote_encode";
-              that.Body.encode_para.is_encode = true;
-              that.Body.encode_para.encode_path = r_pth;
-              that.Body.encode_para.password = that.encode_pwd;
-              this.Post("加密");
-            }
-          }, 4500);
+          that.showPop = true;
+          await this.Encode().catch((err) => {
+            that.showPop = false;
+          });
+          that.showPop = false;
         } else {
-          /*==============================还原================================= */
-          that.download_suc = true;
-          that.decompress_suc = true;
-          that.unpack_suc = true;
-          that.decode_suc = true;
           that.back_status = "";
           for (var i = 0; i < r_opt.length; i++) {
             if (r_opt[i] == "解压") {
-              compress = 1;
-              that.decompress_suc = false;
+              that.decompress = true;
             } else if (r_opt[i] == "解包") {
-              pack = 1;
-              that.unpack_suc = false;
+              that.unpack = true;
             } else if (r_opt[i] == "解密") {
-              enco = 1;
-              that.decode_suc = false;
+              that.decode = true;
             }
           }
-          if (enco == 1) {
-            that.Body.op = "remote_encode";
-            that.Body.encode_para.is_encode = false;
-            that.Body.encode_para.encode_path = r_pth;
-            that.Body.encode_para.password = that.decode_pwd;
-            this.Post("解密");
-          }
-          setTimeout(() => {
-            if (compress == 1 && that.decode_suc) {
-              that.Body.op = "remote_compress";
-              that.Body.compress_para.is_compress = false;
-              that.Body.compress_para.compress_path = r_pth;
-              this.Post("解压");
-            }
-          }, 1500);
-          setTimeout(() => {
-            if (pack == 1 && that.decompress_suc && that.decode_suc) {
-              that.Body.op = "remote_pack";
-              that.Body.pack_para.is_pack = false;
-              that.Body.pack_para.pack_path = r_pth;
-              this.Post("解包");
-            }
-          }, 3000);
-          setTimeout(() => {
-            if (that.decompress_suc && that.decode_suc && that.unpack_suc) {
-              that.Body.op = "remote_download";
-              that.Body.trans_para.remote_path = r_pth;
-              that.Body.trans_para.local_path = l_pth;
-              this.Post("下载");
-            }
-          }, 4500);
+          that.showPop = true;
+          await this.Download().catch((err) => {
+            that.showPop = false;
+            return;
+          });
+          that.showPop = false;
+          that.Body.op = "remote_dir";
+          that.Body.dir_para.dir_path = that.r_pth;
+          axios.get(that.header, {
+            params: {
+              body: that.Body,
+            },
+          });
         }
       }
+    },
+    /************************************上传 ************************************/
+    async Upload() {
+      var that = this;
+      that.Body.op = "remote_upload";
+      that.Body.trans_para.local_path = that.l_pth;
+      that.Body.trans_para.remote_path = that.r_pth;
+      await this.Post("上传").catch((err) => {
+        console.log("upload caught");
+        throw err;
+      });
+    },
+    async Pack() {
+      var that = this;
+      if (!that.pack) {
+        await that.Upload().catch((err) => {
+          console.log("caught upload");
+          throw err;
+        });
+        console.log("not pack");
+        return;
+      }
+      await that.Upload().catch((err) => {
+        console.log("caught upload");
+        throw err;
+      });
+      that.Body.op = "remote_pack";
+      that.Body.pack_para.is_pack = true;
+      that.Body.pack_para.pack_path = that.r_pth;
+      await this.Post("打包").catch((err) => {
+        throw err;
+      });
+      that.Body.op = "remote_remove";
+      that.Body.dir_para.dir_path = that.r_pth;
+      await axios.post(that.header, that.Body);
+      that.r_pth += ".pack";
+    },
+    async Compress() {
+      var that = this;
+      if (!that.compress) {
+        await that.Pack().catch((err) => {
+          console.log("caught pack");
+          throw err;
+        });
+        console.log("not compress");
+        return;
+      }
+      await that.Pack().catch((err) => {
+        console.log("caught pack");
+        throw err;
+      });
+      that.Body.op = "remote_compress";
+      that.Body.compress_para.is_compress = true;
+      that.Body.compress_para.compress_path = that.r_pth;
+      await this.Post("压缩").catch((err) => {
+        throw err;
+      });
+    },
+    async Encode() {
+      var that = this;
+      if (!that.encode) {
+        await that.Compress().catch((err) => {
+          console.log("caught comopress");
+
+          throw err;
+        });
+        console.log("not encode");
+        return;
+      }
+      await that.Compress().catch((err) => {
+        console.log("caught comopress");
+        throw err;
+      });
+      that.Body.op = "remote_encode";
+      that.Body.encode_para.is_encode = true;
+      that.Body.encode_para.encode_path = that.r_pth;
+      that.Body.encode_para.password = that.encode_pwd;
+      await this.Post("加密").catch((err) => {
+        throw err;
+      });
+    },
+    /***********************************下载 ************************************/
+    async Download() {
+      var that = this;
+      await that.Unpack().catch((err) => {
+        throw err;
+      });
+      that.Body.op = "remote_download";
+      that.Body.trans_para.remote_path = that.r_pth;
+      that.Body.trans_para.local_path = that.l_pth;
+      await this.Post("下载").catch((err) => {
+        console.log("download caught");
+        throw err;
+      });
+    },
+    async Unpack() {
+      var that = this;
+      if (!that.unpack) {
+        await that.Decompress().catch((err) => {
+          throw err;
+        });
+        return;
+      }
+      await that.Decompress().catch((err) => {
+        console.log("unpac");
+        throw err;
+      });
+      that.Body.op = "remote_pack";
+      that.Body.pack_para.is_pack = false;
+      that.Body.pack_para.pack_path = that.r_pth;
+      await this.Post("解包").catch((err) => {
+        console.log("unpack caught");
+        throw err;
+      });
+      that.Body.op = "local_remove";
+      that.Body.dir_para.dir_path = that.r_pth;
+      await axios.post(that.header, that.Body);
+      that.r_pth = that.r_pth.substring(0, that.r_pth.length - 5);
+    },
+    async Decompress() {
+      var that = this;
+      if (!that.decompress) {
+        await that.Decode().catch((err) => {
+          console.log("decom");
+          throw err;
+        });
+        return;
+      }
+      await that.Decode().catch((err) => {
+        throw err;
+      });
+      that.Body.op = "remote_compress";
+      that.Body.compress_para.is_compress = false;
+      that.Body.compress_para.compress_path = that.r_pth;
+      await this.Post("解压").catch((err) => {
+        console.log("decom caught");
+        throw err;
+      });
+      that.r_pth = that.r_pth.substring(0, that.r_pth.length - 4);
+    },
+    async Decode() {
+      var that = this;
+      if (!that.decode) {
+        return;
+      }
+      that.Body.op = "remote_encode";
+      that.Body.encode_para.is_encode = false;
+      that.Body.encode_para.encode_path = that.r_pth;
+      that.Body.encode_para.password = that.decode_pwd;
+      await this.Post("解密").catch((err) => {
+        console.log("decode caught");
+        throw err;
+      });
     },
   },
 };

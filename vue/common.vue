@@ -1,9 +1,12 @@
 
+
 <script>
 const Body = {
   op: "remote_upload",
 
   user_name: "",
+
+  filter_path: "",
 
   trans_para: {
     local_path: "",
@@ -36,6 +39,7 @@ const Body = {
   encode_para: {
     is_encode: false,
     encode_path: "",
+    password: "",
   },
 
   pack_para: {
@@ -48,3 +52,7 @@ export default {
   Body,
 };
 </script>
+
+<style>
+
+</style>
