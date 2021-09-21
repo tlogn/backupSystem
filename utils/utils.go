@@ -39,7 +39,7 @@ func IsSymLink(filename string) bool {
 func IsHardLink(filename string) bool {
 	stats, err := os.Lstat(filename)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return false
 	}
 	
