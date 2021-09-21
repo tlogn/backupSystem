@@ -26,6 +26,7 @@ func LocalFilterCpFile(w http.ResponseWriter, r *utils.Request) {
 }
 
 func LocalCpFile(w http.ResponseWriter, r *utils.Request) {
+	filter = filter2.Filter{}
 	fmt.Fprintf(w, "%v", localCpFile(w, r))
 }
 
