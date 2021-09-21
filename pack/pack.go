@@ -107,7 +107,7 @@ func localUnpack(packPath string) string {
 	pointer := 0
 
 	for {
-		if pointer == len(packedFile) {
+		if pointer >= len(packedFile) {
 			break
 		}
 		pathHeadLen := packedFile[pointer : pointer + 4]
