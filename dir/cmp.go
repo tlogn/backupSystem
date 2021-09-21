@@ -13,22 +13,22 @@ import (
 func LocalCmp(w http.ResponseWriter, r *utils.Request){
 	dir1 := r.CopyPara.OriginPath
 	dir2 := r.CopyPara.BackupPath
-	fmt.Fprintf(w, "%v", localCmp(dir1, dir2))
+	fmt.Fprintf(w, "%v", utils.ErrorResponse(errors.New(cmpFiles(dir1, dir2))))
 }
 
-func localCmp(dir1, dir2 string) string {
+func cmpDir(dir1, dir2 string) string {
 	if dir1 == dir2 {
-		return utils.SucceedResponse()
+		return ""
 	}
 	fileList1, err := ioutil.ReadDir(dir1)
 	if err != nil {
 		log.Println(err)
-		return utils.ErrorResponse(err)
+		return err.Error()
 	}
 	fileList2, err := ioutil.ReadDir(dir2)
 	if err != nil {
 		log.Println(err)
-		return utils.ErrorResponse(err)
+		return err.Error()
 	}
 	if len(fileList1) < len(fileList2) {
 		dir1, dir2 = dir2, dir1
@@ -46,7 +46,7 @@ func localCmp(dir1, dir2 string) string {
 			}
 		}
 		if !isFind {
-			diff += "[ " + filepath.Join(dir1, fileInfo1.Name()) + " ] not found in [ " + dir2 + " ];  "
+			diff += " \"" + filepath.Join(dir1, fileInfo1.Name()) + "\"    NOT FOUND IN    \"" + dir2 + "\";  "
 		} else {
 			ret := cmpFiles(filepath.Join(dir1, fileInfo1.Name()), filepath.Join(dir2, fileInfo1.Name()))
 			if ret != "" {
@@ -54,17 +54,20 @@ func localCmp(dir1, dir2 string) string {
 			}
 		}
 	}
-	return utils.ErrorResponse(errors.New(diff))
+	return diff
 }
 
 func cmpFiles(filename1, filename2 string) string {
+	if filename1 == filename2 {
+		return ""
+	}
 	fileType1 := utils.GetFileType(filename1)
 	fileType2 := utils.GetFileType(filename2)
 	if fileType1 != fileType2 {
-		return "[ " + filename1 + " ] is [ " + fileType1 + " ] while [ " + filename2 + " ] is [ " + fileType2 + " ];   "
+		return "\" " + filename1 + " \" IS \"" + fileType1 + "\"    WHILE    \"" + filename2 + "\" IS \"" + fileType2 + "\";   "
 	}
 	if fileType1 == utils.FILE_TYPE_DIR {
-		return localCmp(filename1, filename2)
+		return cmpDir(filename1, filename2)
 	}
 	if fileType1 == utils.FILE_TYPE_PIPELINE {
 		return ""
@@ -72,7 +75,7 @@ func cmpFiles(filename1, filename2 string) string {
 	file1, _ := ioutil.ReadFile(filename1)
 	file2, _ := ioutil.ReadFile(filename2)
 	if !cmpBytes(file1, file2) {
-		return "[ " + filename1 + " ] not equals [ " + filename2 + "];   "
+		return "\"" + filename1 + "\"    NOT EQUALS    \"" + filename2 + "\";   "
 	}
 	return ""
 }
