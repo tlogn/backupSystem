@@ -125,8 +125,6 @@ func localUnpack(packPath string) string {
 		pointer += 4
 		os.MkdirAll(filepath.Dir(filePath),0777)
 		err = ioutil.WriteFile(filePath, packedFile[pointer : pointer + size], 0777)
-		fmt.Println("-------------filePath-------------")
-		fmt.Println(filePath)
 		if err != nil {
 			log.Printf("write packedfile %v error, %v",filePath, err)
 			return utils.ErrorResponse(errors.New("write unpackedfile error"))
