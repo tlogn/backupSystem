@@ -196,7 +196,7 @@ export default {
       that.Body.pack_para.is_pack = true;
       that.Body.pack_para.pack_path = this.d_pth;
       await this.Post("打包").catch((err) => {
-        console.log("packErr");
+        console.log("packErr")
         window.alert(err);
         return;
       });
