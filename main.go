@@ -25,6 +25,7 @@ var (
 		"login": login.Login,
 		"register": login.Register,
 		"local_copy" : copy.LocalCpFile,
+		"local_filter_copy" : copy.LocalFilterCpFile,
 		"local_dir" : dir.LocalDir,
 		"local_encode" : encode.LocalEncode,
 		"local_compress" : compress.LocalCompress,

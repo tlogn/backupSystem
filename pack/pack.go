@@ -70,7 +70,6 @@ func localPack(packPath string) string {
 		packedFile = append(packedFile, pathHeadLen...)
 
 		file, err := ioutil.ReadFile(filepath.Join(filepath.Dir(srcPath), filePath))
-
 		if err != nil {
 			log.Printf("read file %v error, %v",srcPath, err)
 			return utils.ErrorResponse(err)
@@ -105,7 +104,6 @@ func localUnpack(packPath string) string {
 	}
 
 	pointer := 0
-
 	for {
 		if pointer >= len(packedFile) {
 			break

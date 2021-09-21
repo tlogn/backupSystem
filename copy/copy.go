@@ -11,15 +11,22 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"sync"
 	"syscall"
 )
 
 var (
-	filter filter2.Filter
+	filter	filter2.Filter
+	wg		sync.WaitGroup
 )
 
-func LocalCpFile(w http.ResponseWriter, r *utils.Request) {
+func LocalFilterCpFile(w http.ResponseWriter, r *utils.Request) {
 	filter.ReadFilter(r.FilterPath)
+	fmt.Fprintf(w, "%v", localCpFile(w, r))
+}
+
+func LocalCpFile(w http.ResponseWriter, r *utils.Request) {
+	filter = filter2.Filter{}
 	fmt.Fprintf(w, "%v", localCpFile(w, r))
 }
 
@@ -29,6 +36,7 @@ func localCpFile(w http.ResponseWriter, r *utils.Request) string {
 		log.Println(err)
 		return utils.ErrorResponse(err)
 	}
+	wg.Wait()
 	return utils.SucceedResponse()
 }
 
@@ -75,7 +83,13 @@ func CpNormalFile(dstPath, srcPath string) error {
 		log.Printf("write file %v error, %v",dstPath, err)
 		return errors.New("write file error")
 	}
-	utils.SetRecoverInfo("local_", utils.FILE_TYPE_FILE, f, srcPath, dstPath, "", nil)
+
+	wg.Add(1)
+	go func() {
+		utils.SetRecoverInfo("local_", utils.FILE_TYPE_FILE, f, srcPath, dstPath, "", nil)
+		wg.Done()
+	}()
+
 	return nil
 }
 
@@ -87,7 +101,12 @@ func CpHardLink(dstPath, srcPath string) error {
 	}
 
 	f, _ := os.Lstat(srcPath)
-	utils.SetRecoverInfo("local_", utils.FILE_TYPE_HARDLINK, f, srcPath, dstPath, "", nil)
+
+	wg.Add(1)
+	go func() {
+		utils.SetRecoverInfo("local_", utils.FILE_TYPE_HARDLINK, f, srcPath, dstPath, "", nil)
+		wg.Done()
+	}()
 	return nil
 }
 
@@ -100,7 +119,12 @@ func CpSymLink(dstPath, srcPath string) error {
 
 	linkedSrcPath, _ := os.Readlink(srcPath)
 	LinkedSrcPath, _ := filepath.Abs(linkedSrcPath)
-	utils.SetRecoverInfo("local_", utils.FILE_TYPE_SYMLINK, f, srcPath, dstPath, LinkedSrcPath, nil)
+
+	wg.Add(1)
+	go func() {
+		utils.SetRecoverInfo("local_", utils.FILE_TYPE_SYMLINK, f, srcPath, dstPath, LinkedSrcPath, nil)
+		wg.Done()
+	}()
 	return nil
 }
 
@@ -110,7 +134,12 @@ func CpPipeline(dstPath, srcPath string) error {
 		return err
 	}
 	f, _ := os.Lstat(srcPath)
-	utils.SetRecoverInfo("local_", utils.FILE_TYPE_PIPELINE, f, srcPath, dstPath, "", nil)
+
+	wg.Add(1)
+	go func() {
+		utils.SetRecoverInfo("local_", utils.FILE_TYPE_PIPELINE, f, srcPath, dstPath, "", nil)
+		wg.Done()
+	}()
 	return nil
 }
 
@@ -138,7 +167,12 @@ func CpDir(dstPath, srcPath string) error {
 		linkedPath, _ = os.Readlink(srcPath)
 		linkedPath, _ = filepath.Abs(linkedPath)
 	}
-	utils.SetRecoverInfo("local_", utils.FILE_TYPE_DIR, f, srcPath, dstPath, linkedPath, dirList)
+
+	wg.Add(1)
+	go func() {
+		utils.SetRecoverInfo("local_", utils.FILE_TYPE_DIR, f, srcPath, dstPath, linkedPath, dirList)
+		wg.Done()
+	}()
 
 	for _, fileInfo := range fileInfoList {
 		CpFile(path.Join(dstPath, fileInfo.Name()), path.Join(srcPath, fileInfo.Name()))
