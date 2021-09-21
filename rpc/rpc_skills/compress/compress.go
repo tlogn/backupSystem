@@ -1,15 +1,15 @@
-package encode
+package compress
 
 import (
-	"backupSystem/encode"
+	"backupSystem/compress"
 	"backupSystem/rpc/rpc_utils"
 	"backupSystem/utils"
 	"log"
 )
 
-func RemoteEncode(Request *rpc_utils.Request, Response *utils.Response) error {
+func RemoteCompress(Request *rpc_utils.Request, Response *utils.Response) error {
 	Response.Succeed = true
-	errResp := encode.SelectEncodeOrDecode(true, Request.ProcessPath, Request.Password)
+	errResp := compress.Compress(Request.ProcessPath)
 	if errResp != utils.SucceedResponse() {
 		err := utils.GetErrFromResponse(errResp)
 		log.Println(err)
@@ -18,9 +18,9 @@ func RemoteEncode(Request *rpc_utils.Request, Response *utils.Response) error {
 	return nil
 }
 
-func RemoteDecode(Request *rpc_utils.Request, Response *utils.Response) error {
+func RemoteUndoCompress(Request *rpc_utils.Request, Response *utils.Response) error {
 	Response.Succeed = true
-	errResp := encode.SelectEncodeOrDecode(false, Request.ProcessPath, Request.Password)
+	errResp := compress.UndoCompress(Request.ProcessPath)
 	if errResp != utils.SucceedResponse() {
 		err := utils.GetErrFromResponse(errResp)
 		log.Println(err)
@@ -28,3 +28,4 @@ func RemoteDecode(Request *rpc_utils.Request, Response *utils.Response) error {
 	}
 	return nil
 }
+

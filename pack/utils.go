@@ -2,13 +2,13 @@ package pack
 
 import (
 	"backupSystem/utils"
-	"errors"
 	"log"
 )
 
 func LPack(packPath string) error {
-	if localPack(packPath) != utils.SucceedResponse() {
-		err := errors.New("pack error")
+	errResp := localPack(packPath)
+	if errResp != utils.SucceedResponse() {
+		err := utils.GetErrFromResponse(errResp)
 		log.Println(err)
 		return err
 	}
@@ -16,8 +16,9 @@ func LPack(packPath string) error {
 }
 
 func UPack(packPath string) error {
-	if localUnpack(packPath) != utils.SucceedResponse() {
-		err := errors.New("unpack error")
+	errResp := localUnpack(packPath)
+	if errResp != utils.SucceedResponse() {
+		err := utils.GetErrFromResponse(errResp)
 		log.Println(err)
 		return err
 	}

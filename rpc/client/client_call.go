@@ -1,6 +1,7 @@
 package client
 
 import (
+	filter2 "backupSystem/filter"
 	"backupSystem/pack"
 	"backupSystem/rpc/rpc_utils"
 	"backupSystem/utils"
@@ -11,6 +12,10 @@ import (
 	"net/http"
 	"os"
 	"syscall"
+)
+
+var (
+	filter filter2.Filter
 )
 
 func RemoteDir(w http.ResponseWriter, r *utils.Request) {
@@ -172,6 +177,44 @@ func RemoteEncode(w http.ResponseWriter, r *utils.Request) {
 	method := "Handler.RemoteDecode"
 	if r.EncodePara.IsEncode {
 		method = "Handler.RemoteEncode"
+	}
+	err := RpcClient.Call(method, &request, &response)
+	if err != nil {
+		fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
+		return
+	}
+	fmt.Fprintf(w, "%v", utils.SucceedResponse())
+}
+
+func RemotePack(w http.ResponseWriter, r *utils.Request) {
+	RpcClient = NewClient()
+	defer RpcClient.Close()
+	request := rpc_utils.Request{
+		ProcessPath: r.PackPara.PackPath,
+	}
+	response := utils.Response{}
+	method := "Handler.RemoteUnpack"
+	if r.PackPara.IsPack {
+		method = "Handler.RemotePack"
+	}
+	err := RpcClient.Call(method, &request, &response)
+	if err != nil {
+		fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
+		return
+	}
+	fmt.Fprintf(w, "%v", utils.SucceedResponse())
+}
+
+func RemoteCompress(w http.ResponseWriter, r *utils.Request) {
+	RpcClient = NewClient()
+	defer RpcClient.Close()
+	request := rpc_utils.Request{
+		ProcessPath: r.CompressPara.CompressPath,
+	}
+	response := utils.Response{}
+	method := "Handler.RemoteUndoCompress"
+	if r.PackPara.IsPack {
+		method = "Handler.RemoteCompress"
 	}
 	err := RpcClient.Call(method, &request, &response)
 	if err != nil {

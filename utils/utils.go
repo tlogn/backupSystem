@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 package utils
 
 import (
@@ -106,6 +107,8 @@ func GetFileType(filepath string) string {
 	}
 	return FILE_TYPE_FILE
 =======
+=======
+>>>>>>> 242b2eb3d7feafe3fa85198f2c4517cdf08790af
 package utils
 
 import (
@@ -154,7 +157,11 @@ func IsHardLink(filename string) bool {
 	s, ok := stats.Sys().(*syscall.Stat_t)
 	if !ok {
 		err = errors.New("cannot convert stat value to syscall.Stat_t")
+<<<<<<< HEAD
 		log.Fatal(err)
+=======
+		log.Println(err)
+>>>>>>> 242b2eb3d7feafe3fa85198f2c4517cdf08790af
 		return false
 	}
 
@@ -169,11 +176,19 @@ func IsHardLink(filename string) bool {
 
 func IsDir(filename string) bool {
 	stats, err := os.Stat(filename)
+<<<<<<< HEAD
 	if err!=nil {
 		fmt.Println("***************************IsDir Err*******************************")
 		fmt.Println(err)
 		ErrorResponse(err)
 		return false;
+=======
+	if err != nil {
+		fmt.Println("***************************IsDir Err*******************************")
+		fmt.Println(err)
+		ErrorResponse(err)
+		return false
+>>>>>>> 242b2eb3d7feafe3fa85198f2c4517cdf08790af
 	}
 	return stats.IsDir()
 }
@@ -216,5 +231,8 @@ func GetFileType(filepath string) string {
 		return FILE_TYPE_PIPELINE
 	}
 	return FILE_TYPE_FILE
+<<<<<<< HEAD
 >>>>>>> bd4d4cbced86991c3e4f14547fbb63d2bfbb35f0
+=======
+>>>>>>> 242b2eb3d7feafe3fa85198f2c4517cdf08790af
 }
