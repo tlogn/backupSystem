@@ -37,7 +37,10 @@ func CpFile(dstPath, srcPath string) error {
 		return nil
 	}
 	if !utils.IsFileExist(srcPath) {
-		return errors.New("file not exist")
+		return errors.New(srcPath + " not exist")
+	}
+	if !utils.IsFileExist(filepath.Dir(dstPath)) {
+		return errors.New(filepath.Dir(dstPath) + " not exist")
 	}
 	dstPath , _ = filepath.Abs(dstPath)
 	srcPath, _ = filepath.Abs(srcPath)
