@@ -180,3 +180,22 @@ func RemoteEncode(w http.ResponseWriter, r *utils.Request) {
 	}
 	fmt.Fprintf(w, "%v", utils.SucceedResponse())
 }
+
+func RemotePack(w http.ResponseWriter, r *utils.Request) {
+	RpcClient = NewClient()
+	defer RpcClient.Close()
+	request := rpc_utils.Request{
+		ProcessPath: r.PackPara.PackPath,
+	}
+	response := utils.Response{}
+	method := "Handler.RemoteUnpack"
+	if r.PackPara.IsPack {
+		method = "Handler.RemotePack"
+	}
+	err := RpcClient.Call(method, &request, &response)
+	if err != nil {
+		fmt.Fprintf(w, "%v", utils.ErrorResponse(err))
+		return
+	}
+	fmt.Fprintf(w, "%v", utils.SucceedResponse())
+}
