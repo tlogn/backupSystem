@@ -16,6 +16,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/exec"
 )
 
 type HTTPHandler func(w http.ResponseWriter, r *utils.Request)
@@ -44,7 +46,7 @@ var (
 		"remote_mkdir" : client.RemoteMkDir,
 	}
 	rpcServerSelect bool
-
+	daemon			bool
 )
 
 func method(w http.ResponseWriter, r *http.Request) {
@@ -76,20 +78,33 @@ func method(w http.ResponseWriter, r *http.Request) {
 	handler(w, &request)
 }
 
+func Daemon(args ...string) {
+	var arg []string
+	if len(args) > 1 {
+		arg = args[1:]
+	}
+	cmd := exec.Command(args[0], arg...)
+	cmd.Env = os.Environ()
+	cmd.Start()
+}
+
 func main() {
 	flag.BoolVar(&rpcServerSelect, "server", false, "server option")
+	flag.BoolVar(&daemon, "daemon", false, "daemon option")
 	flag.Parse()
-	if rpcServerSelect {
-		server.RunRpcServer()
+	if daemon {
+		Daemon(os.Args...)
 	} else {
-		http.HandleFunc("/method", method) // 设置访问的路由
-		err := http.ListenAndServe(":8090", nil) // 设置监听的端口
-		if err != nil {
-			log.Fatal("ListenAndServe: ", err)
+		if rpcServerSelect {
+			server.RunRpcServer()
+		} else {
+			http.HandleFunc("/method", method)       // 设置访问的路由
+			err := http.ListenAndServe(":8090", nil) // 设置监听的端口
+			if err != nil {
+				log.Fatal("ListenAndServe: ", err)
+			}
 		}
 	}
-
-
 }
 
 /*
