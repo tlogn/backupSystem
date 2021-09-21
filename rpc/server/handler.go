@@ -1,6 +1,7 @@
 package server
 
 import (
+	"backupSystem/rpc/rpc_skills/compress"
 	"backupSystem/rpc/rpc_skills/dir"
 	"backupSystem/rpc/rpc_skills/encode"
 	"backupSystem/rpc/rpc_skills/file_transport"
@@ -77,6 +78,22 @@ func (handler *Handler) RemotePack(Request *rpc_utils.Request, Response *utils.R
 
 func (handler *Handler) RemoteUnpack(Request *rpc_utils.Request, Response *utils.Response) error {
 	err := pack.RemoteUnpack(Request, Response)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (handler *Handler) RemoteCompress(Request *rpc_utils.Request, Response *utils.Response) error {
+	err := compress.RemoteCompress(Request, Response)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (handler *Handler) RemoteUndoCompress(Request *rpc_utils.Request, Response *utils.Response) error {
+	err := compress.RemoteUndoCompress(Request, Response)
 	if err != nil {
 		return err
 	}

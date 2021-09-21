@@ -19,6 +19,7 @@ var (
 )
 
 func LocalCpFile(w http.ResponseWriter, r *utils.Request) {
+	filter.ReadFilter(r.FilterPath)
 	fmt.Fprintf(w, "%v", localCpFile(w, r))
 }
 
@@ -32,6 +33,9 @@ func localCpFile(w http.ResponseWriter, r *utils.Request) string {
 }
 
 func CpFile(dstPath, srcPath string) error {
+	if !filter.IsLegal(filepath.Base(srcPath)) {
+		return nil
+	}
 	if !utils.IsFileExist(srcPath) {
 		return errors.New("file not exist")
 	}

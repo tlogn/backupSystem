@@ -46,7 +46,7 @@ func localCmp(dir1, dir2 string) string {
 			}
 		}
 		if !isFind {
-			diff += filepath.Join(dir1, fileInfo1.Name()) + " not found in " + dir2 + ";"
+			diff += "[ " + filepath.Join(dir1, fileInfo1.Name()) + " ] not found in [ " + dir2 + " ];  "
 		} else {
 			ret := cmpFiles(filepath.Join(dir1, fileInfo1.Name()), filepath.Join(dir2, fileInfo1.Name()))
 			if ret != "" {
@@ -61,7 +61,7 @@ func cmpFiles(filename1, filename2 string) string {
 	fileType1 := utils.GetFileType(filename1)
 	fileType2 := utils.GetFileType(filename2)
 	if fileType1 != fileType2 {
-		return filename1 + " is " + fileType1 + " while " + filename2 + " is " + fileType2 + ";"
+		return "[ " + filename1 + " ] is [ " + fileType1 + " ] while [ " + filename2 + " ] is [ " + fileType2 + " ];   "
 	}
 	if fileType1 == utils.FILE_TYPE_DIR {
 		return localCmp(filename1, filename2)
@@ -72,7 +72,7 @@ func cmpFiles(filename1, filename2 string) string {
 	file1, _ := ioutil.ReadFile(filename1)
 	file2, _ := ioutil.ReadFile(filename2)
 	if !cmpBytes(file1, file2) {
-		return filename1 + " not equals " + filename2 + ";"
+		return "[ " + filename1 + " ] not equals [ " + filename2 + "];   "
 	}
 	return ""
 }

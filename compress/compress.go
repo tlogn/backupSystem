@@ -1,8 +1,10 @@
 package compress
 
 import (
+	"backupSystem/utils"
 	"encoding/json"
 	"log"
+	"net/http"
 
 	"fmt"
 
@@ -11,14 +13,14 @@ import (
 	"sort"
 )
 
-//func Compress(w http.ResponseWriter, r *utils.Request){
-//	comOrUncom := r.CompressPara.IsCompress
-//	if comOrUncom {
-//		fmt.Fprintf(w, "%v", compress(r))
-//	} else {
-//		fmt.Fprintf(w, "%v", undoCompress(r))
-//	}
-//}
+func LocalCompress(w http.ResponseWriter, r *utils.Request){
+	comOrUncom := r.CompressPara.IsCompress
+	if comOrUncom {
+		fmt.Fprintf(w, "%v", Compress(r.CompressPara.CompressPath))
+	} else {
+		fmt.Fprintf(w, "%v", UndoCompress(r.CompressPara.CompressPath))
+	}
+}
 
 type Table struct {
 	Key 	[]byte		`json:"key"`
@@ -83,20 +85,8 @@ func buildTree(srcPath string) error {
 			arr = append(arr, &tmp)
 		}
 	}
-	//for key, value := range mapp {
-	//	tmp := TreeNode{
-	//		left:nil,
-	//		right:nil,
-	//		value:value,
-	//		name:key,
-	//	}
-	//	arr = append(arr, tmp)
-	//}
+
 	sort.Sort(arr)
-	//fmt.Println(arr.Len())
-	//for _, node := range arr {
-	//	fmt.Println(node.name,node.value)
-	//}
 	for {
 		if arr.Len() == 1 {
 			break
@@ -107,11 +97,8 @@ func buildTree(srcPath string) error {
 			value: arr[0].value + arr[1].value,
 			name:  0,
 		}
-		//fmt.Println(arr[0].value, arr[1].value,tp.value)
 		arr = arr[1 : ]
 		arr[0] = &tp
-		//fmt.Println(arr[0].left.name, arr[0].right.name,arr[0].name)
-		//fmt.Println(arr[0].left.value, arr[0].right.value,arr[0].value)
 		sort.Sort(arr)
 	}
 	hafmap = make(map[byte]string)
@@ -124,11 +111,8 @@ func buildTree(srcPath string) error {
 		table.Key = append(table.Key, tmp1)
 		table.Value = append(table.Value, tmp2)
 	}
-	fmt.Println(table)
 	bytes, err := json.Marshal(table)
 
-	fmt.Println(err)
-	fmt.Println(bytes)
 	ioutil.WriteFile("tree",bytes,0777)
 	return nil
 }
@@ -138,7 +122,6 @@ func readTree() {
 	table := Table{}
 	hafmap = make(map[byte]string)
 	_ = json.Unmarshal(inputTree, &table)
-	//fmt.Println(table)
 	for idx, key := range table.Key {
 		hafmap[key] = table.Value[idx]
 	}
@@ -148,23 +131,21 @@ func readInverseTree() {
 	table := Table{}
 	versehafmap = make(map[string]byte)
 	_ = json.Unmarshal(inputTree, &table)
-	//fmt.Println(table)
 	for idx, key := range table.Key {
 		versehafmap[table.Value[idx]] = key
 	}
 }
-func compress(srcPath string) error {
+func Compress(srcPath string) string {
 	readTree()
 	file, err := ioutil.ReadFile(srcPath)
 	if err != nil {
 		log.Println(err)
-		return err
+		return utils.ErrorResponse(err)
 	}
 	size := 0
 	output := make([]byte,0)
 	var tp byte
 	for _, by := range file {
-		fmt.Println(by,hafmap[by])
 		for i:=0;i < len(hafmap[by]); i++ {
 			if size == 0 {
 				tp<<=8
@@ -174,7 +155,6 @@ func compress(srcPath string) error {
 				tp |= 0x1
 			}
 			if size == 7 {
-				//fmt.Println(tp)
 				output = append(output, tp)
 			}
 			size+=1
@@ -183,7 +163,6 @@ func compress(srcPath string) error {
 	}
 	if size != 0 {
 		tp <<= 8-size
-		//fmt.Println(tp)
 		output = append(output, tp)
 	}
 	fileHead := make([]byte,0)
@@ -192,15 +171,15 @@ func compress(srcPath string) error {
 	fileHead = append(fileHead, output...)
 	ioutil.WriteFile(dstPath, fileHead, 0777)
 	fmt.Println(size)
-	return nil
+	return utils.SucceedResponse()
 }
 
-func undoCompress(srcPath string) error {
+func UndoCompress(srcPath string) string {
 	readInverseTree()
 	file, err := ioutil.ReadFile(srcPath)
 	if err != nil {
 		log.Println(err)
-		return err
+		return utils.ErrorResponse(err)
 	}
 	size := int(file[0])
 	trueInput := file[1:]
@@ -239,6 +218,6 @@ func undoCompress(srcPath string) error {
 		}
 	}
 	ioutil.WriteFile(srcPath[:len(srcPath)-4],output,0777)
-	return nil
+	return utils.SucceedResponse()
 }
 
