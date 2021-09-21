@@ -49,7 +49,10 @@ func Recover(recoverKey string) error {
 }
 
 func HardLinkRecover(recoverInfo *utils.RecoverInfo) error {
-	os.Link(recoverInfo.CopiedPath, recoverInfo.SrcPath)
+	err := os.Link(recoverInfo.CopiedPath, recoverInfo.SrcPath)
+	if err != nil {
+		return err
+	}
 	MetaRecover(recoverInfo.SrcPath, recoverInfo)
 	return nil
 }
@@ -57,7 +60,10 @@ func HardLinkRecover(recoverInfo *utils.RecoverInfo) error {
 func SymLinkRecover(recoverInfo *utils.RecoverInfo) error {
 	_, err := os.Stat(recoverInfo.LinkedPath)
 	if err != nil {
-		copy(recoverInfo.SrcPath, recoverInfo.CopiedPath)
+		err := copy(recoverInfo.SrcPath, recoverInfo.CopiedPath)
+		if err != nil {
+			return err
+		}
 		MetaRecover(recoverInfo.SrcPath, recoverInfo)
 		return nil
 	}
@@ -67,13 +73,19 @@ func SymLinkRecover(recoverInfo *utils.RecoverInfo) error {
 }
 
 func PipelineRecover(recoverInfo *utils.RecoverInfo) error {
-	syscall.Mkfifo(recoverInfo.SrcPath, 0777)
+	err := syscall.Mkfifo(recoverInfo.SrcPath, 0777)
+	if err != nil {
+		return err
+	}
 	MetaRecover(recoverInfo.SrcPath, recoverInfo)
 	return nil
 }
 
 func NormalFileRecover(recoverInfo *utils.RecoverInfo) error {
-	copy(recoverInfo.SrcPath, recoverInfo.CopiedPath)
+	err := copy(recoverInfo.SrcPath, recoverInfo.CopiedPath)
+	if err != nil {
+		return err
+	}
 	MetaRecover(recoverInfo.SrcPath, recoverInfo)
 	return nil
 }
@@ -101,6 +113,12 @@ func MetaRecover(filePath string, recoverInfo *utils.RecoverInfo) {
 }
 
 func copy(dstPath, srcPath string) error {
+	if utils.IsFileExist(srcPath) {
+		return errors.New(srcPath + " not exist")
+	}
+	if utils.IsFileExist(filepath.Dir(dstPath)) {
+		return errors.New(filepath.Dir(dstPath) + " not exist")
+	}
 	file, err := ioutil.ReadFile(srcPath)
 	if err != nil {
 		log.Printf("read file %v error, %v",srcPath, err)
