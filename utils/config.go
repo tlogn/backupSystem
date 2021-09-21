@@ -34,6 +34,8 @@ type Request struct {
 
 	UserName		string			`json:"user_name"`
 
+	FilterPath		string			`json:"filter_path"`
+
 	TransPara		TransPara		`json:"trans_para"`
 
 	LoginPara		LoginPara		`json:"login_para"`

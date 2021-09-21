@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backupSystem/compress"
 	"backupSystem/copy"
 	"backupSystem/dir"
 	"backupSystem/encode"
@@ -26,7 +27,7 @@ var (
 		"local_copy" : copy.LocalCpFile,
 		"local_dir" : dir.LocalDir,
 		"local_encode" : encode.LocalEncode,
-		"local_compress" : func(w http.ResponseWriter, r *utils.Request){},
+		"local_compress" : compress.LocalCompress,
 		"local_recover" : recover.LocalRecover,
 		"local_pack" : pack.LocalPack,
 		"local_remove" : dir.LocalRemove,
@@ -34,7 +35,7 @@ var (
 		"local_cmp"	: dir.LocalCmp,
 		"remote_dir" : client.RemoteDir,
 		"remote_encode" : client.RemoteEncode,
-		"remote_compress" : func(w http.ResponseWriter, r *utils.Request){},
+		"remote_compress" : client.RemoteCompress,
 		"remote_pack" : client.RemotePack,
 		"remote_download" : client.RemoteDownload,
 		"remote_upload" : client.RemoteUpload,
@@ -95,6 +96,8 @@ func main() {
 	"op":"remote_upload",
 
 	"user_name":"",
+
+	"filter_path":"",
 
 	"trans_para":{
 		"local_path":"/Users/bytedance/go/src/backupSystem/compress/test",
