@@ -57,6 +57,7 @@ func localEncode(filePth string, password string) string {
 	header := []byte("11111111")
 	fileAfterPadding = append(header, fileAfterPadding...)
 	fileAfterPadding = append(fileAfterPadding, []byte(password)...)
+	filePth += ".lock";
 	err = os.WriteFile(filePth, fileAfterPadding, 0777)
 	if err != nil {
 		err = errors.New("unable to write")
@@ -95,6 +96,7 @@ func localDecode(filePth string, pwd string) string {
 	blockMode := cipher.NewCBCDecrypter(block, []byte(pwd))
 	blockMode.CryptBlocks(file, file)
 	fileAfterDecrypt := unpadding(file, blockSize)
+	filePth = filePth[:len(filePth)-5]
 	err = os.WriteFile(filePth, fileAfterDecrypt, 0777)
 	if err != nil {
 		fmt.Println(err)

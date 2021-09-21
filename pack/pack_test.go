@@ -1,6 +1,7 @@
 package pack
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -16,9 +17,9 @@ func TestUnfoldDir(t *testing.T) {
 	//fmt.Println(fileHead)
 	//size := int(fileHead[0]) + (int(fileHead[1])<<8) + int(fileHead[2]<<16) + int(fileHead[3]<<24)
 	//fmt.Println(size)
-	//for _, filepath := range unfoldDir("/Users/bytedance/test",""){
-	//	fmt.Println(filepath)
-	//}
+	for _, filepath := range unfoldDir("/Users/bytedance/test",""){
+		fmt.Println(filepath)
+	}
 	//localPack("/Users/bytedance/test")
 	//localUnpack("/Users/bytedance/protect/test.pack")
 }

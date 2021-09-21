@@ -114,7 +114,6 @@ func localUnpack(packPath string) string {
 		pointer += 4
 
 		filePath := string(packedFile[pointer : pointer + size])
-
 		filePath = filepath.Join(filepath.Dir(srcPath), filePath)
 
 		pointer += size
