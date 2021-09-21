@@ -35,7 +35,7 @@ var (
 		"remote_dir" : client.RemoteDir,
 		"remote_encode" : client.RemoteEncode,
 		"remote_compress" : func(w http.ResponseWriter, r *utils.Request){},
-		"remote_pack" : func(w http.ResponseWriter, r *utils.Request){},
+		"remote_pack" : client.RemotePack,
 		"remote_download" : client.RemoteDownload,
 		"remote_upload" : client.RemoteUpload,
 		"remote_remove" : client.RemoteRemove,
