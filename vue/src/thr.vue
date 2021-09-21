@@ -1,5 +1,8 @@
 <template>
   <div>
+    <div v-show="showPop">
+      <pop></pop>
+    </div>
     <h1 style="text-align: center">本地还原</h1>
     <hr />
     <h3>
@@ -51,12 +54,14 @@
 import Rec_left from "./components/restore_left.vue";
 import Rec_right from "./components/restore_right.vue";
 import c from "../common.vue";
+import pop from "./components/pop.vue";
 import axios from "axios";
 export default {
   name: "thr",
   components: {
     Rec_left,
     Rec_right,
+    pop,
   },
   data() {
     return {
@@ -75,6 +80,7 @@ export default {
       download: false,
       s_pth: "",
       d_pth: "",
+      showPop: false,
     };
   },
 
@@ -104,6 +110,7 @@ export default {
               that.back_status += type + "成功" + "; ";
             } else {
               that.back_status += type + "失败" + "; ";
+              window.alert(type + "失败：" + rsp.err);
               throw type + "失败：" + rsp.err;
             }
           })
@@ -115,7 +122,7 @@ export default {
     get_rec_destin: function () {
       return "";
     },
-    submit: function () {
+    submit: async function () {
       var that = this;
       that.rec_destin = this.get_rec_destin();
       that.s_pth = this.rec_source;
@@ -153,51 +160,70 @@ export default {
             that.decode = true;
           }
         }
-        this.Download();
+        that.showPop = true;
+        await this.Download().catch((err) => {
+          that.showPop = false;
+        });
+        that.showPop = false;
       }
+    },
+    async remove(pth) {
+      var that = this;
+      that.Body.op = "local_remove";
+      that.Body.dir_para.dir_path = pth;
+      await axios.post(that.header, that.Body);
     },
     async Download() {
       var that = this;
-      await this.Unpack();
+      await this.Unpack().catch((err) => {
+        throw err;
+      });
       that.Body.op = "local_recover";
       that.Body.recover_para.recover_path = that.s_pth;
       //that.newBody.copy_para. = d_pth;
       await this.Post("还原").catch((err) => {
-        window.alert(err);
-        return;
+        throw err;
       });
     },
     async Unpack() {
       var that = this;
       if (!that.unpack) {
-        await this.Decompress();
+        await this.Decompress().catch((err) => {
+          throw err;
+        });
         return;
       }
-      await this.Decompress();
+      await this.Decompress().catch((err) => {
+        throw err;
+      });
       that.Body.op = "local_pack";
       that.Body.pack_para.is_pack = false;
       that.Body.pack_para.pack_path = that.s_pth;
-      that.s_pth = that.s_pth.substring(0, that.s_pth.length - 5);
       await this.Post("解包").catch((err) => {
-        window.alert(err);
-        return;
+        throw err;
       });
-      console.log("abc");
+      await this.remove(that.s_pth);
+      that.s_pth = that.s_pth.substring(0, that.s_pth.length - 5);
     },
     async Decompress() {
       var that = this;
       if (!this.decompress) {
-        await this.Decode();
+        await this.Decode().catch((err) => {
+          throw err;
+        });
         return;
       }
-      await this.Decode();
+      await this.Decode().catch((err) => {
+        throw err;
+      });
       that.Body.op = "local_compress";
       that.Body.compress_para.is_compress = false;
       that.Body.compress_para.compress_path = that.s_pth;
       await this.Post("解压").catch((err) => {
-        window.alert(err);
-        return;
+        throw err;
       });
+      await this.remove(that.s_pth);
+      that.s_pth = that.s_pth.substring(0, that.s_pth.length - 4);
     },
     async Decode() {
       var that = this;
@@ -207,9 +233,10 @@ export default {
       that.Body.encode_para.encode_path = that.s_pth;
       that.Body.encode_para.password = that.encode_pwd;
       await this.Post("解密").catch((err) => {
-        window.alert(err);
-        return;
+        throw err;
       });
+      await this.remove(that.s_pth);
+      that.s_pth = that.s_pth.substring(0, that.s_pth.length - 5);
     },
   },
 };

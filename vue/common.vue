@@ -1,9 +1,12 @@
 
+
 <script>
 const Body = {
   op: "remote_upload",
 
   user_name: "",
+
+  filter_path: "",
 
   trans_para: {
     local_path: "",
@@ -49,3 +52,7 @@ export default {
   Body,
 };
 </script>
+
+<style>
+
+</style>
