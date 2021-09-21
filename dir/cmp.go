@@ -13,10 +13,10 @@ import (
 func LocalCmp(w http.ResponseWriter, r *utils.Request){
 	dir1 := r.CopyPara.OriginPath
 	dir2 := r.CopyPara.BackupPath
-	fmt.Fprintf(w, "%v", utils.ErrorResponse(errors.New(localCmp(dir1, dir2))))
+	fmt.Fprintf(w, "%v", utils.ErrorResponse(errors.New(cmpFiles(dir1, dir2))))
 }
 
-func localCmp(dir1, dir2 string) string {
+func cmpDir(dir1, dir2 string) string {
 	if dir1 == dir2 {
 		return ""
 	}
@@ -58,13 +58,16 @@ func localCmp(dir1, dir2 string) string {
 }
 
 func cmpFiles(filename1, filename2 string) string {
+	if filename1 == filename2 {
+		return ""
+	}
 	fileType1 := utils.GetFileType(filename1)
 	fileType2 := utils.GetFileType(filename2)
 	if fileType1 != fileType2 {
 		return "\" " + filename1 + " \" IS \"" + fileType1 + "\"    WHILE    \"" + filename2 + "\" IS \"" + fileType2 + "\";   "
 	}
 	if fileType1 == utils.FILE_TYPE_DIR {
-		return localCmp(filename1, filename2)
+		return cmpDir(filename1, filename2)
 	}
 	if fileType1 == utils.FILE_TYPE_PIPELINE {
 		return ""
