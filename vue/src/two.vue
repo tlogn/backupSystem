@@ -190,11 +190,11 @@ export default {
       that.s_pth = this.source;
       that.d_pth = this.destin;
       var filename = this.s_pth.substring(this.s_pth.lastIndexOf("/"));
-      that.d_pth += filename;
       if (this.s_pth == "" || this.d_pth == "") {
         window.alert("源路径或目标路径为空！");
         return;
       }
+        that.d_pth += filename;
       var r = window.confirm(
         "您要将文件(夹)：" +
           this.s_pth +
@@ -231,9 +231,13 @@ export default {
         that.showPop = true;
         await this.Encode().catch((err) => {
           that.showPop = false;
+          that.Reload();
         });
         that.showPop = false;
       }
+    },
+    Reload() {
+      
     },
     async Remove(pth) {
       var that = this;

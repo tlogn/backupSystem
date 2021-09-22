@@ -19,6 +19,13 @@
       >
         返回上一级
       </button>
+      <button
+        id="btn2"
+        @click="Reload()"
+        style="height: 50px; width: 120px; font-size: 18px"
+      >
+        刷新文件夹
+      </button>
     </div>
     <br />
     <div id="list">
@@ -103,7 +110,8 @@ export default {
       this.$emit("tar", para);
     },
     Reload() {
-      var that = this;
+      var that = this, pth = that.curPth;
+      if (pth.lastIndexOf('/')!=pth.length-1) that.curPth += '/';
       that.Body.op = "local_dir";
       that.Body.dir_para.dir_path = that.curPth;
       axios

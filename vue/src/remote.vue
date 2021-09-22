@@ -178,16 +178,16 @@ export default {
       var b_opt = this.b_opt,
         r_opt = this.r_opt;
       var filename;
+      if (that.l_pth == "" || that.r_pth == "") {
+          window.alert("本地路径或网盘路径为空！");
+          return;
+      }
       if (type == "backup") {
         filename = that.l_pth.substring(that.l_pth.lastIndexOf("/"));
         that.r_pth += filename;
       } else {
         filename = that.r_pth.substring(that.r_pth.lastIndexOf("/"));
         that.l_pth += filename;
-      }
-      if (that.l_pth == "" || that.r_pth == "") {
-        window.alert("本地路径或网盘路径为空！");
-        return;
       }
       var r;
       if (type == "backup") {
@@ -309,7 +309,6 @@ export default {
       that.Body.op = "remote_pack";
       that.Body.pack_para.is_pack = true;
       that.Body.pack_para.pack_path = that.r_pth;
-        console.log("packkkkk");
       await this.Post("打包").catch((err) => {
         throw err;
       });
@@ -360,7 +359,7 @@ export default {
       await this.Post("加密").catch((err) => {
         throw err;
       });
-      await that.Remove(that.r_pth);
+      await this.Remove(that.r_pth);
       that.r_pth += ".lock"
     },
     /***********************************下载 ************************************/

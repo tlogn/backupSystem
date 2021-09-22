@@ -8,7 +8,7 @@
     <h3>
       <center>
         <p id="lbl">还原源路径：{{ rec_source }}</p>
-        <p id="lbl">还原目标路径：{{ rec_destin }}</p>
+        <p id="lbl">文件将被还原到备份时所在的位置</p>
         <p id="lbl">还原状态：{{ back_status }}</p>
         <button
           id="btn2"

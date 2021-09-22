@@ -2,8 +2,9 @@
   <div>
     <h2>网盘目录</h2>
     <div>
+      <!--
       <button id="btn2" @click="ini_get()">浏览文件</button>
-      <br />
+      -->
       <h4>当前路径：{{ curPth }}</h4>
       <button
         id="btn2"
@@ -11,6 +12,13 @@
         style="height: 50px; width: 120px; font-size: 18px"
       >
         返回上一级
+      </button>
+      <button
+        id="btn2"
+        @click="Reload()"
+        style="height: 50px; width: 120px; font-size: 18px"
+      >
+        刷新文件夹
       </button>
     </div>
     <br />
@@ -100,8 +108,9 @@ export default {
         });
     },
     Reload() {
-      var that = this;
+      var that = this, pth = that.curPth;
       that.Body.op = "remote_dir";
+      if (pth.lastIndexOf('/')!=pth.length-1) that.curPth += '/';
       that.Body.dir_para.dir_path = that.curPth;
       axios
         .get(that.header, {
@@ -168,8 +177,8 @@ export default {
     Return: function () {
       var that = this;
       var pth = that.curPth;
-      if (pth == that.default_pth + "/" || pth == that.default_pth) return;
-      if (pth.length == 0) {
+      if (pth == that.default_pth + "/" || pth == that.default_pth) {
+        window.alert("不可访问其他用户的目录！");
         return;
       }
       pth = pth.substring(0, pth.lastIndexOf("/"));
