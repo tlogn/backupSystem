@@ -140,8 +140,7 @@ export default {
       var r = window.confirm(
         "您要将文件(夹)：" +
           that.s_pth +
-          "\n" +
-          "还原到：" +
+          "还原到备份时的位置" +
           that.d_pth +
           "\n" +
           "备份选项：" +
@@ -180,7 +179,6 @@ export default {
       });
       that.Body.op = "local_recover";
       that.Body.recover_para.recover_path = that.s_pth;
-      //that.newBody.copy_para. = d_pth;
       await this.Post("还原").catch((err) => {
         throw err;
       });

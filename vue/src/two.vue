@@ -118,6 +118,7 @@ export default {
       that.Body.op = "local_cmp";
       that.Body.copy_para.origin_path = that.source;
       that.Body.copy_para.backup_path = that.destin;
+      that.showPop = true;
       await axios
         .post(that.header, that.Body)
         .then((response) => {
@@ -127,6 +128,7 @@ export default {
         .catch((err) => {
           window.alert("比对失败：" + err);
         });
+      that.showPop = false;
     },
     ShowCmp: function (tex) {
       var div = document.createElement("div");
@@ -231,13 +233,9 @@ export default {
         that.showPop = true;
         await this.Encode().catch((err) => {
           that.showPop = false;
-          that.Reload();
         });
         that.showPop = false;
       }
-    },
-    Reload() {
-      
     },
     async Remove(pth) {
       var that = this;
