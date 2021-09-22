@@ -147,7 +147,7 @@ export default {
       that.back_status = "";
     },
     Post: async function (type) {
-      console.log("post" + type);
+      console.log("pot" + type);
       var addr = this.header,
         data = this.Body;
       var that = this;
@@ -275,6 +275,7 @@ export default {
       }
     },
     async Remove(pth) {
+      console.log(pth)
       var that = this;
       that.Body.op = "remote_remove";
       that.Body.dir_para.dir_path = pth;
@@ -308,10 +309,11 @@ export default {
       that.Body.op = "remote_pack";
       that.Body.pack_para.is_pack = true;
       that.Body.pack_para.pack_path = that.r_pth;
+        console.log("packkkkk");
       await this.Post("打包").catch((err) => {
         throw err;
       });
-      await that.Remove(that.r_pth);
+      await this.Remove(that.r_pth);
       that.r_pth += ".pack";
     },
     async Compress() {
@@ -334,7 +336,7 @@ export default {
       await this.Post("压缩").catch((err) => {
         throw err;
       });
-      await that.Remove(that.r_pth);
+      await this.Remove(that.r_pth);
       that.r_pth += ".ylx";
     },
     async Encode() {
