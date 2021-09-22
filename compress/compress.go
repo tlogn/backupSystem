@@ -177,7 +177,7 @@ func Compress(srcPath string) string {
 }
 
 func UndoCompress(srcPath string) string {
-	if srcPath[len(srcPath) - 4 : ] != ".ylx" {
+	if len(srcPath) >= 4 && srcPath[len(srcPath) - 4 : ] != ".ylx" {
 		return utils.ErrorResponse(errors.New("not compressed file"))
 	}
 	file, err := ioutil.ReadFile(srcPath)
