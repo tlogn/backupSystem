@@ -59,6 +59,9 @@ func buildTree(srcPath string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	if len(file) <= 20 * 1024 {
+		return nil, errors.New("files less than 20KB don't need to be compressed")
+	}
 	mapp := make(map[byte]int)
 	for _, by := range file {
 		if a, ok := mapp[by]; ok {
