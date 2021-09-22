@@ -13,6 +13,7 @@
     "ajv": "^8.6.2",
     "axios": "^0.21.1",
     "electron-packager": "^15.4.0",
+    "electron-builder": "^22.11.7",
     "qs": "^6.10.1",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1"
