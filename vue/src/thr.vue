@@ -17,7 +17,7 @@
         >
           确定还原
         </button>
-        <a href="/">
+        <a href="./index.html">
           <button id="btn2" style="height: 35px; width: 120px; font-size: 18px">
             返回首页
           </button>

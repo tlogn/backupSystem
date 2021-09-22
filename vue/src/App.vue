@@ -10,11 +10,10 @@
     <div id="first">
       <br>
       <h1>本地模式</h1>
-      
       <div>
         <center>
-          <a href="./../one.html"> <button>测试页面</button> </a><br /><br />
-          <a href="./../two.html">
+          <a href="./one.html"> <button>测试页面</button> </a><br /><br />
+          <a href="./two.html">
             <button
               id="btn1"
               style="font-size: 25px; height: 70px; width: 130px; cursor: hand"
@@ -23,7 +22,7 @@
               备份
             </button>
           </a>
-          <a href="./../thr.html">
+          <a href="./thr.html">
             <button
               id="btn1"
               style="font-size: 25px; height: 70px; width: 130px"
@@ -120,7 +119,7 @@ export default {
                 sessionStorage.setItem("user_name",that.Body.login_para.username);
                 //console.log(that.Body.user_name)
                 window.location.href =
-                  "./../remote.html?" + that.Body.login_para.username;
+                  "./remote.html?" + that.Body.login_para.username;
               } else {  //reg
                 window.alert( 
                   "注册成功！您的用户名为" + that.Body.login_para.username

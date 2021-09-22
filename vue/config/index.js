@@ -40,7 +40,8 @@ module.exports = {
     index: path.resolve(__dirname, '../dist/index.html'),
     one: path.resolve(__dirname, '../dist/one.html'),
     two: path.resolve(__dirname, '../dist/two.html'),
-
+    thr: path.resolve(__dirname, '../dist/thr.html'),
+    remote: path.resolve(__dirname, '../dist/remote.html'),
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
