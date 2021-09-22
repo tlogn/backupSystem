@@ -60,7 +60,7 @@ func buildTree(srcPath string) ([]byte, error) {
 		return nil, err
 	}
 	if len(file) <= 20 * 1024 {
-		return nil, errors.New("files less than 20KB don't need to be compressed")
+		return nil, errors.New("no need to compress files under 20KB")
 	}
 	mapp := make(map[byte]int)
 	for _, by := range file {
@@ -177,7 +177,7 @@ func Compress(srcPath string) string {
 }
 
 func UndoCompress(srcPath string) string {
-	if srcPath[len(srcPath) - 4 : ] != ".ylx" {
+	if len(srcPath) >= 4 && srcPath[len(srcPath) - 4 : ] != ".ylx" {
 		return utils.ErrorResponse(errors.New("not compressed file"))
 	}
 	file, err := ioutil.ReadFile(srcPath)

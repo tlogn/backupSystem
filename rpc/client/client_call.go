@@ -213,7 +213,7 @@ func RemoteCompress(w http.ResponseWriter, r *utils.Request) {
 	}
 	response := utils.Response{}
 	method := "Handler.RemoteUndoCompress"
-	if r.PackPara.IsPack {
+	if r.CompressPara.IsCompress {
 		method = "Handler.RemoteCompress"
 	}
 	err := RpcClient.Call(method, &request, &response)
