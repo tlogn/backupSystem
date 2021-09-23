@@ -14,3 +14,8 @@
 - go run main.go
 - cd vue
 - npm run dev
+
+### 后端服务的docker镜像
+
+- 地址：https://hub.docker.com/repository/docker/tlogn/backup_system
+- docker pull：docker pull tlogn/backup_system:system
