@@ -8,11 +8,11 @@ type recoverHandler func (recoverInfo *utils.RecoverInfo) error
 
 var (
 	recoverHandlerMap = map[string]*recoverHandler {
-		"File": &normalFileRecover,
-		"Dir": &dirRecover,
-		"HardLink": &hardLinkRecover,
-		"SymLink": &symLinkRecover,
-		"Pipeline": &pipelineRecover,
+		utils.FILE_TYPE_FILE: &normalFileRecover,
+		utils.FILE_TYPE_DIR: &dirRecover,
+		utils.FILE_TYPE_HARDLINK: &hardLinkRecover,
+		utils.FILE_TYPE_SYMLINK: &symLinkRecover,
+		utils.FILE_TYPE_PIPELINE: &pipelineRecover,
 	}
 	normalFileRecover 	recoverHandler
 	dirRecover 			recoverHandler
