@@ -1,9 +1,11 @@
 package copy
 
 import (
-	"backupSystem/utils"
+	"context"
 	"fmt"
+	"reflect"
 	"testing"
+	"time"
 )
 
 func TestCpFile(t *testing.T) {
@@ -18,6 +20,12 @@ func TestCpFile(t *testing.T) {
 }
 
 func TestCpDir(t *testing.T) {
-	CpFile("/Users/bytedance/test_t", "/Users/bytedance/test")
-	fmt.Println(utils.RedisClient.Get(utils.Ctx, "local_/Users/bytedance/go/src/backupSystem/copy/test").Result())
+	//CpFile("/Users/bytedance/test_t", "/Users/bytedance/test")
+	//fmt.Println(utils.RedisClient.Get(utils.Ctx, "local_/Users/bytedance/go/src/backupSystem/copy/test").Result())
+	ctx1, cancel1 := context.WithTimeout(context.Background(), time.Second)
+	ctx2, cancel2 := context.WithCancel(context.Background())
+
+	fmt.Println(reflect.TypeOf(ctx1), reflect.TypeOf(ctx2))
+	fmt.Println(reflect.TypeOf(cancel1), reflect.TypeOf(cancel2))
+
 }

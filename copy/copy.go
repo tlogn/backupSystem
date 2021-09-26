@@ -86,8 +86,8 @@ func CpNormalFile(dstPath, srcPath string) error {
 
 	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		utils.SetRecoverInfo("local_", utils.FILE_TYPE_FILE, f, srcPath, dstPath, "", nil)
-		wg.Done()
 	}()
 
 	return nil
@@ -104,8 +104,8 @@ func CpHardLink(dstPath, srcPath string) error {
 
 	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		utils.SetRecoverInfo("local_", utils.FILE_TYPE_HARDLINK, f, srcPath, dstPath, "", nil)
-		wg.Done()
 	}()
 	return nil
 }
@@ -122,8 +122,8 @@ func CpSymLink(dstPath, srcPath string) error {
 
 	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		utils.SetRecoverInfo("local_", utils.FILE_TYPE_SYMLINK, f, srcPath, dstPath, LinkedSrcPath, nil)
-		wg.Done()
 	}()
 	return nil
 }
@@ -137,8 +137,8 @@ func CpPipeline(dstPath, srcPath string) error {
 
 	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		utils.SetRecoverInfo("local_", utils.FILE_TYPE_PIPELINE, f, srcPath, dstPath, "", nil)
-		wg.Done()
 	}()
 	return nil
 }
@@ -170,8 +170,8 @@ func CpDir(dstPath, srcPath string) error {
 
 	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		utils.SetRecoverInfo("local_", utils.FILE_TYPE_DIR, f, srcPath, dstPath, linkedPath, dirList)
-		wg.Done()
 	}()
 
 	for _, fileInfo := range fileInfoList {
